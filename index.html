@@ -943,6 +943,11 @@ function init(){
   // Fill CEO dropdown
   const mySel = $("myTeam");
   mySel.innerHTML = Object.keys(DATA_SEED).map(t=>`<option value="${esc(t)}">${esc(t)}</option>`).join("");
+$("targetTeam").addEventListener("change", () => {
+  // When you switch target CEO, clear their side of the package (prevents weird mismatches)
+  S.pkgThey = [];
+  renderMake();
+});
 
   // Buttons
   $("startBtn").addEventListener("click", startRun);
