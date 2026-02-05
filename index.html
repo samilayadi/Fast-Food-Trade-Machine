@@ -1,3 +1,4 @@
+
 <!doctype html>
 <html lang="en">
 <head>
@@ -47,84 +48,41 @@
   @media(max-width:980px){ .grid2{ grid-template-columns:1fr; } }
 
   /* Tiles (draggable) */
- .rosterGrid{
-  display:grid;
-  grid-template-columns: 1fr;   /* 1 column so each item is big */
-  gap:12px;
-  margin-top:10px;
-}
+  .rosterGrid{ display:grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap:10px; margin-top:10px; }
+  @media(max-width:560px){ .rosterGrid{ grid-template-columns:1fr; } }
 
- .tile{
-  display:flex; gap:12px; align-items:center;
-  border:1px solid var(--line); border-radius:18px;
-  background:rgba(11,16,32,.78);
-  padding:12px; user-select:none; cursor:grab;
-}
-.tile:active{ cursor:grabbing; }
-
-/* BIG thumbnail */
-.thumb{
-  width:86px; height:86px;
-  border-radius:18px;
-  border:1px solid var(--line);
-  overflow:hidden;
-  background:var(--panel2);
-  flex:0 0 auto;
-}
-.thumb img{ width:100%; height:100%; object-fit:cover; display:block; }
-
-/* Bigger text */
-.name{ font-weight:950; font-size:15px; }
-.meta{ font-size:12px; color:var(--muted); margin-top:4px; }
-.val{ margin-left:auto; font-weight:950; font-size:16px; font-variant-numeric:tabular-nums; }
+  .tile{
+    display:flex; gap:10px; align-items:center;
+    border:1px solid var(--line); border-radius:14px;
+    background:rgba(11,16,32,.75);
+    padding:10px; user-select:none; cursor:grab;
+  }
+  .tile:active{ cursor:grabbing; }
+  .thumb{ width:46px; height:46px; border-radius:12px; border:1px solid var(--line); overflow:hidden; background:var(--panel2); flex:0 0 auto; }
+  .thumb img{ width:100%; height:100%; object-fit:cover; display:block; }
+  .name{ font-weight:950; }
+  .meta{ font-size:11px; color:var(--muted); margin-top:2px; }
+  .val{ margin-left:auto; font-weight:950; font-variant-numeric:tabular-nums; }
 
   /* Drop zones */
   .dropWrap{ margin-top:10px; border:1px solid var(--line); border-radius:14px; background:rgba(11,16,32,.55); padding:10px; }
   .dropTitle{ display:flex; justify-content:space-between; align-items:baseline; margin-bottom:8px; }
   .dropZone{
-  min-height:180px;
-  border:2px dashed rgba(184,197,230,.18);
-  border-radius:16px;
-  padding:12px;
-  display:flex;
-  flex-direction:column;
-  gap:12px;
-  align-items:stretch;
-}
- .chip{
-  display:flex; gap:12px; align-items:center;
-  border:1px solid var(--line);
-  border-radius:16px;
-  background:rgba(15,22,41,.9);
-  padding:10px;
-  width:100%;
-.mini{
-  width:74px; height:74px;
-  border-radius:16px;
-  overflow:hidden;
-  border:1px solid var(--line);
-  background:var(--panel2);
-  flex:0 0 auto;
-}
-.mini img{ width:100%; height:100%; object-fit:cover; display:block; }
- .chip b{
-  font-size:14px;
-  max-width: none;
-  overflow:visible;
-  white-space:normal;
-}
-.chip span{ font-size:12px; color:var(--muted); font-variant-numeric:tabular-nums; display:block; margin-top:4px; }
+    min-height:86px; border:2px dashed rgba(184,197,230,.18);
+    border-radius:14px; padding:10px; display:flex; flex-wrap:wrap; gap:10px; align-items:flex-start;
+  }
+  .dropZone.dragover{ border-color: var(--good); background: rgba(110,243,178,.06); }
 
-.chip button{
-  margin-left:auto;
-  padding:8px 10px;
-  border-radius:12px;
-  background:transparent;
-  border:1px solid var(--line);
-  color:var(--muted);
-  font-size:12px;
-  cursor:pointer;
-}
+  .chip{
+    display:flex; gap:8px; align-items:center;
+    border:1px solid var(--line); border-radius:999px;
+    background:rgba(15,22,41,.85); padding:6px 8px 6px 6px;
+  }
+  .mini{ width:26px; height:26px; border-radius:999px; overflow:hidden; border:1px solid var(--line); background:var(--panel2); }
+  .mini img{ width:100%; height:100%; object-fit:cover; display:block; }
+  .chip b{ font-size:12px; max-width:220px; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; display:block; }
+  .chip span{ font-size:11px; color:var(--muted); font-variant-numeric:tabular-nums; }
+  .chip button{ padding:6px 8px; border-radius:999px; background:transparent; border:1px solid var(--line); color:var(--muted); font-size:11px; cursor:pointer; }
 
   /* Inbox */
   .offerList{ display:grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap:10px; margin-top:12px; }
