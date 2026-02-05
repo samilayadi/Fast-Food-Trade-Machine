@@ -906,8 +906,13 @@ function init(){
     render();
   });
 }
-init();
+document.addEventListener("DOMContentLoaded", () => {
+  try {
+    init();
+  } catch (e) {
+    console.error("Init failed:", e);
+  }
+});
 </script>
-
 </body>
 </html>
