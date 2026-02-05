@@ -1,1 +1,657 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Fast Food CEO Trade Machine</title>
+<style>
+  :root{
+    --bg:#070a12; --panel:#0f1629; --panel2:#0b1020;
+    --ink:#e8eefc; --muted:#b8c5e6; --line:#233055;
+    --good:#6ef3b2; --bad:#ff7c7c; --warn:#ffd27c; --hot:#ff8bd3;
+    font-family: system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+  }
+  body{ margin:0; color:var(--ink); background:linear-gradient(180deg,#070a12,#0b0f19); }
+  header{ padding:14px 12px; border-bottom:1px solid var(--line); background:rgba(15,22,41,.95); position:sticky; top:0; z-index:10; }
+  header h1{ margin:0; font-size:17px; }
+  header p{ margin:6px 0 0; color:var(--muted); font-size:12px; line-height:1.35; }
+  .wrap{ max-width:1200px; margin:0 auto; padding:12px 12px 36px; }
+  .card{ background:rgba(15,22,41,.92); border:1px solid var(--line); border-radius:14px; padding:12px; }
+  .row{ display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+  .muted{ color:var(--muted); font-size:12px; }
+  select,button{
+    background:var(--panel2); color:var(--ink);
+    border:1px solid var(--line); border-radius:12px;
+    padding:10px 10px; font-size:14px;
+  }
+  button{ cursor:pointer; font-weight:900; background:#1e2a4d; }
+  button:hover{ filter:brightness(1.08); }
+  button.good{ background:#153a2a; border-color:#2a664a; }
+  button.danger{ background:#3a1b2a; border-color:#5a2741; }
+  button.hot{ background:#3a1432; border-color:#6b2a5f; }
+  button:disabled{ opacity:.5; cursor:not-allowed; }
+  .hud{ display:grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap:10px; margin-top:10px; }
+  @media(max-width:980px){ .hud{ grid-template-columns:1fr 1fr; } }
+  .hudBox{ border:1px solid var(--line); border-radius:14px; background:rgba(11,16,32,.7); padding:10px; }
+  .hudBox .k{ font-size:12px; color:var(--muted); }
+  .hudBox .v{ font-size:22px; font-weight:950; margin-top:4px; font-variant-numeric:tabular-nums; }
+  .hudBox .s{ font-size:12px; color:var(--muted); margin-top:4px; line-height:1.35; }
+  .tabs{ display:flex; gap:10px; margin-top:12px; flex-wrap:wrap; }
+  .tab{ padding:10px 12px; border-radius:12px; border:1px solid var(--line); background:rgba(11,16,32,.6); cursor:pointer; font-weight:950; }
+  .tab.active{ outline:2px solid rgba(110,243,178,.45); }
+  .grid2{ display:grid; grid-template-columns: 1fr 1fr; gap:12px; margin-top:12px; }
+  @media(max-width:980px){ .grid2{ grid-template-columns:1fr; } }
+  .offerList{ display:grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap:10px; margin-top:12px; }
+  @media(max-width:980px){ .offerList{ grid-template-columns:1fr; } }
+  .offerCard{ border:1px solid var(--line); border-radius:14px; background:rgba(11,16,32,.55); padding:10px; cursor:pointer; }
+  .offerCard:hover{ filter:brightness(1.06); }
+  .badge{ display:inline-block; padding:3px 8px; border-radius:999px; font-size:11px; border:1px solid var(--line); font-weight:950; margin-bottom:8px; }
+  .bF{ color:var(--bad); border-color: rgba(255,124,124,.45); background: rgba(255,124,124,.08); }
+  .bR{ color:var(--good); border-color: rgba(110,243,178,.45); background: rgba(110,243,178,.07); }
+  .bB{ color:var(--hot); border-color: rgba(255,139,211,.45); background: rgba(255,139,211,.08); }
+  .offerCard h3{ margin:0; font-size:13px; }
+  .offerCard p{ margin:8px 0 0; color:var(--muted); font-size:12px; line-height:1.35; }
+  .divider{ height:1px; background:#1d2740; margin:10px 0; }
+  .log{ margin-top:12px; border:1px solid var(--line); border-radius:14px; background:rgba(11,16,32,.55); padding:10px; max-height:220px; overflow:auto; font-size:12px; color:var(--muted); line-height:1.45; }
+  .log b{ color:var(--ink); }
+
+  /* FX layer */
+  #fxLayer{ position:fixed; inset:0; pointer-events:none; z-index:9999; }
+  #tradeBanner{
+    position:absolute; left:50%; top:14%;
+    transform:translateX(-50%) translateY(-20px);
+    opacity:0;
+    padding:14px 18px;
+    border-radius:16px;
+    border:1px solid rgba(255,255,255,.16);
+    background:rgba(10,14,24,.82);
+    backdrop-filter: blur(10px);
+    box-shadow:0 18px 45px rgba(0,0,0,.55);
+    font:900 18px/1.1 system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    letter-spacing:.4px;
+    white-space:nowrap;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🍔 Fast Food CEO Trade Machine</h1>
+  <p>Pick your chain → evaluate 3 incoming offers per turn → accept/counter/reject → send 1 offer → end turn. Goal: <b>650 Menu Power</b> by turn 10.</p>
+</header>
+
+<div class="wrap">
+
+  <div class="card" id="start">
+    <div class="row">
+      <div style="font-weight:950;">Choose your CEO</div>
+      <span class="muted">This is the starter game (lite + stable).</span>
+    </div>
+    <div class="row" style="margin-top:10px;">
+      <label class="muted">My Chain</label>
+      <select id="myTeam"></select>
+
+      <label class="muted">Fairness</label>
+      <select id="window">
+        <option value="6">±6 strict</option>
+        <option value="8" selected>±8 normal</option>
+        <option value="12">±12 loose</option>
+      </select>
+
+      <button class="good" id="startBtn">Start Run</button>
+    </div>
+    <div class="muted" style="margin-top:10px;">
+      Images are optional. If you don’t add images yet, it still works.
+    </div>
+  </div>
+
+  <div id="game" style="display:none;">
+    <div class="card">
+
+      <div class="row" style="justify-content:space-between;">
+        <div class="row">
+          <button class="danger" id="newRun">New Run</button>
+          <button id="endTurn" class="hot">End Turn ➜</button>
+        </div>
+        <div class="muted">Animations trigger on accept/counter/reject.</div>
+      </div>
+
+      <div class="hud">
+        <div class="hudBox">
+          <div class="k">You are CEO of</div>
+          <div class="v" id="hudTeam">—</div>
+          <div class="s">Goal: 650 Power by Turn 10</div>
+        </div>
+        <div class="hudBox">
+          <div class="k">Turn</div>
+          <div class="v" id="hudTurn">1 / 10</div>
+          <div class="s" id="hudInboxLeft">Inbox offers: 3</div>
+        </div>
+        <div class="hudBox">
+          <div class="k">Menu Power</div>
+          <div class="v" id="hudPower">0</div>
+          <div class="s" id="hudPowerNote">Trade to improve your menu.</div>
+        </div>
+        <div class="hudBox">
+          <div class="k">Reputation</div>
+          <div class="v" id="hudRep">50</div>
+          <div class="s" id="hudRepNote">Higher rep = fewer fleeces.</div>
+        </div>
+      </div>
+
+      <div class="tabs">
+        <div class="tab active" id="tInbox">📥 Inbox</div>
+        <div class="tab" id="tMake">📤 Make Offer</div>
+      </div>
+
+      <div id="vInbox" style="margin-top:12px;">
+        <div class="row" style="justify-content:space-between;">
+          <div>
+            <div style="font-weight:950;">Inbox Offers</div>
+            <div class="muted">Click an offer → Accept / Counter / Reject</div>
+          </div>
+        </div>
+
+        <div class="offerList" id="offerList"></div>
+
+        <div class="divider"></div>
+
+        <div class="card" style="background:rgba(11,16,32,.55); border:1px solid var(--line);" id="detail">
+          <div class="row" style="justify-content:space-between;">
+            <div>
+              <div style="font-weight:950;" id="dTitle">Select an offer</div>
+              <div class="muted" id="dMsg">—</div>
+            </div>
+            <div class="row">
+              <span class="badge bR" id="dBadge" style="display:none;">FAIR</span>
+              <button class="good" id="accept" disabled>Accept</button>
+              <button id="counter" disabled>Counter</button>
+              <button class="danger" id="reject" disabled>Reject</button>
+            </div>
+          </div>
+
+          <div class="divider"></div>
+          <div class="muted" id="dEval">—</div>
+        </div>
+      </div>
+
+      <div id="vMake" style="display:none; margin-top:12px;">
+        <div class="row" style="justify-content:space-between;">
+          <div>
+            <div style="font-weight:950;">Make Offer</div>
+            <div class="muted">Pick a target CEO and send ONE offer per turn.</div>
+          </div>
+          <div class="row">
+            <label class="muted">Target CEO</label>
+            <select id="target"></select>
+            <button class="good" id="send">Send Offer</button>
+          </div>
+        </div>
+
+        <div class="muted" style="margin-top:10px;">
+          For the starter version, “Make Offer” is simplified: it auto-builds a proposal based on your best items.
+          (We can upgrade to drag-and-drop once it’s stable.)
+        </div>
+      </div>
+
+      <div class="log" id="log"></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- FX layer -->
+<div id="fxLayer">
+  <div id="tradeBanner"></div>
+</div>
+
+<script>
+/* ===== DATA (10 chains) ===== */
+const DATA = {
+  "McDonald's":[
+    {name:"Big Mac",base:86,tags:["iconic"]},
+    {name:"Fries",base:80,tags:["iconic","speed"]},
+    {name:"Chicken Nuggets (10pc)",base:78,tags:["iconic"]},
+    {name:"McFlurry",base:74,tags:["broken"]},
+    {name:"Egg McMuffin",base:76,tags:["iconic"]},
+    {name:"Hash Browns",base:70,tags:["speed"]},
+    {name:"Filet-O-Fish",base:72,tags:["iconic"]}
+  ],
+  "Taco Bell":[
+    {name:"Baja Blast",base:90,tags:["iconic"]},
+    {name:"Crunchwrap Supreme",base:88,tags:["iconic"]},
+    {name:"Doritos Locos Taco",base:84,tags:["iconic"]},
+    {name:"Quesadilla",base:80,tags:["iconic"]},
+    {name:"Nacho Fries (LTO)",base:83,tags:["lto"]},
+    {name:"Fire Sauce",base:64,tags:["sauce"]},
+    {name:"Cinnamon Twists",base:70,tags:["dessert"]}
+  ],
+  "Chick-fil-A":[
+    {name:"Chicken Sandwich",base:90,tags:["iconic"]},
+    {name:"Spicy Chicken Sandwich",base:92,tags:["iconic"]},
+    {name:"Waffle Fries",base:86,tags:["iconic","speed"]},
+    {name:"Nuggets (12ct)",base:82,tags:["iconic"]},
+    {name:"Chick-fil-A Sauce",base:66,tags:["sauce"]},
+    {name:"Lemonade",base:75,tags:["iconic"]},
+    {name:"Mac & Cheese",base:74,tags:["iconic"]}
+  ],
+  "Raising Cane's":[
+    {name:"Box Combo",base:88,tags:["iconic"]},
+    {name:"Chicken Fingers",base:86,tags:["iconic"]},
+    {name:"Cane's Sauce",base:70,tags:["sauce","iconic"]},
+    {name:"Texas Toast",base:76,tags:["iconic"]},
+    {name:"Crinkle Fries",base:80,tags:["speed"]},
+    {name:"Lemonade",base:74,tags:["iconic"]},
+    {name:"Coleslaw",base:66,tags:[]}
+  ],
+  "Burger King":[
+    {name:"Whopper",base:84,tags:["iconic"]},
+    {name:"Fries",base:76,tags:["speed"]},
+    {name:"Onion Rings",base:73,tags:["iconic"]},
+    {name:"Chicken Fries",base:76,tags:["iconic"]},
+    {name:"Impossible Whopper (LTO)",base:78,tags:["lto"]},
+    {name:"Breakfast Croissan'wich",base:72,tags:["iconic"]},
+    {name:"Chocolate Pie",base:70,tags:["dessert"]}
+  ],
+  "Chipotle":[
+    {name:"Burrito",base:86,tags:["iconic"]},
+    {name:"Bowl",base:86,tags:["iconic"]},
+    {name:"Chips & Guac",base:80,tags:["upgrade","iconic"]},
+    {name:"Queso",base:74,tags:["upgrade"]},
+    {name:"Barbacoa",base:82,tags:["iconic"]},
+    {name:"Vinaigrette",base:64,tags:["sauce"]},
+    {name:"Hot Salsa",base:64,tags:["sauce"]}
+  ],
+  "Panda Express":[
+    {name:"Orange Chicken",base:90,tags:["iconic"]},
+    {name:"Chow Mein",base:82,tags:["iconic"]},
+    {name:"Fried Rice",base:80,tags:["iconic"]},
+    {name:"Beijing Beef",base:84,tags:["iconic"]},
+    {name:"Honey Walnut Shrimp (LTO)",base:86,tags:["lto"]},
+    {name:"Super Greens",base:70,tags:[]},
+    {name:"Fortune Cookie",base:62,tags:["nostalgia"]}
+  ],
+  "Subway":[
+    {name:"Footlong Sub",base:80,tags:["iconic"]},
+    {name:"Italian B.M.T.",base:82,tags:["iconic"]},
+    {name:"Meatball Marinara",base:80,tags:["iconic"]},
+    {name:"Tuna Sub",base:74,tags:["iconic"]},
+    {name:"Cookies",base:70,tags:["dessert"]},
+    {name:"Chipotle Southwest Sauce",base:64,tags:["sauce"]},
+    {name:"Soft Pretzel (LTO)",base:72,tags:["lto"]}
+  ],
+  "Domino's":[
+    {name:"Pepperoni Pizza",base:90,tags:["iconic"]},
+    {name:"Cheesy Bread",base:82,tags:["iconic"]},
+    {name:"Chicken Wings",base:84,tags:["iconic"]},
+    {name:"Cinnamon Twists",base:74,tags:["dessert"]},
+    {name:"Lava Cake",base:78,tags:["dessert","iconic"]},
+    {name:"Garlic Dip",base:64,tags:["sauce"]},
+    {name:"Stuffed Crust (LTO)",base:82,tags:["lto"]}
+  ],
+  "Wendy's":[
+    {name:"Baconator",base:88,tags:["iconic"]},
+    {name:"Dave's Single",base:82,tags:["iconic"]},
+    {name:"Spicy Nuggets",base:83,tags:["iconic"]},
+    {name:"Spicy Chicken Sandwich",base:84,tags:["iconic"]},
+    {name:"Fries",base:76,tags:["speed"]},
+    {name:"Frosty",base:80,tags:["iconic"]},
+    {name:"Chili",base:72,tags:["iconic"]}
+  ],
+};
+
+const BONUS={ sauce:6, lto:8, iconic:5, broken:-7, speed:3, upgrade:4, dessert:2, nostalgia:2 };
+
+const el=id=>document.getElementById(id);
+const deepClone=x=>JSON.parse(JSON.stringify(x));
+const clamp=(x,a,b)=>Math.max(a,Math.min(b,x));
+const pick=arr=>arr[Math.floor(Math.random()*arr.length)];
+
+let S={
+  DATA: deepClone(DATA),
+  my:null, turn:1, maxTurns:10, target:650,
+  rep:50, win:8,
+  tab:"inbox",
+  inbox:[], sel:null, outboundUsed:false,
+  log:[]
+};
+
+function itemValue(it){
+  let v=it.base;
+  for(const t of (it.tags||[])) if(BONUS[t]!=null) v+=BONUS[t];
+  return v;
+}
+function roster(team){ return S.DATA[team]||[]; }
+function power(team){ return roster(team).reduce((a,it)=>a+itemValue(it),0); }
+function sumNames(team,names){
+  return names.reduce((a,n)=>{
+    const it=roster(team).find(x=>x.name===n);
+    return a+(it?itemValue(it):0);
+  },0);
+}
+
+/* ===== FX ===== */
+(function(){
+  const banner = el("tradeBanner");
+  const style = document.createElement("style");
+  style.textContent = `
+    @keyframes bannerIn {
+      0% { opacity:0; transform:translateX(-50%) translateY(-22px) scale(.96); filter:blur(2px); }
+      20%{ opacity:1; transform:translateX(-50%) translateY(0px) scale(1); filter:blur(0px); }
+      80%{ opacity:1; transform:translateX(-50%) translateY(0px) scale(1); }
+      100%{ opacity:0; transform:translateX(-50%) translateY(-14px) scale(.985); }
+    }
+    @keyframes screenShake {
+      0%{ transform:translate(0,0); }
+      20%{ transform:translate(6px,-4px); }
+      40%{ transform:translate(-6px,3px); }
+      60%{ transform:translate(5px,4px); }
+      80%{ transform:translate(-4px,-3px); }
+      100%{ transform:translate(0,0); }
+    }
+    @keyframes flashRed {
+      0%{ box-shadow: inset 0 0 0 0 rgba(255,90,90,0); }
+      35%{ box-shadow: inset 0 0 0 18px rgba(255,90,90,.12); }
+      100%{ box-shadow: inset 0 0 0 0 rgba(255,90,90,0); }
+    }
+  `;
+  document.head.appendChild(style);
+
+  function show(text,color){
+    banner.textContent=text;
+    banner.style.color=color;
+    banner.style.animation="none";
+    banner.offsetHeight;
+    banner.style.animation="bannerIn 1400ms ease-out forwards";
+  }
+  function shake(){
+    document.body.style.animation="none";
+    document.body.offsetHeight;
+    document.body.style.animation="screenShake 420ms ease-in-out, flashRed 520ms ease-out";
+  }
+
+  window.tradeFX = function(kind){
+    if(kind==="block") show("🚨 BLOCKBUSTER 🚨", "#ff8bd3");
+    else if(kind==="fair") show("🤝 FAIR DEAL 🤝", "#6ef3b2");
+    else { show("😈 YOU GOT FLEECED 😈", "#ff7c7c"); shake(); }
+  };
+})();
+
+/* ===== Game logic ===== */
+function badgeFor(type){
+  if(type==="fleece") return {txt:"FLEECE 😈",cls:"bF"};
+  if(type==="block") return {txt:"BLOCKBUSTER 🚨",cls:"bB"};
+  return {txt:"FAIR 🤝",cls:"bR"};
+}
+function logLine(html){
+  S.log.unshift(html);
+  if(S.log.length>40) S.log.pop();
+  el("log").innerHTML = S.log.map(x=>`<div>${x}</div>`).join("");
+}
+
+function genInbox(){
+  S.inbox=[]; S.sel=null;
+  const teams=Object.keys(S.DATA).filter(t=>t!==S.my);
+  for(let i=0;i<3;i++){
+    const from=pick(teams);
+    // rep influences fleeces
+    const blockChance = 0.15 + (S.rep>70?0.05:0);
+    const fleeceChance= clamp(0.50 + (S.rep<40?0.20:S.rep<55?0.08:-0.10), 0.15, 0.75);
+    const r=Math.random();
+    let type="fair";
+    if(r<blockChance) type="block";
+    else if(r<blockChance+fleeceChance) type="fleece";
+
+    // quick valuation based proposal (simple starter)
+    const myTop=[...roster(S.my)].sort((a,b)=>itemValue(b)-itemValue(a));
+    const theirTop=[...roster(from)].sort((a,b)=>itemValue(b)-itemValue(a));
+    let youGive=[], theyGive=[];
+    if(type==="fleece"){
+      youGive=[myTop[0]?.name].filter(Boolean);
+      theyGive=[theirTop[theirTop.length-1]?.name].filter(Boolean);
+    } else if(type==="fair"){
+      youGive=[myTop[2]?.name || myTop[0]?.name].filter(Boolean);
+      theyGive=[theirTop[2]?.name || theirTop[0]?.name].filter(Boolean);
+    } else { // block
+      youGive=[myTop[0]?.name, myTop[1]?.name].filter(Boolean);
+      theyGive=[theirTop[0]?.name, theirTop[1]?.name].filter(Boolean);
+    }
+
+    const b=badgeFor(type);
+    S.inbox.push({
+      id:`o_${S.turn}_${i}_${from.replace(/\W/g,"")}_${Math.random().toString(16).slice(2)}`,
+      from,type,badge:b, youGive, theyGive, handled:false,
+      msg: type==="fleece" ? "“This is extremely fair.”" : type==="block" ? "“Let’s change the league.”" : "“Solid deal.”"
+    });
+  }
+  S.sel=S.inbox[0]?.id||null;
+}
+
+function renderHUD(){
+  el("hudTeam").textContent=S.my||"—";
+  el("hudTurn").textContent=`${S.turn} / ${S.maxTurns}`;
+  el("hudPower").textContent=power(S.my);
+  el("hudRep").textContent=S.rep;
+  const pending=S.inbox.filter(o=>!o.handled).length;
+  el("hudInboxLeft").textContent=`Inbox offers: ${pending}`;
+  el("hudRepNote").textContent = S.rep>=60 ? "Respected 🙂" : S.rep>=40 ? "Neutral 😐" : S.rep>=20 ? "Sketchy 😒" : "Public Enemy 😤";
+
+  const pow=power(S.my);
+  if(pow>=S.target){
+    el("hudPowerNote").textContent="🏆 Target hit!";
+    el("hudPowerNote").style.color="var(--good)";
+  } else {
+    el("hudPowerNote").textContent="Trade to improve your menu.";
+    el("hudPowerNote").style.color="var(--muted)";
+  }
+}
+
+function setTab(tab){
+  S.tab=tab;
+  el("tInbox").classList.toggle("active",tab==="inbox");
+  el("tMake").classList.toggle("active",tab==="make");
+  el("vInbox").style.display = tab==="inbox" ? "" : "none";
+  el("vMake").style.display  = tab==="make"  ? "" : "none";
+  render();
+}
+
+function renderOfferList(){
+  const list=el("offerList");
+  list.innerHTML="";
+  for(const o of S.inbox){
+    const div=document.createElement("div");
+    div.className="offerCard";
+    div.innerHTML=`
+      <span class="badge ${o.badge.cls}">${o.badge.txt}</span>
+      <h3>${o.from} → ${S.my}</h3>
+      <p>${o.msg}</p>
+      <p class="muted">${o.handled?"✅ handled":"⏳ pending"}</p>
+    `;
+    div.onclick=()=>{ S.sel=o.id; renderOfferDetail(); };
+    list.appendChild(div);
+  }
+}
+function renderOfferDetail(){
+  const o=S.inbox.find(x=>x.id===S.sel);
+  if(!o){
+    el("dTitle").textContent="Select an offer";
+    el("dMsg").textContent="—";
+    el("dBadge").style.display="none";
+    el("dEval").textContent="—";
+    el("accept").disabled=true; el("counter").disabled=true; el("reject").disabled=true;
+    return;
+  }
+  el("dTitle").textContent=`${o.from} offer`;
+  el("dMsg").textContent=o.msg;
+
+  const b=el("dBadge"); b.style.display=""; b.className=`badge ${o.badge.cls}`; b.textContent=o.badge.txt;
+
+  const giveVal=sumNames(S.my,o.youGive);
+  const getVal=sumNames(o.from,o.theyGive);
+  const net=getVal-giveVal;
+
+  el("dEval").textContent = `You give (${o.youGive.join(", ")}) = ${giveVal}. You get (${o.theyGive.join(", ")}) = ${getVal}. Net: ${net>=0?"+":""}${net}`;
+
+  const disabled=o.handled || power(S.my)>=S.target || S.turn>S.maxTurns;
+  el("accept").disabled=disabled;
+  el("counter").disabled=disabled;
+  el("reject").disabled=disabled;
+}
+
+function executeTrade(other, youGive, theyGive){
+  const myR=roster(S.my);
+  const theirR=roster(other);
+  const myGiveItems=youGive.map(n=>myR.find(x=>x.name===n)).filter(Boolean);
+  const theirGiveItems=theyGive.map(n=>theirR.find(x=>x.name===n)).filter(Boolean);
+  S.DATA[S.my]=myR.filter(x=>!youGive.includes(x.name)).concat(theirGiveItems);
+  S.DATA[other]=theirR.filter(x=>!theyGive.includes(x.name)).concat(myGiveItems);
+}
+
+function acceptOffer(){
+  const o=S.inbox.find(x=>x.id===S.sel); if(!o||o.handled) return;
+  const giveVal=sumNames(S.my,o.youGive);
+  const getVal=sumNames(o.from,o.theyGive);
+  const net=getVal-giveVal;
+
+  // FX:
+  if(net>=18) tradeFX("block");
+  else if(net>=-8) tradeFX("fair");
+  else tradeFX("fleece");
+
+  executeTrade(o.from,o.youGive,o.theyGive);
+  o.handled=true;
+
+  // rep changes
+  if(net < -12) S.rep = clamp(S.rep-8,0,100);
+  else if(net < 0) S.rep = clamp(S.rep-3,0,100);
+  else S.rep = clamp(S.rep+3,0,100);
+
+  logLine(`✅ Accepted <b>${o.from}</b>. Net ${net>=0?"+":""}${net}. Rep <b>${S.rep}</b>. Power <b>${power(S.my)}</b>.`);
+  render();
+}
+
+function rejectOffer(){
+  const o=S.inbox.find(x=>x.id===S.sel); if(!o||o.handled) return;
+  o.handled=true;
+  tradeFX("fleece"); // drama for video
+  S.rep = clamp(S.rep+1,0,100);
+  logLine(`❌ Rejected <b>${o.from}</b>. Rep <b>${S.rep}</b>.`);
+  render();
+}
+
+function counterOffer(){
+  // In starter, “Counter” just jumps to Make tab and generates a better offer
+  const o=S.inbox.find(x=>x.id===S.sel); if(!o||o.handled) return;
+  setTab("make");
+  tradeFX("fair");
+  logLine(`🔁 Countering <b>${o.from}</b>. Go to Make Offer and Send.`);
+  el("target").value=o.from;
+}
+
+function sendOffer(){
+  if(S.outboundUsed) { logLine("⚠️ Outbound offer already used this turn."); return; }
+  S.outboundUsed=true;
+
+  const other=el("target").value;
+  const myTop=[...roster(S.my)].sort((a,b)=>itemValue(b)-itemValue(a));
+  const theirTop=[...roster(other)].sort((a,b)=>itemValue(b)-itemValue(a));
+
+  // Simple auto proposal: offer your #3 for their #2 (usually fair-ish)
+  const youGive=[myTop[2]?.name || myTop[0]?.name].filter(Boolean);
+  const theyGive=[theirTop[1]?.name || theirTop[0]?.name].filter(Boolean);
+
+  const giveVal=sumNames(S.my,youGive);
+  const getVal=sumNames(other,theyGive);
+  const net=getVal-giveVal;
+
+  // They accept if net is bad for them (i.e., good for you) NO — so reverse: they accept if THEY win
+  const themNet = giveVal - getVal; // + means good for them
+  if(themNet >= -S.win){ // not too terrible
+    tradeFX(net>=18 ? "block" : net>=-8 ? "fair" : "fleece");
+    executeTrade(other,youGive,theyGive);
+    logLine(`📤 Offer sent to <b>${other}</b> ACCEPTED. You gave ${youGive.join(", ")} for ${theyGive.join(", ")}. Net ${net>=0?"+":""}${net}`);
+    S.rep = clamp(S.rep + 2, 0, 100);
+  } else {
+    tradeFX("fleece");
+    logLine(`📤 Offer sent to <b>${other}</b> REJECTED. “Not enough value.”`);
+    S.rep = clamp(S.rep - 1, 0, 100);
+  }
+
+  render();
+}
+
+function endTurn(){
+  if(power(S.my)>=S.target){ logLine("🏆 You already hit the goal! Start a new run."); return; }
+  if(S.turn>=S.maxTurns){ logLine("🏁 Out of turns. Start a new run."); return; }
+
+  S.turn++;
+  S.outboundUsed=false;
+
+  genInbox();
+  tradeFX("fair");
+  logLine(`➡️ Turn ${S.turn} begins. New offers arrived.`);
+  render();
+}
+
+function render(){
+  renderHUD();
+  renderOfferList();
+  renderOfferDetail();
+
+  // Target dropdown
+  const sel=el("target");
+  if(sel){
+    const teams=Object.keys(S.DATA).filter(t=>t!==S.my);
+    const prev=sel.value;
+    sel.innerHTML="";
+    for(const t of teams){
+      const o=document.createElement("option"); o.value=t; o.textContent=t;
+      sel.appendChild(o);
+    }
+    sel.value = teams.includes(prev) ? prev : teams[0];
+  }
+}
+
+function startRun(){
+  S.DATA=deepClone(DATA);
+  S.my=el("myTeam").value;
+  S.win=parseInt(el("window").value,10);
+  S.turn=1; S.rep=50; S.outboundUsed=false; S.log=[];
+  el("log").innerHTML="";
+  genInbox();
+  logLine(`🎬 New run: CEO of <b>${S.my}</b>. Turn 1 begins.`);
+  el("start").style.display="none";
+  el("game").style.display="";
+  setTab("inbox");
+  render();
+}
+
+function init(){
+  // start select
+  const my=el("myTeam");
+  for(const t of Object.keys(DATA)){
+    const o=document.createElement("option");
+    o.value=t; o.textContent=t; my.appendChild(o);
+  }
+
+  el("startBtn").onclick=startRun;
+  el("newRun").onclick=()=>location.reload();
+  el("endTurn").onclick=endTurn;
+
+  el("tInbox").onclick=()=>setTab("inbox");
+  el("tMake").onclick=()=>setTab("make");
+
+  el("accept").onclick=acceptOffer;
+  el("reject").onclick=rejectOffer;
+  el("counter").onclick=counterOffer;
+
+  el("send").onclick=sendOffer;
+
+  logLine(`<span class="muted">Start a run to begin.</span>`);
+}
+init();
+</script>
+
+</body>
+</html>
 
