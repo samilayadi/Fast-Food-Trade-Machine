@@ -12,51 +12,178 @@
     --good:#6ef3b2; --bad:#ff7c7c; --warn:#ffd27c; --hot:#ff8bd3;
     font-family: system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
   }
-  body{ margin:0; color:var(--ink); background:linear-gradient(180deg,#070a12,#0b0f19); }
-  header{ padding:14px 12px; border-bottom:1px solid var(--line); background:rgba(15,22,41,.95); position:sticky; top:0; z-index:10; }
+
+  /* ===== One-screen / no page scroll ===== */
+  html, body { height: 100%; }
+  body { margin:0; color:var(--ink); background:linear-gradient(180deg,#070a12,#0b0f19); overflow:hidden; }
+
+  header{
+    padding:12px 12px;
+    border-bottom:1px solid var(--line);
+    background:rgba(15,22,41,.95);
+    position:sticky; top:0; z-index:10;
+  }
   header h1{ margin:0; font-size:18px; }
   header p{ margin:6px 0 0; color:var(--muted); font-size:12px; line-height:1.35; }
 
-  .wrap{ max-width:1200px; margin:0 auto; padding:12px 12px 36px; }
-  .card{ background:rgba(15,22,41,.92); border:1px solid var(--line); border-radius:16px; padding:12px; }
+  .wrap{
+    max-width:1200px;
+    margin:0 auto;
+    height: calc(100vh - 76px); /* header height */
+    padding:10px 12px 12px;
+    overflow:hidden;
+    display:flex;
+    flex-direction:column;
+    box-sizing:border-box;
+  }
+
+  .card{
+    background:rgba(15,22,41,.92);
+    border:1px solid var(--line);
+    border-radius:16px;
+    padding:12px;
+    box-sizing:border-box;
+  }
+
+  /* Game area fills screen */
+  #gameShell{
+    flex:1;
+    min-height:0;
+    overflow:hidden;
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+  }
+
   .row{ display:flex; gap:10px; flex-wrap:wrap; align-items:center; justify-content:space-between; }
   .muted{ color:var(--muted); font-size:12px; }
   .small{ font-size:11px; color:var(--muted); }
 
   select,button{
     background:var(--panel2); color:var(--ink);
-    border:1px solid var(--line); border-radius:12px;
-    padding:10px 10px; font-size:14px;
+    border:1px solid var(--line);
+    border-radius:12px;
+    padding:10px 10px;
+    font-size:14px;
   }
-  button{ cursor:pointer; font-weight:900; background:#1e2a4d; }
+  button{ cursor:pointer; font-weight:950; background:#1e2a4d; }
   button:hover{ filter:brightness(1.06); }
   button.good{ background:#153a2a; border-color:#2a664a; }
   button.danger{ background:#3a1b2a; border-color:#5a2741; }
   button.hot{ background:#3a1432; border-color:#6b2a5f; }
   button.ghost{ background:transparent; border:1px dashed var(--line); color:var(--muted); }
-  button:disabled{ opacity:.5; cursor:not-allowed; }
+  button:disabled{ opacity:.55; cursor:not-allowed; }
 
-  .hud{ display:grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap:10px; margin-top:10px; }
+  /* HUD */
+  .hud{
+    display:grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr;
+    gap:10px;
+  }
   @media(max-width:980px){ .hud{ grid-template-columns:1fr 1fr; } }
-  .hudBox{ border:1px solid var(--line); border-radius:16px; background:rgba(11,16,32,.7); padding:10px; }
+
+  .hudBox{
+    border:1px solid var(--line);
+    border-radius:16px;
+    background:rgba(11,16,32,.7);
+    padding:10px;
+  }
   .hudBox .k{ font-size:12px; color:var(--muted); }
   .hudBox .v{ font-size:22px; font-weight:950; margin-top:4px; font-variant-numeric:tabular-nums; }
   .hudBox .s{ font-size:12px; color:var(--muted); margin-top:4px; line-height:1.35; }
 
-  .tabs{ display:flex; gap:10px; margin-top:12px; flex-wrap:wrap; }
-  .tab{ padding:10px 12px; border-radius:12px; border:1px solid var(--line); background:rgba(11,16,32,.6); cursor:pointer; font-weight:950; }
-  .tab.active{ outline:2px solid rgba(110,243,178,.45); }
-
-  .grid2{ display:grid; grid-template-columns: 1fr 1fr; gap:12px; margin-top:12px; }
-  @media(max-width:980px){ .grid2{ grid-template-columns:1fr; } }
-
-  /* Big roster tiles (video-friendly) */
-  .rosterGrid{
-    display:grid;
-    grid-template-columns: 1fr; /* 1 column = big cards */
-    gap:12px;
-    margin-top:10px;
+  /* Tabs */
+  .tabs{ display:flex; gap:10px; flex-wrap:wrap; }
+  .tab{
+    padding:9px 12px;
+    border-radius:12px;
+    border:1px solid var(--line);
+    background:rgba(11,16,32,.6);
+    cursor:pointer;
+    font-weight:950;
+    display:flex;
+    align-items:center;
+    gap:8px;
   }
+  .tab.active{ outline:2px solid rgba(110,243,178,.45); }
+  .tabIcon{ font-size:14px; }
+
+  /* ===== Make Offer One-Screen Layout ===== */
+  #makeTopBar{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    flex-wrap:wrap;
+  }
+
+  .makeScreen{
+    flex:1;
+    min-height:0;
+    overflow:hidden;
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+  }
+
+  .make3{
+    flex:1;
+    min-height:0;
+    overflow:hidden;
+    display:grid;
+    grid-template-columns: 1fr 1.2fr 1fr;
+    gap:12px;
+    align-items:stretch;
+  }
+
+  @media(max-width:980px){
+    /* On smaller screens we stack */
+    body{ overflow:auto; }
+    .wrap{ height:auto; overflow:visible; }
+    .make3{ grid-template-columns:1fr; }
+  }
+
+  .makeCol{
+    min-height:0;
+    overflow:hidden;
+    display:flex;
+    flex-direction:column;
+  }
+
+  /* Column headers w/logo slot */
+  .colHeader{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:10px;
+    margin-bottom:8px;
+  }
+  .logoSlot{
+    width:54px; height:54px;
+    border-radius:16px;
+    border:1px dashed rgba(184,197,230,.35);
+    display:flex; align-items:center; justify-content:center;
+    background:rgba(15,22,41,.55);
+    color:var(--muted);
+    font-weight:950;
+    font-size:11px;
+    overflow:hidden;
+    flex:0 0 auto;
+  }
+  .logoSlot img{ width:100%; height:100%; object-fit:contain; display:block; padding:8px; }
+
+  /* Rosters scroll internally */
+  .rosterGrid{
+    flex:1;
+    min-height:0;
+    overflow:auto;
+    padding-right:6px;
+    display:grid;
+    grid-template-columns:1fr; /* big tiles */
+    gap:12px;
+  }
+
+  /* Big roster tiles */
   .tile{
     display:flex; gap:12px; align-items:center;
     border:1px solid var(--line); border-radius:18px;
@@ -65,7 +192,7 @@
   }
   .tile:active{ cursor:grabbing; }
   .thumb{
-    width:92px; height:92px;
+    width:84px; height:84px; /* tuned for one-screen */
     border-radius:18px;
     border:1px solid var(--line);
     overflow:hidden;
@@ -73,35 +200,94 @@
     flex:0 0 auto;
   }
   .thumb img{ width:100%; height:100%; object-fit:cover; display:block; }
-  .name{ font-weight:950; font-size:15px; }
+  .name{ font-weight:950; font-size:14px; }
   .meta{ font-size:12px; color:var(--muted); margin-top:4px; }
-  .val{ margin-left:auto; font-weight:950; font-size:16px; font-variant-numeric:tabular-nums; }
+  .val{ margin-left:auto; font-weight:950; font-size:15px; font-variant-numeric:tabular-nums; }
 
-  /* Drop zones (big cards inside) */
-  .dropWrap{ margin-top:10px; border:1px solid var(--line); border-radius:16px; background:rgba(11,16,32,.55); padding:10px; }
-  .dropTitle{ display:flex; justify-content:space-between; align-items:baseline; margin-bottom:8px; }
-  .dropZone{
-    min-height:200px;
-    border:2px dashed rgba(184,197,230,.18);
-    border-radius:16px;
-    padding:12px;
+  /* Middle column sections */
+  .midCol{
     display:flex;
     flex-direction:column;
-    gap:12px;
+    min-height:0;
+    overflow:hidden;
+  }
+
+  .midSection{
+    min-height:0;
+    overflow:hidden;
+  }
+
+  .divider{ height:1px; background:#1d2740; margin:10px 0; }
+
+  .midTop{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    gap:10px;
+  }
+
+  /* Logo bridge center */
+  .logoBridge{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:10px;
+    margin:8px 0;
+  }
+  .logoPuck{
+    width:50px; height:50px;
+    border-radius:999px;
+    border:1px solid rgba(184,197,230,.25);
+    background:rgba(15,22,41,.65);
+    display:flex; align-items:center; justify-content:center;
+    font-weight:950;
+    color:var(--muted);
+    font-size:11px;
+    overflow:hidden;
+    flex:0 0 auto;
+  }
+  .logoPuck img{ width:100%; height:100%; object-fit:contain; display:block; padding:10px; }
+  .logoArrow{ font-weight:950; color:rgba(184,197,230,.75); font-size:18px; }
+
+  /* Split outgoing/incoming packages */
+  .midSplit2{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px;
+  }
+
+  /* Drop Zones */
+  .dropWrap{
+    border:1px solid var(--line);
+    border-radius:16px;
+    background:rgba(11,16,32,.55);
+    padding:10px;
+  }
+
+  .dropZone{
+    min-height:118px;
+    max-height:170px; /* keep screen fit */
+    overflow:auto;
+    border:2px dashed rgba(184,197,230,.18);
+    border-radius:16px;
+    padding:10px;
+    display:flex;
+    flex-direction:column;
+    gap:10px;
     align-items:stretch;
   }
   .dropZone.dragover{ border-color: var(--good); background: rgba(110,243,178,.06); }
 
+  /* Package cards */
   .pkgCard{
     display:flex; gap:12px; align-items:center;
     border:1px solid var(--line);
     border-radius:16px;
     background:rgba(15,22,41,.9);
     padding:10px;
-    width:100%;
   }
   .mini{
-    width:78px; height:78px;
+    width:70px; height:70px; /* tuned for one-screen */
     border-radius:16px;
     overflow:hidden;
     border:1px solid var(--line);
@@ -109,7 +295,7 @@
     flex:0 0 auto;
   }
   .mini img{ width:100%; height:100%; object-fit:cover; display:block; }
-  .pkgCard b{ font-size:14px; display:block; }
+  .pkgCard b{ font-size:13px; display:block; }
   .pkgCard span{ font-size:12px; color:var(--muted); display:block; margin-top:4px; }
   .pkgCard button{
     margin-left:auto;
@@ -122,24 +308,54 @@
     cursor:pointer;
   }
 
-  /* Inbox cards */
-  .offerList{ display:grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap:10px; margin-top:12px; }
+  /* Inbox offers list */
+  .offerList{
+    display:grid;
+    grid-template-columns: repeat(3, minmax(0,1fr));
+    gap:10px;
+  }
   @media(max-width:980px){ .offerList{ grid-template-columns:1fr; } }
-  .offerCard{ border:1px solid var(--line); border-radius:16px; background:rgba(11,16,32,.55); padding:10px; cursor:pointer; }
+
+  .offerCard{
+    border:1px solid var(--line);
+    border-radius:16px;
+    background:rgba(11,16,32,.55);
+    padding:10px;
+    cursor:pointer;
+  }
   .offerCard:hover{ filter:brightness(1.06); }
-  .badge{ display:inline-block; padding:3px 8px; border-radius:999px; font-size:11px; border:1px solid var(--line); font-weight:950; margin-bottom:8px; }
+
+  .badge{
+    display:inline-block;
+    padding:3px 8px;
+    border-radius:999px;
+    font-size:11px;
+    border:1px solid var(--line);
+    font-weight:950;
+    margin-bottom:8px;
+  }
   .bF{ color:var(--bad); border-color: rgba(255,124,124,.45); background: rgba(255,124,124,.08); }
   .bR{ color:var(--good); border-color: rgba(110,243,178,.45); background: rgba(110,243,178,.07); }
   .bB{ color:var(--hot); border-color: rgba(255,139,211,.45); background: rgba(255,139,211,.08); }
 
-  .divider{ height:1px; background:#1d2740; margin:10px 0; }
-  .log{ margin-top:12px; border:1px solid var(--line); border-radius:16px; background:rgba(11,16,32,.55); padding:10px; max-height:220px; overflow:auto; font-size:12px; color:var(--muted); line-height:1.45; }
+  /* Log small + internal scroll */
+  .log{
+    border:1px solid var(--line);
+    border-radius:16px;
+    background:rgba(11,16,32,.55);
+    padding:10px;
+    max-height: 90px;
+    overflow:auto;
+    font-size:12px;
+    color:var(--muted);
+    line-height:1.45;
+  }
   .log b{ color:var(--ink); }
 
   /* FX overlay */
   #fxLayer{ position:fixed; inset:0; pointer-events:none; z-index:9999; }
   #tradeBanner{
-    position:absolute; left:50%; top:14%;
+    position:absolute; left:50%; top:12%;
     transform:translateX(-50%) translateY(-20px);
     opacity:0;
     padding:14px 18px;
@@ -151,222 +367,25 @@
     font:900 18px/1.1 system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
     letter-spacing:.4px;
     white-space:nowrap;
-.make3{
-  display:grid;
-  grid-template-columns: 1fr 1.15fr 1fr;
-  gap:12px;
-  margin-top:12px;
-  align-items:start;
-}
-.makeCol{ min-width:0; }
-
-.colHeader{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  gap:10px;
-  margin-bottom:8px;
-}
-.logoSlot{
-  width:58px; height:58px;
-  border-radius:16px;
-  border:1px dashed rgba(184,197,230,.35);
-  display:flex; align-items:center; justify-content:center;
-  color:var(--muted);
-  background:rgba(15,22,41,.55);
-  font-weight:900;
-  font-size:11px;
-}
-
-.midCol .dropZone{ min-height:170px; }
-.dropZoneMini{ min-height:120px; opacity:.98; }
-
-.midSection{ padding:4px 0; }
-
-.midTop{
-  display:flex;
-  justify-content:space-between;
-  align-items:flex-start;
-  gap:10px;
-}
-
-.midSplit2{
-  display:grid;
-  grid-template-columns: 1fr 1fr;
-  gap:10px;
-}
-@media(max-width:980px){
-  .make3{ grid-template-columns: 1fr; }
-  .midSplit2{ grid-template-columns: 1fr; }
-}
-
-.logoBridge{
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  gap:10px;
-  margin:10px 0;
-}
-.logoPuck{
-  width:52px; height:52px;
-  border-radius:999px;
-  border:1px solid rgba(184,197,230,.25);
-  background:rgba(15,22,41,.65);
-  display:flex; align-items:center; justify-content:center;
-  font-weight:950;
-  color:var(--muted);
-  font-size:11px;
-}
-.logoArrow{
-  font-weight:950;
-  color:rgba(184,197,230,.75);
-  font-size:18px; /* Windows-friendly spacing + recording layout */
-@media (min-width: 1200px){
-  .make3{
-    grid-template-columns: 1.05fr 1.2fr 1.05fr; /* slightly wider middle */
-    gap:14px;
   }
-  .rosterGrid{ gap:14px; }
-  .tile{ padding:14px; }
-  .thumb{ width:104px; height:104px; }     /* BIGGER tiles for video */
-  .pkgCard .mini{ width:86px; height:86px; }/* Bigger package cards */
-  .midCol .dropZone{ min-height:190px; }
-}
-
-@media (min-width: 1600px){
-  .make3{
-    grid-template-columns: 1.1fr 1.3fr 1.1fr; /* even more breathing room */
-    gap:16px;
-  }
-  .thumb{ width:116px; height:116px; }
-  .pkgCard .mini{ width:96px; height:96px; }
-  .midCol .dropZone{ min-height:210px; }
-}
-
-/* Keep middle visible when dragging */
-.midCol{
-  position: sticky;
-  top: 78px; /* below header */ 
-}
-/* Windows-friendly spacing + recording layout */
-@media (min-width: 1200px){
-  .make3{
-    grid-template-columns: 1.05fr 1.2fr 1.05fr; /* slightly wider middle */
-    gap:14px;
-  }
-  .rosterGrid{ gap:14px; }
-  .tile{ padding:14px; }
-  .thumb{ width:104px; height:104px; }     /* BIGGER tiles for video */
-  .pkgCard .mini{ width:86px; height:86px; }/* Bigger package cards */
-  .midCol .dropZone{ min-height:190px; }
-}
-
-@media (min-width: 1600px){
-  .make3{
-    grid-template-columns: 1.1fr 1.3fr 1.1fr; /* even more breathing room */
-    gap:16px;
-  }
-  .thumb{ width:116px; height:116px; }
-  .pkgCard .mini{ width:96px; height:96px; }
-  .midCol .dropZone{ min-height:210px; }
-}
-
-/* Keep middle visible when dragging */
-.midCol{
-  position: sticky;
-  top: 78px; /* below header */
-}
-/* ========= ONE SCREEN MODE (no page scrolling) ========= */
-html, body { height: 100%; }
-body { overflow: hidden; }
-
-/* Header stays fixed; everything else fits below it */
-.wrap{
-  height: calc(100vh - 74px);   /* header height approx */
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-}
-
-/* Game card fills remaining space */
-#gameCard .card{
-  height: 100%;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-}
-
-/* Tabs/inbox/make area should flex */
-#viewInbox, #viewMake{
-  flex: 1;
-  overflow: hidden;
-}
-
-/* 3-column trade layout fills the screen area */
-.make3{
-  flex: 1;
-  min-height: 0;
-  overflow: hidden;
-}
-
-/* Each column becomes a vertical layout */
-.makeCol{
-  display: flex;
-  flex-direction: column;
-  min-height: 0;
-}
-
-/* ROSTERS scroll internally (not the page) */
-#myRoster, #themRoster{
-  flex: 1;
-  min-height: 0;
-  overflow: auto;
-  padding-right: 6px; /* little space for scrollbar */
-}
-
-/* Middle column always visible */
-.midCol{
-  position: static; /* disable sticky for one-screen mode */
-  overflow: hidden;
-}
-
-/* Incoming + outgoing packages should also fit; allow internal scroll */
-.midCol .dropZone{
-  min-height: 120px;
-  max-height: 200px;
-  overflow: auto;
-}
-
-/* Make the log compact & scrollable */
-#log{
-  max-height: 120px;
-  overflow: auto;
-}
-
-/* Optional: tighten HUD on smaller heights */
-@media (max-height: 800px){
-  .hudBox .v{ font-size: 18px; }
-  .thumb{ width: 84px; height: 84px; }
-  .pkgCard .mini{ width: 72px; height: 72px; }
-  #log{ max-height: 90px; }
-}
-
-}
 </style>
 </head>
 
 <body>
 <header>
   <h1>🍔 Fast Food CEO Trade Machine</h1>
-  <p>Drag items into trade packages → send offers → accept/counter/reject inbox offers. Goal: <b>650 Menu Power</b> in 10 turns.</p>
+  <p>One-screen trade machine. Drag left/right → drop in the center. Build the greatest menu before Turn 10.</p>
 </header>
 
 <div class="wrap">
+
+  <!-- START CARD -->
   <div class="card" id="startCard">
     <div class="row" style="justify-content:flex-start;">
       <div style="font-weight:950;">Choose your CEO</div>
-      <span class="muted">Needs: <b>assets/items/placeholder.jpg</b></span>
+      <span class="muted">Needs placeholder image: <b>assets/items/placeholder.jpg</b></span>
     </div>
+
     <div class="row" style="margin-top:10px; justify-content:flex-start;">
       <label class="muted">My Chain</label>
       <select id="myTeam"></select>
@@ -380,227 +399,207 @@ body { overflow: hidden; }
 
       <button class="good" id="startBtn">Start Run</button>
     </div>
+
     <div class="small" style="margin-top:10px;">
-      Tip: use smaller images (webp/jpg) so your PC stays smooth.
+      Tip: Keep item images small (webp/jpg under ~250KB) to stay smooth.
     </div>
   </div>
 
-  <div id="gameCard" style="display:none;">
-    <div class="card">
-      <div class="row">
-        <div class="row" style="justify-content:flex-start;">
-          <button class="ghost" id="clearProposal">Clear Proposal</button>
-          <button class="danger" id="newRun">New Run</button>
-        </div>
-        <div class="row" style="justify-content:flex-end;">
-          <button class="hot" id="endTurn">End Turn ➜</button>
-        </div>
+  <!-- GAME -->
+  <div id="gameShell" style="display:none;">
+
+    <div class="row">
+      <div class="row" style="justify-content:flex-start;">
+        <button class="ghost" id="clearProposal">Clear Proposal</button>
+        <button class="danger" id="newRun">New Run</button>
       </div>
-
-      <div class="hud">
-        <div class="hudBox">
-          <div class="k">You are CEO of</div>
-          <div class="v" id="hudTeam">—</div>
-          <div class="s">Goal: 650 Power by Turn 10</div>
-        </div>
-        <div class="hudBox">
-          <div class="k">Turn</div>
-          <div class="v" id="hudTurn">1 / 10</div>
-          <div class="s" id="hudInbox">Inbox offers: 3</div>
-        </div>
-        <div class="hudBox">
-          <div class="k">Menu Power</div>
-          <div class="v" id="hudPower">0</div>
-          <div class="s" id="hudPowerNote">Trade to improve your menu.</div>
-        </div>
-        <div class="hudBox">
-          <div class="k">Reputation</div>
-          <div class="v" id="hudRep">50</div>
-          <div class="s" id="hudRepNote">Higher rep = fewer fleeces.</div>
-        </div>
-      </div>
-
-      <div class="tabs">
-        <div class="tab active" id="tabInbox">📥 Inbox</div>
-        <div class="tab" id="tabMake">📤 Make Offer</div>
-      </div>
-
-      <!-- INBOX VIEW -->
-      <div id="viewInbox" style="margin-top:12px;">
-        <div class="offerList" id="offerList"></div>
-
-        <div class="divider"></div>
-
-        <div class="card" style="background:rgba(11,16,32,.55); border:1px solid var(--line);">
-          <div class="row" style="justify-content:space-between;">
-            <div>
-              <div style="font-weight:950;" id="inTitle">Select an offer</div>
-              <div class="muted" id="inMsg">—</div>
-            </div>
-            <div class="row">
-              <span class="badge bR" id="inBadge" style="display:none;">FAIR</span>
-              <button class="good" id="btnAccept" disabled>Accept</button>
-              <button class="ghost" id="btnCounter" disabled>Counter</button>
-              <button class="danger" id="btnReject" disabled>Reject</button>
-            </div>
-          </div>
-
-          <div class="grid2">
-            <div>
-              <div style="font-weight:950;">You give</div>
-              <div class="dropWrap"><div class="dropZone" id="inYou"></div></div>
-            </div>
-            <div>
-              <div style="font-weight:950;">They give</div>
-              <div class="dropWrap"><div class="dropZone" id="inThey"></div></div>
-            </div>
-          </div>
-
-          <div class="divider"></div>
-          <div style="font-weight:950;" id="inEval">—</div>
-          <div class="muted" id="inEval2">—</div>
-        </div>
-      </div>
-
-      <!-- MAKE OFFER VIEW -->
-      <div id="viewMake" <div class="row" style="justify-content:space-between;">
-  <div>
-    <div style="font-weight:950;">Trade Center (Drag & Drop)</div>
-    <div class="muted">Left = you, right = them, build offers in the middle.</div>
-  </div>
-  <div class="row" style="justify-content:flex-end;">
-    <label class="muted">Target CEO</label>
-    <select id="targetTeam"></select>
-    <button class="good" id="btnSend">Send Offer</button>
-  </div>
-</div>
-
-<div class="make3">
-  <!-- LEFT: YOUR MENU -->
-  <div class="card makeCol" style="background:rgba(11,16,32,.55); border:1px solid var(--line);">
-    <div class="colHeader">
-      <div>
-        <div style="font-weight:950;">Your Menu</div>
-        <div class="muted" id="myCount"></div>
-      </div>
-      <div class="logoSlot" title="Drop your logo here later">LOGO</div>
-    </div>
-    <div class="rosterGrid" id="myRoster"></div>
-  </div>
-
-  <!-- MIDDLE: INCOMING + OUTGOING -->
-  <div class="card makeCol midCol" style="background:rgba(11,16,32,.55); border:1px solid var(--line);">
-    <!-- Incoming -->
-    <div class="midSection">
-      <div class="midTop">
-        <div>
-          <div style="font-weight:950;">Incoming Offer</div>
-          <div class="muted" id="incomingTitleMini">Select an offer in Inbox</div>
-        </div>
-        <span class="badge bR" id="incomingBadgeMini" style="display:none;">FAIR</span>
-      </div>
-
-      <div class="logoBridge">
-        <div class="logoPuck" id="logoLeftPuck">YOU</div>
-        <div class="logoArrow">⇄</div>
-        <div class="logoPuck" id="logoRightPuck">THEM</div>
-      </div>
-
-      <div class="midSplit2">
-        <div>
-          <div class="muted" style="font-weight:900; margin:4px 0 6px;">You receive</div>
-          <div class="dropWrap">
-            <div class="dropZone dropZoneMini" id="incomingYouMini"></div>
-          </div>
-        </div>
-        <div>
-          <div class="muted" style="font-weight:900; margin:4px 0 6px;">You give</div>
-          <div class="dropWrap">
-            <div class="dropZone dropZoneMini" id="incomingTheyMini"></div>
-          </div>
-        </div>
-      </div>
-
-      <div class="row" style="justify-content:flex-end; margin-top:10px;">
-        <button class="good" id="miniAccept">Accept</button>
-        <button class="ghost" id="miniCounter">Counter</button>
-        <button class="danger" id="miniReject">Reject</button>
+      <div class="row" style="justify-content:flex-end;">
+        <button class="hot" id="endTurn">End Turn ➜</button>
       </div>
     </div>
 
-    <div class="divider"></div>
+    <div class="hud">
+      <div class="hudBox">
+        <div class="k">You are CEO of</div>
+        <div class="v" id="hudTeam">—</div>
+        <div class="s">Goal: <b id="goalTxt">650</b> Power by Turn 10</div>
+      </div>
+      <div class="hudBox">
+        <div class="k">Turn</div>
+        <div class="v" id="hudTurn">1 / 10</div>
+        <div class="s" id="hudInbox">Inbox offers: 3</div>
+      </div>
+      <div class="hudBox">
+        <div class="k">Menu Power</div>
+        <div class="v" id="hudPower">0</div>
+        <div class="s" id="hudPowerNote">Trade to improve your menu.</div>
+      </div>
+      <div class="hudBox">
+        <div class="k">Reputation</div>
+        <div class="v" id="hudRep">50</div>
+        <div class="s" id="hudRepNote">Neutral 😐</div>
+      </div>
+    </div>
 
-    <!-- Outgoing -->
-    <div class="midSection">
-      <div style="font-weight:950;">Outgoing Offer (Build Yours)</div>
-      <div class="muted">Drag from left/right menus into the packages.</div>
+    <div class="tabs">
+      <div class="tab active" id="tabInbox"><span class="tabIcon">📥</span>Inbox</div>
+      <div class="tab" id="tabMake"><span class="tabIcon">📤</span>Make Offer</div>
+    </div>
 
-      <div class="midSplit2" style="margin-top:8px;">
+    <!-- INBOX VIEW -->
+    <div class="card" id="viewInbox" style="flex:1; min-height:0; overflow:hidden; display:flex; flex-direction:column;">
+      <div class="offerList" id="offerList"></div>
+
+      <div class="divider"></div>
+
+      <div class="row" style="justify-content:space-between;">
         <div>
-          <div class="muted" style="font-weight:900; margin:4px 0 6px;">You give</div>
-          <div class="dropWrap">
-            <div class="dropZone" id="pkgYou"></div>
-          </div>
+          <div style="font-weight:950;" id="inTitle">Select an offer</div>
+          <div class="muted" id="inMsg">—</div>
+        </div>
+        <div class="row">
+          <span class="badge bR" id="inBadge" style="display:none;">FAIR</span>
+          <button class="good" id="btnAccept" disabled>Accept</button>
+          <button class="ghost" id="btnCounter" disabled>Counter</button>
+          <button class="danger" id="btnReject" disabled>Reject</button>
+        </div>
+      </div>
+
+      <div class="midSplit2" style="margin-top:10px;">
+        <div>
+          <div class="muted" style="font-weight:950; margin-bottom:6px;">You give</div>
+          <div class="dropWrap"><div class="dropZone" id="inYou"></div></div>
         </div>
         <div>
-          <div class="muted" style="font-weight:900; margin:4px 0 6px;">They give</div>
-          <div class="dropWrap">
-            <div class="dropZone" id="pkgThey"></div>
-          </div>
+          <div class="muted" style="font-weight:950; margin-bottom:6px;">They give</div>
+          <div class="dropWrap"><div class="dropZone" id="inThey"></div></div>
         </div>
       </div>
 
       <div class="divider"></div>
-      <div style="font-weight:950;" id="mkEval">Build a proposal</div>
-      <div class="muted" id="mkEval2">Drag items into both packages.</div>
+      <div style="font-weight:950;" id="inEval">—</div>
+      <div class="muted" id="inEval2">—</div>
     </div>
-  </div>
 
-  <!-- RIGHT: THEIR MENU -->
-  <div class="card makeCol" style="background:rgba(11,16,32,.55); border:1px solid var(--line);">
-    <div class="colHeader">
-      <div>
-        <div style="font-weight:950;">Target Menu</div>
-        <div class="muted" id="themCount"></div>
-      </div>
-      <div class="logoSlot" title="Drop their logo here later">LOGO</div>
-    </div>
-    <div class="rosterGrid" id="themRoster"></div>
-  </div>
-</div>
+    <!-- MAKE OFFER VIEW -->
+    <div class="card" id="viewMake" style="display:none; flex:1; min-height:0; overflow:hidden;">
 
-
-        <div class="grid2">
-          <div class="card" style="background:rgba(11,16,32,.55); border:1px solid var(--line);">
-            <div style="font-weight:950;">Your Menu</div>
-            <div class="muted" id="myCount"></div>
-            <div class="rosterGrid" id="myRoster"></div>
-
-            <div class="dropWrap">
-              <div class="dropTitle"><b>You give</b><span class="muted">Drop here</span></div>
-              <div class="dropZone" id="pkgYou"></div>
-            </div>
-          </div>
-
-          <div class="card" style="background:rgba(11,16,32,.55); border:1px solid var(--line);">
-            <div style="font-weight:950;">Target Menu</div>
-            <div class="muted" id="themCount"></div>
-            <div class="rosterGrid" id="themRoster"></div>
-
-            <div class="dropWrap">
-              <div class="dropTitle"><b>They give</b><span class="muted">Drop here</span></div>
-              <div class="dropZone" id="pkgThey"></div>
-            </div>
-          </div>
+      <div id="makeTopBar">
+        <div>
+          <div style="font-weight:950;">Trade Center (Drag & Drop)</div>
+          <div class="muted">Left = your menu, right = target CEO. Build trades in the middle.</div>
         </div>
-
-        <div class="divider"></div>
-        <div style="font-weight:950;" id="mkEval">Build a proposal</div>
-        <div class="muted" id="mkEval2">Drag items into both packages.</div>
+        <div class="row" style="justify-content:flex-end;">
+          <label class="muted">Target CEO</label>
+          <select id="targetTeam"></select>
+          <button class="good" id="btnSend">Send Offer</button>
+        </div>
       </div>
 
-      <div class="log" id="log"></div>
+      <div class="makeScreen">
+        <div class="make3">
+
+          <!-- LEFT: YOUR MENU -->
+          <div class="makeCol card" style="background:rgba(11,16,32,.55); border:1px solid var(--line); padding:12px;">
+            <div class="colHeader">
+              <div>
+                <div style="font-weight:950;">Your Menu</div>
+                <div class="muted" id="myCount">—</div>
+              </div>
+              <div class="logoSlot" id="logoLeftSlot">YOU</div>
+            </div>
+            <div class="rosterGrid" id="myRoster"></div>
+          </div>
+
+          <!-- MIDDLE: INCOMING + OUTGOING -->
+          <div class="makeCol card midCol" style="background:rgba(11,16,32,.55); border:1px solid var(--line); padding:12px;">
+
+            <!-- Incoming -->
+            <div class="midSection" style="display:flex; flex-direction:column; min-height:0;">
+              <div class="midTop">
+                <div>
+                  <div style="font-weight:950;">Incoming Offer</div>
+                  <div class="muted" id="incomingTitleMini">Pick an offer in Inbox</div>
+                </div>
+                <span class="badge bR" id="incomingBadgeMini" style="display:none;">FAIR</span>
+              </div>
+
+              <div class="logoBridge">
+                <div class="logoPuck" id="logoLeftPuck">YOU</div>
+                <div class="logoArrow">⇄</div>
+                <div class="logoPuck" id="logoRightPuck">THEM</div>
+              </div>
+
+              <div class="midSplit2" style="flex:1; min-height:0;">
+                <div style="min-height:0; display:flex; flex-direction:column;">
+                  <div class="muted" style="font-weight:900; margin:4px 0 6px;">You receive</div>
+                  <div class="dropWrap" style="flex:1; min-height:0;">
+                    <div class="dropZone" id="incomingYouMini"></div>
+                  </div>
+                </div>
+                <div style="min-height:0; display:flex; flex-direction:column;">
+                  <div class="muted" style="font-weight:900; margin:4px 0 6px;">You give</div>
+                  <div class="dropWrap" style="flex:1; min-height:0;">
+                    <div class="dropZone" id="incomingTheyMini"></div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="row" style="justify-content:flex-end; margin-top:10px;">
+                <button class="good" id="miniAccept">Accept</button>
+                <button class="ghost" id="miniCounter">Counter</button>
+                <button class="danger" id="miniReject">Reject</button>
+              </div>
+            </div>
+
+            <div class="divider"></div>
+
+            <!-- Outgoing -->
+            <div class="midSection" style="display:flex; flex-direction:column; min-height:0;">
+              <div style="font-weight:950;">Outgoing Offer (Build Yours)</div>
+              <div class="muted">Drag items into both packages, then Send.</div>
+
+              <div class="midSplit2" style="margin-top:8px; flex:1; min-height:0;">
+                <div style="min-height:0; display:flex; flex-direction:column;">
+                  <div class="muted" style="font-weight:900; margin:4px 0 6px;">You give</div>
+                  <div class="dropWrap" style="flex:1; min-height:0;">
+                    <div class="dropZone" id="pkgYou"></div>
+                  </div>
+                </div>
+                <div style="min-height:0; display:flex; flex-direction:column;">
+                  <div class="muted" style="font-weight:900; margin:4px 0 6px;">They give</div>
+                  <div class="dropWrap" style="flex:1; min-height:0;">
+                    <div class="dropZone" id="pkgThey"></div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="divider"></div>
+              <div style="font-weight:950;" id="mkEval">Build a proposal</div>
+              <div class="muted" id="mkEval2">Drag items into both packages.</div>
+            </div>
+
+          </div>
+
+          <!-- RIGHT: THEIR MENU -->
+          <div class="makeCol card" style="background:rgba(11,16,32,.55); border:1px solid var(--line); padding:12px;">
+            <div class="colHeader">
+              <div>
+                <div style="font-weight:950;">Target Menu</div>
+                <div class="muted" id="themCount">—</div>
+              </div>
+              <div class="logoSlot" id="logoRightSlot">THEM</div>
+            </div>
+            <div class="rosterGrid" id="themRoster"></div>
+          </div>
+
+        </div>
+      </div>
+
     </div>
+
+    <div class="log" id="log"></div>
+
   </div>
 </div>
 
@@ -608,12 +607,12 @@ body { overflow: hidden; }
 
 <script>
 /* =========================
-   FAST FOOD CEO TRADE MACHINE
-   Single-file, stable, lightweight
+   Fast Food CEO Trade Machine (One Screen)
 ========================= */
 
 const PLACEHOLDER = "assets/items/placeholder.jpg";
 
+/* ===== Data ===== */
 const DATA_SEED = {
   "McDonald's":[
     {name:"Big Mac",base:86,tags:["iconic"],img:"assets/items/big-mac.jpg"},
@@ -734,6 +733,7 @@ function imgHTML(src, alt){
     onerror="this.onerror=null;this.src='${PLACEHOLDER}';">`;
 }
 
+/* ===== State ===== */
 let S = {
   DATA: clone(DATA_SEED),
   my: null,
@@ -750,15 +750,19 @@ let S = {
   pkgThey: []
 };
 
+function roster(team){ return S.DATA[team] || []; }
+
 function itemValue(it){
   if(!it) return 0;
   let v = it.base;
   for(const t of (it.tags||[])) if(BONUS[t]!=null) v += BONUS[t];
   return v;
 }
-function roster(team){ return S.DATA[team] || []; }
+
 function power(team){ return roster(team).reduce((a,it)=>a+itemValue(it),0); }
+
 function findItem(team, name){ return roster(team).find(x=>x.name===name) || null; }
+
 function sumNames(team, names){
   let total = 0;
   const r = roster(team);
@@ -774,6 +778,7 @@ function youNet(other, youGive, theyGive){
   const get  = sumNames(other, theyGive);
   return {give, get, diff: (get-give)};
 }
+
 function theirVerdict(other, youGive, theyGive){
   const p = PERSONALITY[other] || {stingy:0.55, block:0.12};
   const received = sumNames(S.my, youGive);
@@ -791,9 +796,8 @@ function theirVerdict(other, youGive, theyGive){
   return {score, verdict, acceptThresh};
 }
 
-/* ===== FX (light) ===== */
+/* ===== FX Banner ===== */
 (function setupFX(){
-  const banner = $("tradeBanner");
   const style = document.createElement("style");
   style.textContent = `
     @keyframes bannerIn {
@@ -817,47 +821,55 @@ function theirVerdict(other, youGive, theyGive){
     }
   `;
   document.head.appendChild(style);
-
-  window.tradeFX = function(kind){
-    let text="✅ TRADE COMPLETE", color="#6ef3b2";
-    if(kind==="block"){ text="🚨 BLOCKBUSTER 🚨"; color="#ff8bd3"; }
-    else if(kind==="fair"){ text="🤝 FAIR DEAL 🤝"; color="#6ef3b2"; }
-    else if(kind==="fleece"){ text="😈 YOU GOT FLEECED 😈"; color="#ff7c7c"; }
-function tradeStatus(status){
-  // status: "accepted" | "rejected" | "countered"
-  if(status==="accepted") tradeFX("fair");     // keeps the nice vibe
-  else if(status==="countered") tradeFX("block"); // flashy
-  else tradeFX("fleece");                      // shake for rejection
-
-  // overwrite banner text to be explicit
-  const banner = $("tradeBanner");
-  if(!banner) return;
-
-  if(status==="accepted"){ banner.textContent = "✅ TRADE ACCEPTED"; banner.style.color = "#6ef3b2"; }
-  if(status==="countered"){ banner.textContent = "🔁 TRADE COUNTERED"; banner.style.color = "#ff8bd3"; }
-  if(status==="rejected"){ banner.textContent = "❌ TRADE REJECTED"; banner.style.color = "#ff7c7c"; }
-}
-
-    banner.textContent = text;
-    banner.style.color = color;
-    banner.style.animation = "none";
-    banner.offsetHeight;
-    banner.style.animation = "bannerIn 1400ms ease-out forwards";
-
-    if(kind==="fleece"){
-      document.body.style.animation="none";
-      document.body.offsetHeight;
-      document.body.style.animation="screenShake 420ms ease-in-out, flashRed 520ms ease-out";
-    }
-  };
 })();
 
-/* ===== UI helpers ===== */
+function showBanner(text, color, shake=false){
+  const banner = $("tradeBanner");
+  if(!banner) return;
+  banner.textContent = text;
+  banner.style.color = color;
+  banner.style.animation = "none";
+  banner.offsetHeight;
+  banner.style.animation = "bannerIn 1400ms ease-out forwards";
+  if(shake){
+    document.body.style.animation="none";
+    document.body.offsetHeight;
+    document.body.style.animation="screenShake 420ms ease-in-out, flashRed 520ms ease-out";
+  }
+}
+function fxStatus(status){
+  if(status==="accepted") showBanner("✅ TRADE ACCEPTED", "#6ef3b2", false);
+  if(status==="countered") showBanner("🔁 TRADE COUNTERED", "#ff8bd3", false);
+  if(status==="rejected") showBanner("❌ TRADE REJECTED", "#ff7c7c", true);
+}
+function fxQuality(diff, fairness){
+  if(diff >= 18) showBanner("🚨 BLOCKBUSTER 🚨", "#ff8bd3", false);
+  else if(diff >= -fairness) showBanner("🤝 FAIR DEAL 🤝", "#6ef3b2", false);
+  else showBanner("😈 YOU GOT FLEECED 😈", "#ff7c7c", true);
+}
+
+/* ===== Logos ===== */
+function teamSlug(team){
+  return (team||"").toLowerCase().replace(/[^a-z0-9]+/g,"");
+}
+function logoPath(team){
+  return `assets/logos/${teamSlug(team)}.png`;
+}
+function setLogo(elId, team, fallbackText){
+  const el = $(elId);
+  if(!el) return;
+  const src = logoPath(team);
+  el.innerHTML = `<img src="${src}" alt="${esc(team)}"
+    onerror="this.remove(); this.parentElement.textContent='${esc(fallbackText)}';">`;
+}
+
+/* ===== Logging ===== */
 function logLine(html){
   const box = $("log");
   box.innerHTML = `<div>${html}</div>` + box.innerHTML;
 }
 
+/* ===== Tabs ===== */
 function setTab(tab){
   S.tab = tab;
   $("tabInbox").classList.toggle("active", tab==="inbox");
@@ -867,7 +879,7 @@ function setTab(tab){
   render();
 }
 
-/* ===== Offer generation ===== */
+/* ===== Offers ===== */
 function badge(type){
   if(type==="block") return {txt:"BLOCKBUSTER 🚨", cls:"bB"};
   if(type==="fleece") return {txt:"FLEECE 😈", cls:"bF"};
@@ -888,8 +900,8 @@ function genInbox(){
     const from = pick(others);
     const p = PERSONALITY[from] || {stingy:0.55, block:0.12};
 
-    let blockChance = clamp(p.block + (S.rep>70?0.08:S.rep>60?0.04:0), 0.05, 0.35);
-    let fleeceChance = clamp(0.42 + (S.rep<40?0.18:S.rep<55?0.08:-0.05), 0.15, 0.75);
+    const blockChance = clamp(p.block + (S.rep>70?0.08:S.rep>60?0.04:0), 0.05, 0.35);
+    const fleeceChance = clamp(0.42 + (S.rep<40?0.18:S.rep<55?0.08:-0.05), 0.15, 0.75);
 
     const r = Math.random();
     let type = "fair";
@@ -933,35 +945,19 @@ function executeTrade(other, youGive, theyGive){
   S.DATA[other] = thR.filter(it=>!theyGive.includes(it.name)).concat(myGiveItems);
 }
 
-/* ===== Rendering (optimized: rebuild only small sections) ===== */
+/* ===== Render ===== */
 function renderHUD(){
   $("hudTeam").textContent = S.my || "—";
+  $("goalTxt").textContent = S.targetPower;
   $("hudTurn").textContent = `${S.turn} / ${S.maxTurns}`;
   $("hudPower").textContent = power(S.my);
   $("hudRep").textContent = S.rep;
+
   const pending = S.inbox.filter(o=>!o.handled).length;
   $("hudInbox").textContent = `Inbox offers: ${pending}`;
 
   $("hudPowerNote").textContent = (power(S.my) >= S.targetPower) ? "🏆 Target hit!" : "Trade to improve your menu.";
   $("hudRepNote").textContent = S.rep>=60 ? "Respected 🙂" : S.rep>=40 ? "Neutral 😐" : S.rep>=20 ? "Sketchy 😒" : "Public Enemy 😤";
-}
-
-function renderOfferList(){
-  const list = $("offerList");
-  list.innerHTML = "";
-  for(const o of S.inbox){
-    const div = document.createElement("div");
-    div.className = "offerCard";
-    div.dataset.offerId = o.id;
-    div.innerHTML = `
-      <span class="badge ${o.badge.cls}">${esc(o.badge.txt)}</span>
-      <div style="font-weight:950">${esc(o.from)} → ${esc(S.my)}</div>
-      <div class="muted" style="margin-top:6px;">${esc(o.msg)}</div>
-      <div class="muted" style="margin-top:6px;">${o.handled ? "✅ handled" : "⏳ pending"}</div>
-    `;
-    div.onclick = ()=>{ S.selectedOfferId = o.id; renderOfferDetail(); };
-    list.appendChild(div);
-  }
 }
 
 function pkgCardHTML(team, name, removable){
@@ -978,6 +974,24 @@ function pkgCardHTML(team, name, removable){
       ${removable ? `<button data-remove="1" title="Remove">Remove</button>` : ``}
     </div>
   `;
+}
+
+function renderOfferList(){
+  const list = $("offerList");
+  list.innerHTML = "";
+  for(const o of S.inbox){
+    const div = document.createElement("div");
+    div.className = "offerCard";
+    div.dataset.offerId = o.id;
+    div.innerHTML = `
+      <span class="badge ${o.badge.cls}">${esc(o.badge.txt)}</span>
+      <div style="font-weight:950">${esc(o.from)} → ${esc(S.my)}</div>
+      <div class="muted" style="margin-top:6px;">${esc(o.msg)}</div>
+      <div class="muted" style="margin-top:6px;">${o.handled ? "✅ handled" : "⏳ pending"}</div>
+    `;
+    div.onclick = ()=>{ S.selectedOfferId = o.id; render(); };
+    list.appendChild(div);
+  }
 }
 
 function renderOfferDetail(){
@@ -1020,6 +1034,48 @@ function renderOfferDetail(){
   $("btnReject").disabled = disabled;
 }
 
+function renderIncomingMini(){
+  const title = $("incomingTitleMini");
+  const badgeEl = $("incomingBadgeMini");
+  const zYou = $("incomingYouMini");
+  const zThey = $("incomingTheyMini");
+
+  const o = S.inbox.find(x=>x.id===S.selectedOfferId);
+
+  if(!o){
+    title.textContent = "Pick an offer in Inbox";
+    badgeEl.style.display = "none";
+    zYou.innerHTML = `<div class="muted">—</div>`;
+    zThey.innerHTML = `<div class="muted">—</div>`;
+    $("miniAccept").disabled = true;
+    $("miniReject").disabled = true;
+    $("miniCounter").disabled = true;
+    return;
+  }
+
+  title.textContent = `${o.from} → ${S.my}`;
+  badgeEl.style.display = "";
+  badgeEl.className = `badge ${o.badge.cls}`;
+  badgeEl.textContent = o.badge.txt;
+
+  // In mini incoming: YOU RECEIVE = theirGive, YOU GIVE = yourGive
+  zYou.innerHTML = o.theyGive.length ? o.theyGive.map(n=>pkgCardHTML(o.from,n,false)).join("") : `<div class="muted">Nothing</div>`;
+  zThey.innerHTML = o.youGive.length ? o.youGive.map(n=>pkgCardHTML(S.my,n,false)).join("") : `<div class="muted">Nothing</div>`;
+
+  const disabled = o.handled || (S.turn>S.maxTurns) || (power(S.my)>=S.targetPower);
+  $("miniAccept").disabled = disabled;
+  $("miniReject").disabled = disabled;
+  $("miniCounter").disabled = disabled;
+}
+
+function renderTargets(){
+  const sel = $("targetTeam");
+  const teams = Object.keys(S.DATA).filter(t=>t!==S.my);
+  const prev = sel.value;
+  sel.innerHTML = teams.map(t=>`<option value="${esc(t)}">${esc(t)}</option>`).join("");
+  sel.value = teams.includes(prev) ? prev : teams[0];
+}
+
 function renderRoster(team, containerId){
   const c = $(containerId);
   c.innerHTML = "";
@@ -1053,6 +1109,7 @@ function renderRoster(team, containerId){
 
 function renderMake(){
   const target = $("targetTeam").value;
+
   $("myCount").textContent = `${roster(S.my).length} items`;
   $("themCount").textContent = `${roster(target).length} items`;
 
@@ -1070,7 +1127,6 @@ function renderMake(){
     ? S.pkgThey.map(n=>pkgCardHTML(target,n,true)).join("")
     : `<div class="muted">Drop items here…</div>`;
 
-  // wire remove buttons via event delegation
   pkgYou.onclick = (e)=>{
     const btn = e.target.closest("button[data-remove='1']");
     if(!btn) return;
@@ -1090,7 +1146,6 @@ function renderMake(){
     renderMake();
   };
 
-  // evaluation
   if(S.pkgYou.length===0 || S.pkgThey.length===0){
     $("mkEval").textContent = "Build a proposal";
     $("mkEval2").textContent = "Drag items into both packages.";
@@ -1104,23 +1159,25 @@ function renderMake(){
   $("btnSend").disabled = S.outboundUsed || (S.turn>S.maxTurns) || (power(S.my)>=S.targetPower);
 }
 
-function renderTargets(){
-  const sel = $("targetTeam");
-  const teams = Object.keys(S.DATA).filter(t=>t!==S.my);
-  const prev = sel.value;
-  sel.innerHTML = teams.map(t=>`<option value="${esc(t)}">${esc(t)}</option>`).join("");
-  sel.value = teams.includes(prev) ? prev : teams[0];
+function renderLogos(){
+  const tgt = $("targetTeam")?.value || "";
+  setLogo("logoLeftSlot", S.my, "YOU");
+  setLogo("logoLeftPuck", S.my, "YOU");
+  setLogo("logoRightSlot", tgt, "THEM");
+  setLogo("logoRightPuck", tgt, "THEM");
 }
 
 function render(){
   renderHUD();
   renderOfferList();
   renderOfferDetail();
+  renderIncomingMini();
   renderTargets();
+  renderLogos();
   if(S.tab==="make") renderMake();
 }
 
-/* ===== DnD ===== */
+/* ===== Drag & Drop ===== */
 function wireDrop(zoneId, acceptFn){
   const z = $(zoneId);
   z.addEventListener("dragover",(ev)=>{ ev.preventDefault(); z.classList.add("dragover"); });
@@ -1143,14 +1200,14 @@ function startRun(){
   S.outboundUsed = false;
   S.pkgYou = [];
   S.pkgThey = [];
-
   $("log").innerHTML = "";
+
   genInbox();
 
   $("startCard").style.display = "none";
-  $("gameCard").style.display = "";
+  $("gameShell").style.display = "flex";
 
-  setTab("inbox");
+  setTab("make");
   logLine(`🎬 New run: CEO of <b>${esc(S.my)}</b>. Turn 1 begins.`);
   render();
 }
@@ -1160,15 +1217,14 @@ function acceptSelected(){
   if(!o || o.handled) return;
 
   const y = youNet(o.from, o.youGive, o.theyGive);
-  if(y.diff>=18) tradeFX("block");
-  else if(y.diff>=-S.fairness) tradeFX("fair");
-  else tradeFX("fleece");
-
   executeTrade(o.from, o.youGive, o.theyGive);
-  o.handled = true; tradeStatus("accepted");
-
+  o.handled = true;
 
   S.rep = clamp(S.rep + (y.diff>=0?3:-3), 0, 100);
+
+  fxQuality(y.diff, S.fairness);
+  fxStatus("accepted");
+
   logLine(`✅ Accepted <b>${esc(o.from)}</b>. Net ${y.diff>=0?"+":""}${y.diff}. Power <b>${power(S.my)}</b>.`);
   render();
 }
@@ -1176,24 +1232,26 @@ function acceptSelected(){
 function rejectSelected(){
   const o = S.inbox.find(x=>x.id===S.selectedOfferId);
   if(!o || o.handled) return;
-  o.handled = true; tradeStatus("rejected");
+  o.handled = true;
 
-  tradeFX("fleece");
   S.rep = clamp(S.rep+1, 0, 100);
+  fxStatus("rejected");
   logLine(`❌ Rejected <b>${esc(o.from)}</b>.`);
   render();
 }
 
 function counterSelected(){
   const o = S.inbox.find(x=>x.id===S.selectedOfferId);
-  if(!o || o.handled) return; tradeStatus("countered");
+  if(!o || o.handled) return;
 
   $("targetTeam").value = o.from;
   S.pkgYou = [...o.youGive];
   S.pkgThey = [...o.theyGive];
-  tradeFX("fair");
+  S.outboundUsed = false;
+
+  fxStatus("countered");
   setTab("make");
-  logLine(`🔁 Countering <b>${esc(o.from)}</b>. Adjust packages and hit Send.`);
+  logLine(`🔁 Countering <b>${esc(o.from)}</b>. Adjust packages then Send.`);
   render();
 }
 
@@ -1205,32 +1263,32 @@ function sendOffer(){
     logLine("⚠️ Add items to BOTH sides before sending.");
     return;
   }
-  S.outboundUsed = true;
 
   const t = theirVerdict(target, S.pkgYou, S.pkgThey);
   const y = youNet(target, S.pkgYou, S.pkgThey);
+  S.outboundUsed = true;
 
-  if(t.verdict==="accept"){ tradeStatus("accepted");
-
-    if(y.diff>=18) tradeFX("block");
-    else if(y.diff>=-S.fairness) tradeFX("fair");
-    else tradeFX("fleece");
-
+  if(t.verdict==="accept"){
     executeTrade(target, S.pkgYou, S.pkgThey);
     S.rep = clamp(S.rep+3, 0, 100);
-    logLine(`📤 <b>${esc(target)}</b> ACCEPTED. Net ${y.diff>=0?"+":""}${y.diff}.`);
+
+    fxQuality(y.diff, S.fairness);
+    fxStatus("accepted");
+
+    logLine(`📤 <b>${esc(target)}</b> ACCEPTED. Net ${y.diff>=0?"+":""}${y.diff}. Power <b>${power(S.my)}</b>.`);
     S.pkgYou=[]; S.pkgThey=[];
-  } else if(t.verdict==="counter"){ tradeStatus("countered");
-
-    tradeFX("fair");
+  } else if(t.verdict==="counter"){
+    fxStatus("countered");
     S.rep = clamp(S.rep-1, 0, 100);
-    logLine(`🔁 <b>${esc(target)}</b> COUNTERED: “Need more value.” Add an item.`);
+    logLine(`🔁 <b>${esc(target)}</b> COUNTERED: “Need more value.” Try adding something.`);
+    S.outboundUsed = false; // allow re-send after adjusting
   } else {
-    tradeFX("fleece");
+    fxStatus("rejected");
     S.rep = clamp(S.rep-2, 0, 100);
-    logLine(`❌ <b>${esc(target)}</b> REJECTED your offer.`); tradeStatus("rejected");
-
+    logLine(`❌ <b>${esc(target)}</b> REJECTED your offer.`);
+    S.outboundUsed = false; // allow re-try
   }
+
   render();
 }
 
@@ -1247,61 +1305,16 @@ function endTurn(){
   S.outboundUsed = false;
   S.pkgYou=[]; S.pkgThey=[];
   genInbox();
-  tradeFX("fair");
+
+  showBanner(`➡️ TURN ${S.turn}`, "#ffd27c", false);
   logLine(`➡️ Turn ${S.turn} begins. New inbox offers arrived.`);
-  render(); function renderIncomingMini(){
-  const title = $("incomingTitleMini");
-  const badge = $("incomingBadgeMini");
-  const zYou = $("incomingYouMini");
-  const zThey = $("incomingTheyMini"); renderIncomingMini();
-
-
-  if(!title || !badge || !zYou || !zThey) return;
-
-  const o = S.inbox.find(x=>x.id===S.selectedOfferId);
-
-  if(!o){
-    title.textContent = "Select an offer in Inbox";
-    badge.style.display = "none";
-    zYou.innerHTML = `<div class="muted">—</div>`;
-    zThey.innerHTML = `<div class="muted">—</div>`;
-    $("miniAccept").disabled = true;
-    $("miniReject").disabled = true;
-    $("miniCounter").disabled = true;
-    return;
-  }
-
-  title.textContent = `${o.from} → ${S.my}`;
-  badge.style.display = "";
-  badge.className = `badge ${o.badge.cls}`;
-  badge.textContent = o.badge.txt;
-
-  // In this mini view, show what YOU would receive (theirGive) and what YOU would give (yourGive)
-  zYou.innerHTML = o.theyGive.length ? o.theyGive.map(n=>pkgCardHTML(o.from,n,false)).join("") : `<div class="muted">Nothing</div>`;
-  zThey.innerHTML = o.youGive.length ? o.youGive.map(n=>pkgCardHTML(S.my,n,false)).join("") : `<div class="muted">Nothing</div>`;
-
-  const disabled = o.handled || (S.turn>S.maxTurns) || (power(S.my)>=S.targetPower);
-  $("miniAccept").disabled = disabled;
-  $("miniReject").disabled = disabled;
-  $("miniCounter").disabled = disabled;
+  render();
 }
 
-}
-
-/* ===== INIT ===== */
+/* ===== Init ===== */
 function init(){
   // Fill CEO dropdown
-  const mySel = $("myTeam");
-  mySel.innerHTML = Object.keys(DATA_SEED).map(t=>`<option value="${esc(t)}">${esc(t)}</option>`).join("");
-$("targetTeam").addEventListener("change", () => {
-  // When you switch target CEO, clear their side of the package (prevents weird mismatches)
-  S.pkgThey = [];
-  renderMake();
-$("miniAccept").addEventListener("click", acceptSelected);
-$("miniReject").addEventListener("click", rejectSelected);
-$("miniCounter").addEventListener("click", counterSelected);
-
-});
+  $("myTeam").innerHTML = Object.keys(DATA_SEED).map(t=>`<option value="${esc(t)}">${esc(t)}</option>`).join("");
 
   // Buttons
   $("startBtn").addEventListener("click", startRun);
@@ -1317,13 +1330,23 @@ $("miniCounter").addEventListener("click", counterSelected);
   $("tabInbox").addEventListener("click", ()=>setTab("inbox"));
   $("tabMake").addEventListener("click", ()=>setTab("make"));
 
-  // Inbox actions
+  // Inbox actions (big + mini)
   $("btnAccept").addEventListener("click", acceptSelected);
   $("btnReject").addEventListener("click", rejectSelected);
   $("btnCounter").addEventListener("click", counterSelected);
 
+  $("miniAccept").addEventListener("click", acceptSelected);
+  $("miniReject").addEventListener("click", rejectSelected);
+  $("miniCounter").addEventListener("click", counterSelected);
+
   // Make actions
   $("btnSend").addEventListener("click", sendOffer);
+
+  // Target changes should refresh rosters + packages
+  $("targetTeam").addEventListener("change", ()=>{
+    S.pkgThey = []; // clear their side to avoid mismatched names
+    render();
+  });
 
   // Drop zones
   wireDrop("pkgYou", (p)=>{
@@ -1340,7 +1363,6 @@ $("miniCounter").addEventListener("click", counterSelected);
     renderMake();
   });
 
-  // Seed UI
   $("log").innerHTML = `<div class="muted">Start a run to begin.</div>`;
 }
 
