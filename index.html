@@ -276,6 +276,80 @@
   position: sticky;
   top: 78px; /* below header */
 }
+/* ========= ONE SCREEN MODE (no page scrolling) ========= */
+html, body { height: 100%; }
+body { overflow: hidden; }
+
+/* Header stays fixed; everything else fits below it */
+.wrap{
+  height: calc(100vh - 74px);   /* header height approx */
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Game card fills remaining space */
+#gameCard .card{
+  height: 100%;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Tabs/inbox/make area should flex */
+#viewInbox, #viewMake{
+  flex: 1;
+  overflow: hidden;
+}
+
+/* 3-column trade layout fills the screen area */
+.make3{
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* Each column becomes a vertical layout */
+.makeCol{
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+/* ROSTERS scroll internally (not the page) */
+#myRoster, #themRoster{
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  padding-right: 6px; /* little space for scrollbar */
+}
+
+/* Middle column always visible */
+.midCol{
+  position: static; /* disable sticky for one-screen mode */
+  overflow: hidden;
+}
+
+/* Incoming + outgoing packages should also fit; allow internal scroll */
+.midCol .dropZone{
+  min-height: 120px;
+  max-height: 200px;
+  overflow: auto;
+}
+
+/* Make the log compact & scrollable */
+#log{
+  max-height: 120px;
+  overflow: auto;
+}
+
+/* Optional: tighten HUD on smaller heights */
+@media (max-height: 800px){
+  .hudBox .v{ font-size: 18px; }
+  .thumb{ width: 84px; height: 84px; }
+  .pkgCard .mini{ width: 72px; height: 72px; }
+  #log{ max-height: 90px; }
+}
 
 }
 </style>
