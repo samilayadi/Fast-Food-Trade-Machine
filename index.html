@@ -246,6 +246,34 @@
 /* Keep middle visible when dragging */
 .midCol{
   position: sticky;
+  top: 78px; /* below header */ 
+}
+/* Windows-friendly spacing + recording layout */
+@media (min-width: 1200px){
+  .make3{
+    grid-template-columns: 1.05fr 1.2fr 1.05fr; /* slightly wider middle */
+    gap:14px;
+  }
+  .rosterGrid{ gap:14px; }
+  .tile{ padding:14px; }
+  .thumb{ width:104px; height:104px; }     /* BIGGER tiles for video */
+  .pkgCard .mini{ width:86px; height:86px; }/* Bigger package cards */
+  .midCol .dropZone{ min-height:190px; }
+}
+
+@media (min-width: 1600px){
+  .make3{
+    grid-template-columns: 1.1fr 1.3fr 1.1fr; /* even more breathing room */
+    gap:16px;
+  }
+  .thumb{ width:116px; height:116px; }
+  .pkgCard .mini{ width:96px; height:96px; }
+  .midCol .dropZone{ min-height:210px; }
+}
+
+/* Keep middle visible when dragging */
+.midCol{
+  position: sticky;
   top: 78px; /* below header */
 }
 
