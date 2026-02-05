@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>Fast Food CEO Trade Machine</title>
+<title>Fast Food CEO Trade Machine (Drag & Drop)</title>
 <style>
   :root{
     --bg:#070a12; --panel:#0f1629; --panel2:#0b1020;
@@ -17,7 +17,7 @@
   header p{ margin:6px 0 0; color:var(--muted); font-size:12px; line-height:1.35; }
   .wrap{ max-width:1200px; margin:0 auto; padding:12px 12px 36px; }
   .card{ background:rgba(15,22,41,.92); border:1px solid var(--line); border-radius:14px; padding:12px; }
-  .row{ display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+  .row{ display:flex; gap:10px; flex-wrap:wrap; align-items:center; justify-content:space-between; }
   .muted{ color:var(--muted); font-size:12px; }
   select,button{
     background:var(--panel2); color:var(--ink);
@@ -29,18 +29,104 @@
   button.good{ background:#153a2a; border-color:#2a664a; }
   button.danger{ background:#3a1b2a; border-color:#5a2741; }
   button.hot{ background:#3a1432; border-color:#6b2a5f; }
+  button.ghost{ background:transparent; border:1px dashed var(--line); color:var(--muted); }
   button:disabled{ opacity:.5; cursor:not-allowed; }
+
   .hud{ display:grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap:10px; margin-top:10px; }
   @media(max-width:980px){ .hud{ grid-template-columns:1fr 1fr; } }
   .hudBox{ border:1px solid var(--line); border-radius:14px; background:rgba(11,16,32,.7); padding:10px; }
   .hudBox .k{ font-size:12px; color:var(--muted); }
   .hudBox .v{ font-size:22px; font-weight:950; margin-top:4px; font-variant-numeric:tabular-nums; }
   .hudBox .s{ font-size:12px; color:var(--muted); margin-top:4px; line-height:1.35; }
+
   .tabs{ display:flex; gap:10px; margin-top:12px; flex-wrap:wrap; }
   .tab{ padding:10px 12px; border-radius:12px; border:1px solid var(--line); background:rgba(11,16,32,.6); cursor:pointer; font-weight:950; }
   .tab.active{ outline:2px solid rgba(110,243,178,.45); }
+
   .grid2{ display:grid; grid-template-columns: 1fr 1fr; gap:12px; margin-top:12px; }
   @media(max-width:980px){ .grid2{ grid-template-columns:1fr; } }
+
+  /* Tiles (draggable) */
+ .rosterGrid{
+  display:grid;
+  grid-template-columns: 1fr;   /* 1 column so each item is big */
+  gap:12px;
+  margin-top:10px;
+}
+
+ .tile{
+  display:flex; gap:12px; align-items:center;
+  border:1px solid var(--line); border-radius:18px;
+  background:rgba(11,16,32,.78);
+  padding:12px; user-select:none; cursor:grab;
+}
+.tile:active{ cursor:grabbing; }
+
+/* BIG thumbnail */
+.thumb{
+  width:86px; height:86px;
+  border-radius:18px;
+  border:1px solid var(--line);
+  overflow:hidden;
+  background:var(--panel2);
+  flex:0 0 auto;
+}
+.thumb img{ width:100%; height:100%; object-fit:cover; display:block; }
+
+/* Bigger text */
+.name{ font-weight:950; font-size:15px; }
+.meta{ font-size:12px; color:var(--muted); margin-top:4px; }
+.val{ margin-left:auto; font-weight:950; font-size:16px; font-variant-numeric:tabular-nums; }
+
+  /* Drop zones */
+  .dropWrap{ margin-top:10px; border:1px solid var(--line); border-radius:14px; background:rgba(11,16,32,.55); padding:10px; }
+  .dropTitle{ display:flex; justify-content:space-between; align-items:baseline; margin-bottom:8px; }
+  .dropZone{
+  min-height:180px;
+  border:2px dashed rgba(184,197,230,.18);
+  border-radius:16px;
+  padding:12px;
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+  align-items:stretch;
+}
+ .chip{
+  display:flex; gap:12px; align-items:center;
+  border:1px solid var(--line);
+  border-radius:16px;
+  background:rgba(15,22,41,.9);
+  padding:10px;
+  width:100%;
+.mini{
+  width:74px; height:74px;
+  border-radius:16px;
+  overflow:hidden;
+  border:1px solid var(--line);
+  background:var(--panel2);
+  flex:0 0 auto;
+}
+.mini img{ width:100%; height:100%; object-fit:cover; display:block; }
+ .chip b{
+  font-size:14px;
+  max-width: none;
+  overflow:visible;
+  white-space:normal;
+}
+.chip span{ font-size:12px; color:var(--muted); font-variant-numeric:tabular-nums; display:block; margin-top:4px; }
+
+.chip button{
+  margin-left:auto;
+  padding:8px 10px;
+  border-radius:12px;
+  background:transparent;
+  border:1px solid var(--line);
+  color:var(--muted);
+  font-size:12px;
+  cursor:pointer;
+}
+
+  /* Inbox */
   .offerList{ display:grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap:10px; margin-top:12px; }
   @media(max-width:980px){ .offerList{ grid-template-columns:1fr; } }
   .offerCard{ border:1px solid var(--line); border-radius:14px; background:rgba(11,16,32,.55); padding:10px; cursor:pointer; }
@@ -51,6 +137,7 @@
   .bB{ color:var(--hot); border-color: rgba(255,139,211,.45); background: rgba(255,139,211,.08); }
   .offerCard h3{ margin:0; font-size:13px; }
   .offerCard p{ margin:8px 0 0; color:var(--muted); font-size:12px; line-height:1.35; }
+
   .divider{ height:1px; background:#1d2740; margin:10px 0; }
   .log{ margin-top:12px; border:1px solid var(--line); border-radius:14px; background:rgba(11,16,32,.55); padding:10px; max-height:220px; overflow:auto; font-size:12px; color:var(--muted); line-height:1.45; }
   .log b{ color:var(--ink); }
@@ -76,18 +163,18 @@
 <body>
 
 <header>
-  <h1>🍔 Fast Food CEO Trade Machine</h1>
-  <p>Pick your chain → evaluate 3 incoming offers per turn → accept/counter/reject → send 1 offer → end turn. Goal: <b>650 Menu Power</b> by turn 10.</p>
+  <h1>🍔 Fast Food CEO Trade Machine (Drag & Drop)</h1>
+  <p>Drag items into trade packages. Send offers. Respond to incoming offers. Animations pop for blockbuster/fair/fleece.</p>
 </header>
 
 <div class="wrap">
 
   <div class="card" id="start">
-    <div class="row">
+    <div class="row" style="justify-content:flex-start;">
       <div style="font-weight:950;">Choose your CEO</div>
-      <span class="muted">This is the starter game (lite + stable).</span>
+      <span class="muted">Needs placeholder image: <b>assets/items/placeholder.jpg</b></span>
     </div>
-    <div class="row" style="margin-top:10px;">
+    <div class="row" style="margin-top:10px; justify-content:flex-start;">
       <label class="muted">My Chain</label>
       <select id="myTeam"></select>
 
@@ -100,20 +187,19 @@
 
       <button class="good" id="startBtn">Start Run</button>
     </div>
-    <div class="muted" style="margin-top:10px;">
-      Images are optional. If you don’t add images yet, it still works.
-    </div>
   </div>
 
   <div id="game" style="display:none;">
     <div class="card">
 
-      <div class="row" style="justify-content:space-between;">
-        <div class="row">
+      <div class="row">
+        <div class="row" style="justify-content:flex-start;">
+          <button class="ghost" id="clearProposal">Clear Proposal</button>
           <button class="danger" id="newRun">New Run</button>
-          <button id="endTurn" class="hot">End Turn ➜</button>
         </div>
-        <div class="muted">Animations trigger on accept/counter/reject.</div>
+        <div class="row" style="justify-content:flex-end;">
+          <button class="hot" id="endTurn">End Turn ➜</button>
+        </div>
       </div>
 
       <div class="hud">
@@ -144,11 +230,12 @@
         <div class="tab" id="tMake">📤 Make Offer</div>
       </div>
 
+      <!-- INBOX -->
       <div id="vInbox" style="margin-top:12px;">
         <div class="row" style="justify-content:space-between;">
           <div>
             <div style="font-weight:950;">Inbox Offers</div>
-            <div class="muted">Click an offer → Accept / Counter / Reject</div>
+            <div class="muted">Click one → Accept / Counter / Reject</div>
           </div>
         </div>
 
@@ -165,32 +252,72 @@
             <div class="row">
               <span class="badge bR" id="dBadge" style="display:none;">FAIR</span>
               <button class="good" id="accept" disabled>Accept</button>
-              <button id="counter" disabled>Counter</button>
+              <button class="ghost" id="counter" disabled>Counter</button>
               <button class="danger" id="reject" disabled>Reject</button>
             </div>
           </div>
 
+          <div class="grid2">
+            <div>
+              <div style="font-weight:950;">You give</div>
+              <div class="dropWrap"><div class="dropZone" id="dYou"></div></div>
+            </div>
+            <div>
+              <div style="font-weight:950;">They give</div>
+              <div class="dropWrap"><div class="dropZone" id="dThey"></div></div>
+            </div>
+          </div>
+
           <div class="divider"></div>
-          <div class="muted" id="dEval">—</div>
+          <div>
+            <div style="font-weight:950;" id="dEval">—</div>
+            <div class="muted" id="dEval2">—</div>
+          </div>
         </div>
       </div>
 
+      <!-- MAKE OFFER -->
       <div id="vMake" style="display:none; margin-top:12px;">
         <div class="row" style="justify-content:space-between;">
           <div>
-            <div style="font-weight:950;">Make Offer</div>
-            <div class="muted">Pick a target CEO and send ONE offer per turn.</div>
+            <div style="font-weight:950;">Make / Counter Offer (Drag & Drop)</div>
+            <div class="muted">Drag items into each package, then click Send. (1 outbound offer per turn)</div>
           </div>
-          <div class="row">
+          <div class="row" style="justify-content:flex-end;">
             <label class="muted">Target CEO</label>
             <select id="target"></select>
             <button class="good" id="send">Send Offer</button>
           </div>
         </div>
 
-        <div class="muted" style="margin-top:10px;">
-          For the starter version, “Make Offer” is simplified: it auto-builds a proposal based on your best items.
-          (We can upgrade to drag-and-drop once it’s stable.)
+        <div class="grid2">
+          <div class="card" style="background:rgba(11,16,32,.55); border:1px solid var(--line);">
+            <div style="font-weight:950;">Your Menu (drag items)</div>
+            <div class="muted" id="myCount"></div>
+            <div class="rosterGrid" id="myRoster"></div>
+
+            <div class="dropWrap">
+              <div class="dropTitle"><b>You give</b><span class="muted">Drop here</span></div>
+              <div class="dropZone" id="giveYou"></div>
+            </div>
+          </div>
+
+          <div class="card" style="background:rgba(11,16,32,.55); border:1px solid var(--line);">
+            <div style="font-weight:950;">Target Menu (drag items)</div>
+            <div class="muted" id="themCount"></div>
+            <div class="rosterGrid" id="themRoster"></div>
+
+            <div class="dropWrap">
+              <div class="dropTitle"><b>They give</b><span class="muted">Drop here</span></div>
+              <div class="dropZone" id="giveThey"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+        <div>
+          <div style="font-weight:950;" id="mEval">Build a proposal</div>
+          <div class="muted" id="mEval2">Drag items into both packages.</div>
         </div>
       </div>
 
@@ -201,133 +328,168 @@
 </div>
 
 <!-- FX layer -->
-<div id="fxLayer">
-  <div id="tradeBanner"></div>
-</div>
+<div id="fxLayer"><div id="tradeBanner"></div></div>
 
 <script>
-/* ===== DATA (10 chains) ===== */
-const DATA = {
+/* ===== DATA (10 chains + image filenames) ===== */
+const DATA_SEED = {
   "McDonald's":[
-    {name:"Big Mac",base:86,tags:["iconic"]},
-    {name:"Fries",base:80,tags:["iconic","speed"]},
-    {name:"Chicken Nuggets (10pc)",base:78,tags:["iconic"]},
-    {name:"McFlurry",base:74,tags:["broken"]},
-    {name:"Egg McMuffin",base:76,tags:["iconic"]},
-    {name:"Hash Browns",base:70,tags:["speed"]},
-    {name:"Filet-O-Fish",base:72,tags:["iconic"]}
+    {name:"Big Mac",base:86,tags:["iconic"],img:"assets/items/big-mac.jpg"},
+    {name:"Fries",base:80,tags:["iconic","speed"],img:"assets/items/mcd-fries.jpg"},
+    {name:"Chicken Nuggets (10pc)",base:78,tags:["iconic"],img:"assets/items/nuggets.jpg"},
+    {name:"McFlurry",base:74,tags:["broken"],img:"assets/items/mcflurry.jpg"},
+    {name:"Egg McMuffin",base:76,tags:["iconic"],img:"assets/items/egg-mcmuffin.jpg"},
+    {name:"Hash Browns",base:70,tags:["speed"],img:"assets/items/hash-browns.jpg"},
+    {name:"Filet-O-Fish",base:72,tags:["iconic"],img:"assets/items/filet-o-fish.jpg"}
   ],
   "Taco Bell":[
-    {name:"Baja Blast",base:90,tags:["iconic"]},
-    {name:"Crunchwrap Supreme",base:88,tags:["iconic"]},
-    {name:"Doritos Locos Taco",base:84,tags:["iconic"]},
-    {name:"Quesadilla",base:80,tags:["iconic"]},
-    {name:"Nacho Fries (LTO)",base:83,tags:["lto"]},
-    {name:"Fire Sauce",base:64,tags:["sauce"]},
-    {name:"Cinnamon Twists",base:70,tags:["dessert"]}
+    {name:"Baja Blast",base:90,tags:["iconic"],img:"assets/items/baja-blast.jpg"},
+    {name:"Crunchwrap Supreme",base:88,tags:["iconic"],img:"assets/items/crunchwrap.jpg"},
+    {name:"Doritos Locos Taco",base:84,tags:["iconic"],img:"assets/items/doritos-locos.jpg"},
+    {name:"Quesadilla",base:80,tags:["iconic"],img:"assets/items/tb-quesadilla.jpg"},
+    {name:"Nacho Fries (LTO)",base:83,tags:["lto"],img:"assets/items/nacho-fries.jpg"},
+    {name:"Fire Sauce",base:64,tags:["sauce"],img:"assets/items/fire-sauce.jpg"},
+    {name:"Cinnamon Twists",base:70,tags:["dessert"],img:"assets/items/cinnamon-twists.jpg"}
   ],
   "Chick-fil-A":[
-    {name:"Chicken Sandwich",base:90,tags:["iconic"]},
-    {name:"Spicy Chicken Sandwich",base:92,tags:["iconic"]},
-    {name:"Waffle Fries",base:86,tags:["iconic","speed"]},
-    {name:"Nuggets (12ct)",base:82,tags:["iconic"]},
-    {name:"Chick-fil-A Sauce",base:66,tags:["sauce"]},
-    {name:"Lemonade",base:75,tags:["iconic"]},
-    {name:"Mac & Cheese",base:74,tags:["iconic"]}
+    {name:"Chicken Sandwich",base:90,tags:["iconic"],img:"assets/items/chicken-sandwich.jpg"},
+    {name:"Spicy Chicken Sandwich",base:92,tags:["iconic"],img:"assets/items/spicy-chicken-sandwich.jpg"},
+    {name:"Waffle Fries",base:86,tags:["iconic","speed"],img:"assets/items/waffle-fries.jpg"},
+    {name:"Nuggets (12ct)",base:82,tags:["iconic"],img:"assets/items/cfa-nuggets.jpg"},
+    {name:"Chick-fil-A Sauce",base:66,tags:["sauce"],img:"assets/items/cfa-sauce.jpg"},
+    {name:"Lemonade",base:75,tags:["iconic"],img:"assets/items/cfa-lemonade.jpg"},
+    {name:"Mac & Cheese",base:74,tags:["iconic"],img:"assets/items/mac-and-cheese.jpg"}
   ],
   "Raising Cane's":[
-    {name:"Box Combo",base:88,tags:["iconic"]},
-    {name:"Chicken Fingers",base:86,tags:["iconic"]},
-    {name:"Cane's Sauce",base:70,tags:["sauce","iconic"]},
-    {name:"Texas Toast",base:76,tags:["iconic"]},
-    {name:"Crinkle Fries",base:80,tags:["speed"]},
-    {name:"Lemonade",base:74,tags:["iconic"]},
-    {name:"Coleslaw",base:66,tags:[]}
+    {name:"Box Combo",base:88,tags:["iconic"],img:"assets/items/box-combo.jpg"},
+    {name:"Chicken Fingers",base:86,tags:["iconic"],img:"assets/items/chicken-fingers.jpg"},
+    {name:"Cane's Sauce",base:70,tags:["sauce","iconic"],img:"assets/items/canes-sauce.jpg"},
+    {name:"Texas Toast",base:76,tags:["iconic"],img:"assets/items/texas-toast.jpg"},
+    {name:"Crinkle Fries",base:80,tags:["speed"],img:"assets/items/crinkle-fries.jpg"},
+    {name:"Lemonade",base:74,tags:["iconic"],img:"assets/items/rc-lemonade.jpg"},
+    {name:"Coleslaw",base:66,tags:[],img:"assets/items/coleslaw.jpg"}
   ],
   "Burger King":[
-    {name:"Whopper",base:84,tags:["iconic"]},
-    {name:"Fries",base:76,tags:["speed"]},
-    {name:"Onion Rings",base:73,tags:["iconic"]},
-    {name:"Chicken Fries",base:76,tags:["iconic"]},
-    {name:"Impossible Whopper (LTO)",base:78,tags:["lto"]},
-    {name:"Breakfast Croissan'wich",base:72,tags:["iconic"]},
-    {name:"Chocolate Pie",base:70,tags:["dessert"]}
+    {name:"Whopper",base:84,tags:["iconic"],img:"assets/items/whopper.jpg"},
+    {name:"Fries",base:76,tags:["speed"],img:"assets/items/bk-fries.jpg"},
+    {name:"Onion Rings",base:73,tags:["iconic"],img:"assets/items/onion-rings.jpg"},
+    {name:"Chicken Fries",base:76,tags:["iconic"],img:"assets/items/chicken-fries.jpg"},
+    {name:"Impossible Whopper (LTO)",base:78,tags:["lto"],img:"assets/items/impossible-whopper.jpg"},
+    {name:"Breakfast Croissan'wich",base:72,tags:["iconic"],img:"assets/items/croissanwich.jpg"},
+    {name:"Chocolate Pie",base:70,tags:["dessert"],img:"assets/items/chocolate-pie.jpg"}
   ],
   "Chipotle":[
-    {name:"Burrito",base:86,tags:["iconic"]},
-    {name:"Bowl",base:86,tags:["iconic"]},
-    {name:"Chips & Guac",base:80,tags:["upgrade","iconic"]},
-    {name:"Queso",base:74,tags:["upgrade"]},
-    {name:"Barbacoa",base:82,tags:["iconic"]},
-    {name:"Vinaigrette",base:64,tags:["sauce"]},
-    {name:"Hot Salsa",base:64,tags:["sauce"]}
+    {name:"Burrito",base:86,tags:["iconic"],img:"assets/items/burrito.jpg"},
+    {name:"Bowl",base:86,tags:["iconic"],img:"assets/items/bowl.jpg"},
+    {name:"Chips & Guac",base:80,tags:["upgrade","iconic"],img:"assets/items/chips-guac.jpg"},
+    {name:"Queso",base:74,tags:["upgrade"],img:"assets/items/queso.jpg"},
+    {name:"Barbacoa",base:82,tags:["iconic"],img:"assets/items/barbacoa.jpg"},
+    {name:"Vinaigrette",base:64,tags:["sauce"],img:"assets/items/vinaigrette.jpg"},
+    {name:"Hot Salsa",base:64,tags:["sauce"],img:"assets/items/hot-salsa.jpg"}
   ],
   "Panda Express":[
-    {name:"Orange Chicken",base:90,tags:["iconic"]},
-    {name:"Chow Mein",base:82,tags:["iconic"]},
-    {name:"Fried Rice",base:80,tags:["iconic"]},
-    {name:"Beijing Beef",base:84,tags:["iconic"]},
-    {name:"Honey Walnut Shrimp (LTO)",base:86,tags:["lto"]},
-    {name:"Super Greens",base:70,tags:[]},
-    {name:"Fortune Cookie",base:62,tags:["nostalgia"]}
+    {name:"Orange Chicken",base:90,tags:["iconic"],img:"assets/items/orange-chicken.jpg"},
+    {name:"Chow Mein",base:82,tags:["iconic"],img:"assets/items/chow-mein.jpg"},
+    {name:"Fried Rice",base:80,tags:["iconic"],img:"assets/items/fried-rice.jpg"},
+    {name:"Beijing Beef",base:84,tags:["iconic"],img:"assets/items/beijing-beef.jpg"},
+    {name:"Honey Walnut Shrimp (LTO)",base:86,tags:["lto"],img:"assets/items/walnut-shrimp.jpg"},
+    {name:"Super Greens",base:70,tags:[],img:"assets/items/super-greens.jpg"},
+    {name:"Fortune Cookie",base:62,tags:["nostalgia"],img:"assets/items/fortune-cookie.jpg"}
   ],
   "Subway":[
-    {name:"Footlong Sub",base:80,tags:["iconic"]},
-    {name:"Italian B.M.T.",base:82,tags:["iconic"]},
-    {name:"Meatball Marinara",base:80,tags:["iconic"]},
-    {name:"Tuna Sub",base:74,tags:["iconic"]},
-    {name:"Cookies",base:70,tags:["dessert"]},
-    {name:"Chipotle Southwest Sauce",base:64,tags:["sauce"]},
-    {name:"Soft Pretzel (LTO)",base:72,tags:["lto"]}
+    {name:"Footlong Sub",base:80,tags:["iconic"],img:"assets/items/footlong-sub.jpg"},
+    {name:"Italian B.M.T.",base:82,tags:["iconic"],img:"assets/items/italian-bmt.jpg"},
+    {name:"Meatball Marinara",base:80,tags:["iconic"],img:"assets/items/meatball.jpg"},
+    {name:"Tuna Sub",base:74,tags:["iconic"],img:"assets/items/tuna-sub.jpg"},
+    {name:"Cookies",base:70,tags:["dessert"],img:"assets/items/subway-cookies.jpg"},
+    {name:"Chipotle Southwest Sauce",base:64,tags:["sauce"],img:"assets/items/subway-southwest.jpg"},
+    {name:"Soft Pretzel (LTO)",base:72,tags:["lto"],img:"assets/items/soft-pretzel.jpg"}
   ],
   "Domino's":[
-    {name:"Pepperoni Pizza",base:90,tags:["iconic"]},
-    {name:"Cheesy Bread",base:82,tags:["iconic"]},
-    {name:"Chicken Wings",base:84,tags:["iconic"]},
-    {name:"Cinnamon Twists",base:74,tags:["dessert"]},
-    {name:"Lava Cake",base:78,tags:["dessert","iconic"]},
-    {name:"Garlic Dip",base:64,tags:["sauce"]},
-    {name:"Stuffed Crust (LTO)",base:82,tags:["lto"]}
+    {name:"Pepperoni Pizza",base:90,tags:["iconic"],img:"assets/items/pepperoni-pizza.jpg"},
+    {name:"Cheesy Bread",base:82,tags:["iconic"],img:"assets/items/cheesy-bread.jpg"},
+    {name:"Chicken Wings",base:84,tags:["iconic"],img:"assets/items/wings.jpg"},
+    {name:"Cinnamon Twists",base:74,tags:["dessert"],img:"assets/items/dom-cinnamon.jpg"},
+    {name:"Lava Cake",base:78,tags:["dessert","iconic"],img:"assets/items/lava-cake.jpg"},
+    {name:"Garlic Dip",base:64,tags:["sauce"],img:"assets/items/garlic-dip.jpg"},
+    {name:"Stuffed Crust (LTO)",base:82,tags:["lto"],img:"assets/items/stuffed-crust.jpg"}
   ],
   "Wendy's":[
-    {name:"Baconator",base:88,tags:["iconic"]},
-    {name:"Dave's Single",base:82,tags:["iconic"]},
-    {name:"Spicy Nuggets",base:83,tags:["iconic"]},
-    {name:"Spicy Chicken Sandwich",base:84,tags:["iconic"]},
-    {name:"Fries",base:76,tags:["speed"]},
-    {name:"Frosty",base:80,tags:["iconic"]},
-    {name:"Chili",base:72,tags:["iconic"]}
-  ],
+    {name:"Baconator",base:88,tags:["iconic"],img:"assets/items/baconator.jpg"},
+    {name:"Dave's Single",base:82,tags:["iconic"],img:"assets/items/daves-single.jpg"},
+    {name:"Spicy Nuggets",base:83,tags:["iconic"],img:"assets/items/spicy-nuggets.jpg"},
+    {name:"Spicy Chicken Sandwich",base:84,tags:["iconic"],img:"assets/items/wendys-spicy-chicken.jpg"},
+    {name:"Fries",base:76,tags:["speed"],img:"assets/items/wendys-fries.jpg"},
+    {name:"Frosty",base:80,tags:["iconic"],img:"assets/items/frosty.jpg"},
+    {name:"Chili",base:72,tags:["iconic"],img:"assets/items/chili.jpg"}
+  ]
 };
 
 const BONUS={ sauce:6, lto:8, iconic:5, broken:-7, speed:3, upgrade:4, dessert:2, nostalgia:2 };
+const PERSONALITY={
+  "McDonald's":{stingy:.75,block:.10},
+  "Taco Bell":{stingy:.45,block:.22},
+  "Chick-fil-A":{stingy:.60,block:.14},
+  "Raising Cane's":{stingy:.55,block:.12},
+  "Burger King":{stingy:.50,block:.15},
+  "Chipotle":{stingy:.70,block:.12},
+  "Panda Express":{stingy:.62,block:.13},
+  "Subway":{stingy:.52,block:.10},
+  "Domino's":{stingy:.45,block:.20},
+  "Wendy's":{stingy:.55,block:.14}
+};
 
 const el=id=>document.getElementById(id);
 const deepClone=x=>JSON.parse(JSON.stringify(x));
-const clamp=(x,a,b)=>Math.max(a,Math.min(b,x));
+const esc=s=>(s+"").replace(/[&<>"']/g,m=>({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[m]));
 const pick=arr=>arr[Math.floor(Math.random()*arr.length)];
+const clamp=(x,a,b)=>Math.max(a,Math.min(b,x));
 
 let S={
-  DATA: deepClone(DATA),
+  DATA: deepClone(DATA_SEED),
   my:null, turn:1, maxTurns:10, target:650,
-  rep:50, win:8,
+  rep:50, win:8, chaos:true,
   tab:"inbox",
   inbox:[], sel:null, outboundUsed:false,
-  log:[]
+  giveYou:[], giveThey:[]
 };
 
+function imgTag(src,alt){
+  return `<img src="${src||""}" alt="${esc(alt)}" loading="lazy"
+    onerror="this.onerror=null;this.src='assets/items/placeholder.jpg';" />`;
+}
+function roster(team){ return S.DATA[team]||[]; }
 function itemValue(it){
+  if(!it) return 0;
   let v=it.base;
   for(const t of (it.tags||[])) if(BONUS[t]!=null) v+=BONUS[t];
   return v;
 }
-function roster(team){ return S.DATA[team]||[]; }
 function power(team){ return roster(team).reduce((a,it)=>a+itemValue(it),0); }
 function sumNames(team,names){
   return names.reduce((a,n)=>{
     const it=roster(team).find(x=>x.name===n);
     return a+(it?itemValue(it):0);
   },0);
+}
+function youEval(other, youGive, theyGive){
+  const give=sumNames(S.my,youGive);
+  const get=sumNames(other,theyGive);
+  return {give,get,diff:get-give};
+}
+function theirEval(other, youGive, theyGive){
+  const p=PERSONALITY[other]||{stingy:.55,block:.12};
+  const received=sumNames(S.my,youGive);
+  const given=sumNames(other,theyGive);
+  const score=received-given; // + good for them
+  const repPenalty = S.rep<35?6: S.rep<50?3:0;
+  const stingyNeed = Math.round((p.stingy-.50)*14);
+  const accept = -Math.floor(S.win/2)+stingyNeed+repPenalty;
+  const counter = -Math.floor(S.win*1.7)+stingyNeed+repPenalty;
+  let verdict="reject";
+  if(score>=accept) verdict="accept";
+  else if(score>=counter) verdict="counter";
+  return {received,given,score,verdict,acceptThresh:accept};
 }
 
 /* ===== FX ===== */
@@ -354,6 +516,14 @@ function sumNames(team,names){
       35%{ box-shadow: inset 0 0 0 18px rgba(255,90,90,.12); }
       100%{ box-shadow: inset 0 0 0 0 rgba(255,90,90,0); }
     }
+    .confetti {
+      position:absolute; width:8px; height:14px; opacity:.95; border-radius:3px; top:0;
+      animation: confettiFall 900ms linear forwards; will-change: transform, opacity;
+    }
+    @keyframes confettiFall {
+      0%{ transform: translate(var(--x0), var(--y0)) rotate(0deg); opacity:1; }
+      100%{ transform: translate(var(--x1), var(--y1)) rotate(620deg); opacity:0; }
+    }
   `;
   document.head.appendChild(style);
 
@@ -369,64 +539,87 @@ function sumNames(team,names){
     document.body.offsetHeight;
     document.body.style.animation="screenShake 420ms ease-in-out, flashRed 520ms ease-out";
   }
-
-  window.tradeFX = function(kind){
-    if(kind==="block") show("🚨 BLOCKBUSTER 🚨", "#ff8bd3");
-    else if(kind==="fair") show("🤝 FAIR DEAL 🤝", "#6ef3b2");
+  function confettiBurst(){
+    const layer = el("fxLayer");
+    const count = 22;
+    const w = innerWidth, h = innerHeight;
+    const cx=w*0.5, cy=h*0.18;
+    for(let i=0;i<count;i++){
+      const c=document.createElement("div");
+      c.className="confetti";
+      c.style.left=cx+"px"; c.style.top=cy+"px";
+      const hue=Math.floor(Math.random()*360);
+      c.style.background=`hsl(${hue} 90% 60%)`;
+      c.style.setProperty("--x0",(Math.random()*40-20)+"px");
+      c.style.setProperty("--y0",(Math.random()*10-5)+"px");
+      c.style.setProperty("--x1",(Math.random()*420-210)+"px");
+      c.style.setProperty("--y1",(180+Math.random()*320)+"px");
+      layer.appendChild(c);
+      setTimeout(()=>c.remove(),950);
+    }
+  }
+  window.tradeFX=function(kind){
+    if(kind==="block"){ show("🚨 BLOCKBUSTER 🚨", "#ff8bd3"); confettiBurst(); }
+    else if(kind==="fair"){ show("🤝 FAIR DEAL 🤝", "#6ef3b2"); confettiBurst(); }
     else { show("😈 YOU GOT FLEECED 😈", "#ff7c7c"); shake(); }
   };
 })();
 
-/* ===== Game logic ===== */
+/* ===== Inbox generation ===== */
 function badgeFor(type){
   if(type==="fleece") return {txt:"FLEECE 😈",cls:"bF"};
   if(type==="block") return {txt:"BLOCKBUSTER 🚨",cls:"bB"};
   return {txt:"FAIR 🤝",cls:"bR"};
 }
-function logLine(html){
-  S.log.unshift(html);
-  if(S.log.length>40) S.log.pop();
-  el("log").innerHTML = S.log.map(x=>`<div>${x}</div>`).join("");
+function top(team){
+  return roster(team).map(it=>({it,v:itemValue(it)})).sort((a,b)=>b.v-a.v);
 }
-
 function genInbox(){
   S.inbox=[]; S.sel=null;
-  const teams=Object.keys(S.DATA).filter(t=>t!==S.my);
-  for(let i=0;i<3;i++){
-    const from=pick(teams);
-    // rep influences fleeces
-    const blockChance = 0.15 + (S.rep>70?0.05:0);
-    const fleeceChance= clamp(0.50 + (S.rep<40?0.20:S.rep<55?0.08:-0.10), 0.15, 0.75);
-    const r=Math.random();
-    let type="fair";
+  const others=Object.keys(S.DATA).filter(t=>t!==S.my);
+  const myTop=top(S.my);
+  for(let k=0;k<3;k++){
+    const from=pick(others);
+    const p=PERSONALITY[from];
+    let blockChance = (p.block||.12) + (S.rep>70?.08:S.rep>60?.04:0);
+    let fleeceChance=0.42+(S.rep<40?.18:S.rep<55?.08:-.05);
+    blockChance=clamp(blockChance,.05,.35);
+    fleeceChance=clamp(fleeceChance,.15,.75);
+    let r=Math.random(), type="fair";
     if(r<blockChance) type="block";
     else if(r<blockChance+fleeceChance) type="fleece";
 
-    // quick valuation based proposal (simple starter)
-    const myTop=[...roster(S.my)].sort((a,b)=>itemValue(b)-itemValue(a));
-    const theirTop=[...roster(from)].sort((a,b)=>itemValue(b)-itemValue(a));
     let youGive=[], theyGive=[];
+    const theirTop=top(from);
+
     if(type==="fleece"){
-      youGive=[myTop[0]?.name].filter(Boolean);
-      theyGive=[theirTop[theirTop.length-1]?.name].filter(Boolean);
+      youGive=[myTop[0]?.it?.name].filter(Boolean);
+      theyGive=[theirTop[theirTop.length-1]?.it?.name].filter(Boolean);
     } else if(type==="fair"){
-      youGive=[myTop[2]?.name || myTop[0]?.name].filter(Boolean);
-      theyGive=[theirTop[2]?.name || theirTop[0]?.name].filter(Boolean);
-    } else { // block
-      youGive=[myTop[0]?.name, myTop[1]?.name].filter(Boolean);
-      theyGive=[theirTop[0]?.name, theirTop[1]?.name].filter(Boolean);
+      youGive=[myTop[2]?.it?.name || myTop[0]?.it?.name].filter(Boolean);
+      theyGive=[theirTop[2]?.it?.name || theirTop[0]?.it?.name].filter(Boolean);
+    } else {
+      youGive=[myTop[0]?.it?.name, myTop[1]?.it?.name].filter(Boolean);
+      theyGive=[theirTop[0]?.it?.name, theirTop[1]?.it?.name].filter(Boolean);
     }
 
     const b=badgeFor(type);
     S.inbox.push({
-      id:`o_${S.turn}_${i}_${from.replace(/\W/g,"")}_${Math.random().toString(16).slice(2)}`,
-      from,type,badge:b, youGive, theyGive, handled:false,
-      msg: type==="fleece" ? "“This is extremely fair.”" : type==="block" ? "“Let’s change the league.”" : "“Solid deal.”"
+      id:`o_${S.turn}_${k}_${from.replace(/\W/g,"")}_${Math.random().toString(16).slice(2)}`,
+      from,type,badge:b,
+      youGive, theyGive,
+      msg: type==="fleece" ? "“This is extremely fair.”" : type==="block" ? "“Let’s change the league.”" : "“Solid deal.”",
+      handled:false
     });
   }
   S.sel=S.inbox[0]?.id||null;
 }
 
+/* ===== Rendering ===== */
+function logLine(html){
+  const box=el("log");
+  box.innerHTML = `<div>${html}</div>` + box.innerHTML;
+}
 function renderHUD(){
   el("hudTeam").textContent=S.my||"—";
   el("hudTurn").textContent=`${S.turn} / ${S.maxTurns}`;
@@ -435,17 +628,8 @@ function renderHUD(){
   const pending=S.inbox.filter(o=>!o.handled).length;
   el("hudInboxLeft").textContent=`Inbox offers: ${pending}`;
   el("hudRepNote").textContent = S.rep>=60 ? "Respected 🙂" : S.rep>=40 ? "Neutral 😐" : S.rep>=20 ? "Sketchy 😒" : "Public Enemy 😤";
-
-  const pow=power(S.my);
-  if(pow>=S.target){
-    el("hudPowerNote").textContent="🏆 Target hit!";
-    el("hudPowerNote").style.color="var(--good)";
-  } else {
-    el("hudPowerNote").textContent="Trade to improve your menu.";
-    el("hudPowerNote").style.color="var(--muted)";
-  }
+  el("hudPowerNote").textContent = power(S.my)>=S.target ? "🏆 Target hit!" : "Trade to improve your menu.";
 }
-
 function setTab(tab){
   S.tab=tab;
   el("tInbox").classList.toggle("active",tab==="inbox");
@@ -454,7 +638,6 @@ function setTab(tab){
   el("vMake").style.display  = tab==="make"  ? "" : "none";
   render();
 }
-
 function renderOfferList(){
   const list=el("offerList");
   list.innerHTML="";
@@ -462,135 +645,118 @@ function renderOfferList(){
     const div=document.createElement("div");
     div.className="offerCard";
     div.innerHTML=`
-      <span class="badge ${o.badge.cls}">${o.badge.txt}</span>
-      <h3>${o.from} → ${S.my}</h3>
-      <p>${o.msg}</p>
+      <span class="badge ${o.badge.cls}">${esc(o.badge.txt)}</span>
+      <h3>${esc(o.from)} → ${esc(S.my)}</h3>
+      <p>${esc(o.msg)}</p>
       <p class="muted">${o.handled?"✅ handled":"⏳ pending"}</p>
     `;
     div.onclick=()=>{ S.sel=o.id; renderOfferDetail(); };
     list.appendChild(div);
   }
 }
+function chip(team,name,withRemove,removeFn){
+  const it=roster(team).find(x=>x.name===name);
+  const v=itemValue(it);
+  const wrap=document.createElement("div");
+  wrap.className="chip";
+  wrap.innerHTML=`
+    <div class="mini">${imgTag(it?.img,name)}</div>
+    <div style="min-width:0;">
+      <b title="${esc(name)}">${esc(name)}</b>
+      <span>Value: ${v}</span>
+    </div>
+    ${withRemove?`<button title="Remove">✕</button>`:""}
+  `;
+  if(withRemove) wrap.querySelector("button").onclick=()=>removeFn(name);
+  return wrap;
+}
 function renderOfferDetail(){
   const o=S.inbox.find(x=>x.id===S.sel);
+  const dYou=el("dYou"), dThey=el("dThey");
+  dYou.innerHTML=""; dThey.innerHTML="";
   if(!o){
     el("dTitle").textContent="Select an offer";
     el("dMsg").textContent="—";
     el("dBadge").style.display="none";
     el("dEval").textContent="—";
+    el("dEval2").textContent="—";
     el("accept").disabled=true; el("counter").disabled=true; el("reject").disabled=true;
     return;
   }
   el("dTitle").textContent=`${o.from} offer`;
   el("dMsg").textContent=o.msg;
-
   const b=el("dBadge"); b.style.display=""; b.className=`badge ${o.badge.cls}`; b.textContent=o.badge.txt;
 
-  const giveVal=sumNames(S.my,o.youGive);
-  const getVal=sumNames(o.from,o.theyGive);
-  const net=getVal-giveVal;
+  if(o.youGive.length===0) dYou.innerHTML=`<div class="muted">Nothing</div>`;
+  else o.youGive.forEach(n=>dYou.appendChild(chip(S.my,n,false)));
 
-  el("dEval").textContent = `You give (${o.youGive.join(", ")}) = ${giveVal}. You get (${o.theyGive.join(", ")}) = ${getVal}. Net: ${net>=0?"+":""}${net}`;
+  if(o.theyGive.length===0) dThey.innerHTML=`<div class="muted">Nothing</div>`;
+  else o.theyGive.forEach(n=>dThey.appendChild(chip(o.from,n,false)));
 
-  const disabled=o.handled || power(S.my)>=S.target || S.turn>S.maxTurns;
+  const y=youEval(o.from,o.youGive,o.theyGive);
+  const t=theirEval(o.from,o.youGive,o.theyGive);
+  el("dEval").textContent = y.diff>=0 ? `Net: Good for you by ${y.diff}` : `Net: Bad for you by ${Math.abs(y.diff)}`;
+  el("dEval2").textContent = `They likely: ${t.verdict.toUpperCase()} (theirScore=${t.score})`;
+
+  const disabled=o.handled || (power(S.my)>=S.target) || (S.turn>S.maxTurns);
   el("accept").disabled=disabled;
   el("counter").disabled=disabled;
   el("reject").disabled=disabled;
 }
 
-function executeTrade(other, youGive, theyGive){
-  const myR=roster(S.my);
-  const theirR=roster(other);
-  const myGiveItems=youGive.map(n=>myR.find(x=>x.name===n)).filter(Boolean);
-  const theirGiveItems=theyGive.map(n=>theirR.find(x=>x.name===n)).filter(Boolean);
-  S.DATA[S.my]=myR.filter(x=>!youGive.includes(x.name)).concat(theirGiveItems);
-  S.DATA[other]=theirR.filter(x=>!theyGive.includes(x.name)).concat(myGiveItems);
-}
-
-function acceptOffer(){
-  const o=S.inbox.find(x=>x.id===S.sel); if(!o||o.handled) return;
-  const giveVal=sumNames(S.my,o.youGive);
-  const getVal=sumNames(o.from,o.theyGive);
-  const net=getVal-giveVal;
-
-  // FX:
-  if(net>=18) tradeFX("block");
-  else if(net>=-8) tradeFX("fair");
-  else tradeFX("fleece");
-
-  executeTrade(o.from,o.youGive,o.theyGive);
-  o.handled=true;
-
-  // rep changes
-  if(net < -12) S.rep = clamp(S.rep-8,0,100);
-  else if(net < 0) S.rep = clamp(S.rep-3,0,100);
-  else S.rep = clamp(S.rep+3,0,100);
-
-  logLine(`✅ Accepted <b>${o.from}</b>. Net ${net>=0?"+":""}${net}. Rep <b>${S.rep}</b>. Power <b>${power(S.my)}</b>.`);
-  render();
-}
-
-function rejectOffer(){
-  const o=S.inbox.find(x=>x.id===S.sel); if(!o||o.handled) return;
-  o.handled=true;
-  tradeFX("fleece"); // drama for video
-  S.rep = clamp(S.rep+1,0,100);
-  logLine(`❌ Rejected <b>${o.from}</b>. Rep <b>${S.rep}</b>.`);
-  render();
-}
-
-function counterOffer(){
-  // In starter, “Counter” just jumps to Make tab and generates a better offer
-  const o=S.inbox.find(x=>x.id===S.sel); if(!o||o.handled) return;
-  setTab("make");
-  tradeFX("fair");
-  logLine(`🔁 Countering <b>${o.from}</b>. Go to Make Offer and Send.`);
-  el("target").value=o.from;
-}
-
-function sendOffer(){
-  if(S.outboundUsed) { logLine("⚠️ Outbound offer already used this turn."); return; }
-  S.outboundUsed=true;
-
-  const other=el("target").value;
-  const myTop=[...roster(S.my)].sort((a,b)=>itemValue(b)-itemValue(a));
-  const theirTop=[...roster(other)].sort((a,b)=>itemValue(b)-itemValue(a));
-
-  // Simple auto proposal: offer your #3 for their #2 (usually fair-ish)
-  const youGive=[myTop[2]?.name || myTop[0]?.name].filter(Boolean);
-  const theyGive=[theirTop[1]?.name || theirTop[0]?.name].filter(Boolean);
-
-  const giveVal=sumNames(S.my,youGive);
-  const getVal=sumNames(other,theyGive);
-  const net=getVal-giveVal;
-
-  // They accept if net is bad for them (i.e., good for you) NO — so reverse: they accept if THEY win
-  const themNet = giveVal - getVal; // + means good for them
-  if(themNet >= -S.win){ // not too terrible
-    tradeFX(net>=18 ? "block" : net>=-8 ? "fair" : "fleece");
-    executeTrade(other,youGive,theyGive);
-    logLine(`📤 Offer sent to <b>${other}</b> ACCEPTED. You gave ${youGive.join(", ")} for ${theyGive.join(", ")}. Net ${net>=0?"+":""}${net}`);
-    S.rep = clamp(S.rep + 2, 0, 100);
-  } else {
-    tradeFX("fleece");
-    logLine(`📤 Offer sent to <b>${other}</b> REJECTED. “Not enough value.”`);
-    S.rep = clamp(S.rep - 1, 0, 100);
+function renderRoster(team, containerId, payloadMode){
+  const c=el(containerId);
+  c.innerHTML="";
+  const items=roster(team).map(it=>({it,v:itemValue(it)})).sort((a,b)=>b.v-a.v);
+  for(const x of items){
+    const div=document.createElement("div");
+    div.className="tile";
+    div.draggable=true;
+    div.addEventListener("dragstart",(ev)=>{
+      ev.dataTransfer.setData("text/plain", JSON.stringify({mode:payloadMode, team, name:x.it.name}));
+    });
+    div.innerHTML=`
+      <div class="thumb">${imgTag(x.it.img,x.it.name)}</div>
+      <div style="min-width:0;">
+        <div class="name">${esc(x.it.name)}</div>
+        <div class="meta">${(x.it.tags||[]).map(t=>"#"+esc(t)).join(" ")}</div>
+      </div>
+      <div class="val">${x.v}</div>
+    `;
+    c.appendChild(div);
   }
-
-  render();
 }
 
-function endTurn(){
-  if(power(S.my)>=S.target){ logLine("🏆 You already hit the goal! Start a new run."); return; }
-  if(S.turn>=S.maxTurns){ logLine("🏁 Out of turns. Start a new run."); return; }
+function renderMake(){
+  const target=el("target").value;
+  el("myCount").textContent=`${roster(S.my).length} items`;
+  el("themCount").textContent=`${roster(target).length} items`;
 
-  S.turn++;
-  S.outboundUsed=false;
+  renderRoster(S.my,"myRoster","make");
+  renderRoster(target,"themRoster","make");
 
-  genInbox();
-  tradeFX("fair");
-  logLine(`➡️ Turn ${S.turn} begins. New offers arrived.`);
-  render();
+  const youZ=el("giveYou"), theyZ=el("giveThey");
+  youZ.innerHTML=""; theyZ.innerHTML="";
+  if(S.giveYou.length===0) youZ.innerHTML=`<div class="muted">Drop items here…</div>`;
+  else S.giveYou.forEach(n=>youZ.appendChild(chip(S.my,n,true,(name)=>{ S.giveYou=S.giveYou.filter(x=>x!==name); renderMakeEval(); renderMake(); })));
+  if(S.giveThey.length===0) theyZ.innerHTML=`<div class="muted">Drop items here…</div>`;
+  else S.giveThey.forEach(n=>theyZ.appendChild(chip(target,n,true,(name)=>{ S.giveThey=S.giveThey.filter(x=>x!==name); renderMakeEval(); renderMake(); })));
+
+  renderMakeEval();
+  el("send").disabled = S.outboundUsed || (power(S.my)>=S.target) || (S.turn>S.maxTurns);
+}
+
+function renderMakeEval(){
+  const target=el("target").value;
+  if(S.giveYou.length===0 || S.giveThey.length===0){
+    el("mEval").textContent="Build a proposal";
+    el("mEval2").textContent="Drag items into both packages.";
+    return;
+  }
+  const y=youEval(target,S.giveYou,S.giveThey);
+  const t=theirEval(target,S.giveYou,S.giveThey);
+  el("mEval").textContent = y.diff>=0 ? `Net: You WIN by ${y.diff}` : `Net: You LOSE by ${Math.abs(y.diff)}`;
+  el("mEval2").textContent = `They likely: ${t.verdict.toUpperCase()} (theirScore=${t.score})`;
 }
 
 function render(){
@@ -598,7 +764,7 @@ function render(){
   renderOfferList();
   renderOfferDetail();
 
-  // Target dropdown
+  // target dropdown
   const sel=el("target");
   if(sel){
     const teams=Object.keys(S.DATA).filter(t=>t!==S.my);
@@ -610,16 +776,124 @@ function render(){
     }
     sel.value = teams.includes(prev) ? prev : teams[0];
   }
+
+  if(S.tab==="make") renderMake();
 }
 
+/* ===== Drop wiring ===== */
+function wireDrop(zoneId, acceptFn){
+  const z=el(zoneId);
+  z.addEventListener("dragover",(ev)=>{ ev.preventDefault(); z.classList.add("dragover"); });
+  z.addEventListener("dragleave",()=>z.classList.remove("dragover"));
+  z.addEventListener("drop",(ev)=>{
+    ev.preventDefault(); z.classList.remove("dragover");
+    try{ acceptFn(JSON.parse(ev.dataTransfer.getData("text/plain"))); }catch{}
+  });
+}
+
+/* ===== Trades ===== */
+function executeTrade(other, youGive, theyGive){
+  const myR=roster(S.my);
+  const theirR=roster(other);
+  const myGiveItems=youGive.map(n=>myR.find(x=>x.name===n)).filter(Boolean);
+  const theirGiveItems=theyGive.map(n=>theirR.find(x=>x.name===n)).filter(Boolean);
+  S.DATA[S.my]=myR.filter(x=>!youGive.includes(x.name)).concat(theirGiveItems);
+  S.DATA[other]=theirR.filter(x=>!theyGive.includes(x.name)).concat(myGiveItems);
+}
+
+function acceptOffer(){
+  const o=S.inbox.find(x=>x.id===S.sel); if(!o||o.handled) return;
+  const y=youEval(o.from,o.youGive,o.theyGive);
+
+  if(y.diff>=18) tradeFX("block");
+  else if(y.diff>=-8) tradeFX("fair");
+  else tradeFX("fleece");
+
+  executeTrade(o.from,o.youGive,o.theyGive);
+  o.handled=true;
+
+  S.rep = clamp(S.rep + (y.diff>=0?3:-3), 0, 100);
+  logLine(`✅ Accepted <b>${esc(o.from)}</b>. Net ${y.diff>=0?"+":""}${y.diff}. Power <b>${power(S.my)}</b>.`);
+
+  render();
+}
+
+function rejectOffer(){
+  const o=S.inbox.find(x=>x.id===S.sel); if(!o||o.handled) return;
+  o.handled=true;
+  tradeFX("fleece");
+  S.rep = clamp(S.rep+1,0,100);
+  logLine(`❌ Rejected <b>${esc(o.from)}</b>.`);
+  render();
+}
+
+function counterOffer(){
+  const o=S.inbox.find(x=>x.id===S.sel); if(!o||o.handled) return;
+  el("target").value=o.from;
+  // Preload proposal as a starting point
+  S.giveYou=[...o.youGive];
+  S.giveThey=[...o.theyGive];
+  setTab("make");
+  tradeFX("fair");
+  logLine(`🔁 Countering <b>${esc(o.from)}</b>. Edit packages and click Send.`);
+}
+
+function sendOffer(){
+  if(S.outboundUsed) return;
+  const other=el("target").value;
+
+  if(S.giveYou.length===0 || S.giveThey.length===0){
+    logLine("⚠️ Add items to BOTH sides before sending.");
+    return;
+  }
+  S.outboundUsed=true;
+
+  const t=theirEval(other,S.giveYou,S.giveThey);
+  const y=youEval(other,S.giveYou,S.giveThey);
+
+  if(t.verdict==="accept"){
+    if(y.diff>=18) tradeFX("block"); else if(y.diff>=-8) tradeFX("fair"); else tradeFX("fleece");
+    executeTrade(other,S.giveYou,S.giveThey);
+    S.rep = clamp(S.rep + 3, 0, 100);
+    logLine(`📤 <b>${esc(other)}</b> ACCEPTED. Net ${y.diff>=0?"+":""}${y.diff}.`);
+    // clear proposal
+    S.giveYou=[]; S.giveThey=[];
+  } else if(t.verdict==="counter"){
+    tradeFX("fair");
+    S.rep = clamp(S.rep - 1, 0, 100);
+    logLine(`🔁 <b>${esc(other)}</b> COUNTERED: “Need more value.” Try adding another item.`);
+    // keep proposal so you can adjust
+  } else {
+    tradeFX("fleece");
+    S.rep = clamp(S.rep - 2, 0, 100);
+    logLine(`❌ <b>${esc(other)}</b> REJECTED your offer.`);
+  }
+
+  render();
+}
+
+function endTurn(){
+  if(power(S.my)>=S.target){ logLine("🏆 You already hit the goal! Start a new run."); return; }
+  if(S.turn>=S.maxTurns){ logLine("🏁 Out of turns. Start a new run."); return; }
+  S.turn++;
+  S.outboundUsed=false;
+  S.giveYou=[]; S.giveThey=[];
+  genInbox();
+  tradeFX("fair");
+  logLine(`➡️ Turn ${S.turn} begins. New inbox offers arrived.`);
+  render();
+}
+
+/* ===== Init ===== */
 function startRun(){
-  S.DATA=deepClone(DATA);
+  S.DATA=deepClone(DATA_SEED);
   S.my=el("myTeam").value;
   S.win=parseInt(el("window").value,10);
-  S.turn=1; S.rep=50; S.outboundUsed=false; S.log=[];
+  S.turn=1; S.rep=50; S.outboundUsed=false;
+  S.giveYou=[]; S.giveThey=[];
   el("log").innerHTML="";
   genInbox();
-  logLine(`🎬 New run: CEO of <b>${S.my}</b>. Turn 1 begins.`);
+  logLine(`🎬 New run: CEO of <b>${esc(S.my)}</b>. Turn 1 begins.`);
   el("start").style.display="none";
   el("game").style.display="";
   setTab("inbox");
@@ -627,16 +901,17 @@ function startRun(){
 }
 
 function init(){
-  // start select
   const my=el("myTeam");
-  for(const t of Object.keys(DATA)){
-    const o=document.createElement("option");
-    o.value=t; o.textContent=t; my.appendChild(o);
+  my.innerHTML="";
+  for(const t of Object.keys(DATA_SEED)){
+    const o=document.createElement("option"); o.value=t; o.textContent=t;
+    my.appendChild(o);
   }
 
   el("startBtn").onclick=startRun;
   el("newRun").onclick=()=>location.reload();
   el("endTurn").onclick=endTurn;
+  el("clearProposal").onclick=()=>{ S.giveYou=[]; S.giveThey=[]; logLine("🧼 Cleared proposal."); render(); };
 
   el("tInbox").onclick=()=>setTab("inbox");
   el("tMake").onclick=()=>setTab("make");
@@ -644,14 +919,25 @@ function init(){
   el("accept").onclick=acceptOffer;
   el("reject").onclick=rejectOffer;
   el("counter").onclick=counterOffer;
-
   el("send").onclick=sendOffer;
 
-  logLine(`<span class="muted">Start a run to begin.</span>`);
+  // Drop zones
+  wireDrop("giveYou",(p)=>{
+    if(S.tab!=="make") return;
+    if(p.team!==S.my) return;
+    if(!S.giveYou.includes(p.name)) S.giveYou.push(p.name);
+    render();
+  });
+  wireDrop("giveThey",(p)=>{
+    if(S.tab!=="make") return;
+    const target=el("target").value;
+    if(p.team!==target) return;
+    if(!S.giveThey.includes(p.name)) S.giveThey.push(p.name);
+    render();
+  });
 }
 init();
 </script>
 
 </body>
 </html>
-
