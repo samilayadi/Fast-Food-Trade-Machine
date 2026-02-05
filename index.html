@@ -13,9 +13,12 @@
     font-family: system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
   }
 
-  /* ===== One-screen / no page scroll ===== */
-  html, body { height: 100%; }
-  body { margin:0; color:var(--ink); background:linear-gradient(180deg,#070a12,#0b0f19); overflow:hidden; }
+  html, body { height:100%; }
+  body{
+    margin:0; color:var(--ink);
+    background:linear-gradient(180deg,#070a12,#0b0f19);
+    overflow:hidden; /* NO PAGE SCROLL */
+  }
 
   header{
     padding:12px 12px;
@@ -29,12 +32,13 @@
   .wrap{
     max-width:1200px;
     margin:0 auto;
-    height: calc(100vh - 76px); /* header height */
+    height: calc(100vh - 76px);
     padding:10px 12px 12px;
     overflow:hidden;
     display:flex;
     flex-direction:column;
     box-sizing:border-box;
+    gap:10px;
   }
 
   .card{
@@ -43,16 +47,6 @@
     border-radius:16px;
     padding:12px;
     box-sizing:border-box;
-  }
-
-  /* Game area fills screen */
-  #gameShell{
-    flex:1;
-    min-height:0;
-    overflow:hidden;
-    display:flex;
-    flex-direction:column;
-    gap:10px;
   }
 
   .row{ display:flex; gap:10px; flex-wrap:wrap; align-items:center; justify-content:space-between; }
@@ -108,39 +102,22 @@
   .tab.active{ outline:2px solid rgba(110,243,178,.45); }
   .tabIcon{ font-size:14px; }
 
-  /* ===== Make Offer One-Screen Layout ===== */
-  #makeTopBar{
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    gap:10px;
-    flex-wrap:wrap;
-  }
-
-  .makeScreen{
-    flex:1;
-    min-height:0;
-    overflow:hidden;
-    display:flex;
-    flex-direction:column;
+  /* ===== One-screen view area ===== */
+  #viewInbox, #viewMake{
+    flex:1; min-height:0; overflow:hidden;
+    display:flex; flex-direction:column;
     gap:10px;
   }
 
+  /* ===== 3 column trade center ===== */
   .make3{
     flex:1;
     min-height:0;
     overflow:hidden;
     display:grid;
-    grid-template-columns: 1fr 1.2fr 1fr;
+    grid-template-columns: 1fr 1.25fr 1fr;
     gap:12px;
     align-items:stretch;
-  }
-
-  @media(max-width:980px){
-    /* On smaller screens we stack */
-    body{ overflow:auto; }
-    .wrap{ height:auto; overflow:visible; }
-    .make3{ grid-template-columns:1fr; }
   }
 
   .makeCol{
@@ -148,18 +125,17 @@
     overflow:hidden;
     display:flex;
     flex-direction:column;
+    gap:10px;
   }
 
-  /* Column headers w/logo slot */
   .colHeader{
     display:flex;
     justify-content:space-between;
     align-items:center;
     gap:10px;
-    margin-bottom:8px;
   }
   .logoSlot{
-    width:54px; height:54px;
+    width:50px; height:50px;
     border-radius:16px;
     border:1px dashed rgba(184,197,230,.35);
     display:flex; align-items:center; justify-content:center;
@@ -172,70 +148,65 @@
   }
   .logoSlot img{ width:100%; height:100%; object-fit:contain; display:block; padding:8px; }
 
-  /* Rosters scroll internally */
   .rosterGrid{
     flex:1;
     min-height:0;
     overflow:auto;
     padding-right:6px;
     display:grid;
-    grid-template-columns:1fr; /* big tiles */
-    gap:12px;
+    grid-template-columns:1fr;
+    gap:10px;
   }
 
-  /* Big roster tiles */
   .tile{
-    display:flex; gap:12px; align-items:center;
-    border:1px solid var(--line); border-radius:18px;
+    display:flex; gap:10px; align-items:center;
+    border:1px solid var(--line);
+    border-radius:18px;
     background:rgba(11,16,32,.78);
-    padding:12px; user-select:none; cursor:grab;
+    padding:10px;
+    user-select:none;
+    cursor:grab;
   }
   .tile:active{ cursor:grabbing; }
+
   .thumb{
-    width:84px; height:84px; /* tuned for one-screen */
-    border-radius:18px;
+    width:72px; height:72px; /* smaller for fit */
+    border-radius:16px;
     border:1px solid var(--line);
     overflow:hidden;
     background:var(--panel2);
     flex:0 0 auto;
   }
   .thumb img{ width:100%; height:100%; object-fit:cover; display:block; }
-  .name{ font-weight:950; font-size:14px; }
-  .meta{ font-size:12px; color:var(--muted); margin-top:4px; }
-  .val{ margin-left:auto; font-weight:950; font-size:15px; font-variant-numeric:tabular-nums; }
 
-  /* Middle column sections */
-  .midCol{
-    display:flex;
-    flex-direction:column;
-    min-height:0;
-    overflow:hidden;
+  .name{ font-weight:950; font-size:13px; }
+  .meta{ font-size:11px; color:var(--muted); margin-top:4px; }
+  .val{ margin-left:auto; font-weight:950; font-size:14px; font-variant-numeric:tabular-nums; }
+
+  .divider{ height:1px; background:#1d2740; }
+
+  /* Middle outgoing builder */
+  .midCenter{
+    min-height:0; overflow:hidden;
+    display:flex; flex-direction:column;
+    gap:10px;
   }
-
-  .midSection{
-    min-height:0;
-    overflow:hidden;
-  }
-
-  .divider{ height:1px; background:#1d2740; margin:10px 0; }
-
-  .midTop{
+  .midTopBar{
     display:flex;
     justify-content:space-between;
     align-items:flex-start;
     gap:10px;
+    flex-wrap:wrap;
   }
 
-  /* Logo bridge center */
   .logoBridge{
     display:flex;
     align-items:center;
     justify-content:center;
     gap:10px;
-    margin:8px 0;
   }
   .logoPuck{
-    width:50px; height:50px;
+    width:46px; height:46px;
     border-radius:999px;
     border:1px solid rgba(184,197,230,.25);
     background:rgba(15,22,41,.65);
@@ -246,27 +217,32 @@
     overflow:hidden;
     flex:0 0 auto;
   }
-  .logoPuck img{ width:100%; height:100%; object-fit:contain; display:block; padding:10px; }
+  .logoPuck img{ width:100%; height:100%; object-fit:contain; display:block; padding:9px; }
   .logoArrow{ font-weight:950; color:rgba(184,197,230,.75); font-size:18px; }
 
-  /* Split outgoing/incoming packages */
   .midSplit2{
+    flex:1;
+    min-height:0;
+    overflow:hidden;
     display:grid;
     grid-template-columns:1fr 1fr;
     gap:10px;
   }
 
-  /* Drop Zones */
   .dropWrap{
     border:1px solid var(--line);
     border-radius:16px;
     background:rgba(11,16,32,.55);
     padding:10px;
+    min-height:0;
+    display:flex;
+    flex-direction:column;
+    gap:8px;
   }
 
   .dropZone{
-    min-height:118px;
-    max-height:170px; /* keep screen fit */
+    flex:1;
+    min-height:0;
     overflow:auto;
     border:2px dashed rgba(184,197,230,.18);
     border-radius:16px;
@@ -274,32 +250,30 @@
     display:flex;
     flex-direction:column;
     gap:10px;
-    align-items:stretch;
   }
   .dropZone.dragover{ border-color: var(--good); background: rgba(110,243,178,.06); }
 
-  /* Package cards */
   .pkgCard{
-    display:flex; gap:12px; align-items:center;
+    display:flex; gap:10px; align-items:center;
     border:1px solid var(--line);
     border-radius:16px;
     background:rgba(15,22,41,.9);
-    padding:10px;
+    padding:8px;
   }
   .mini{
-    width:70px; height:70px; /* tuned for one-screen */
-    border-radius:16px;
+    width:62px; height:62px;
+    border-radius:14px;
     overflow:hidden;
     border:1px solid var(--line);
     background:var(--panel2);
     flex:0 0 auto;
   }
   .mini img{ width:100%; height:100%; object-fit:cover; display:block; }
-  .pkgCard b{ font-size:13px; display:block; }
-  .pkgCard span{ font-size:12px; color:var(--muted); display:block; margin-top:4px; }
+  .pkgCard b{ font-size:12px; display:block; }
+  .pkgCard span{ font-size:11px; color:var(--muted); display:block; margin-top:4px; }
   .pkgCard button{
     margin-left:auto;
-    padding:8px 10px;
+    padding:7px 9px;
     border-radius:12px;
     background:transparent;
     border:1px solid var(--line);
@@ -308,14 +282,17 @@
     cursor:pointer;
   }
 
-  /* Inbox offers list */
+  /* Inbox cards */
   .offerList{
+    flex:1;
+    min-height:0;
+    overflow:auto;
     display:grid;
     grid-template-columns: repeat(3, minmax(0,1fr));
     gap:10px;
+    padding-right:6px;
   }
   @media(max-width:980px){ .offerList{ grid-template-columns:1fr; } }
-
   .offerCard{
     border:1px solid var(--line);
     border-radius:16px;
@@ -338,13 +315,13 @@
   .bR{ color:var(--good); border-color: rgba(110,243,178,.45); background: rgba(110,243,178,.07); }
   .bB{ color:var(--hot); border-color: rgba(255,139,211,.45); background: rgba(255,139,211,.08); }
 
-  /* Log small + internal scroll */
+  /* Log (small) */
   .log{
     border:1px solid var(--line);
     border-radius:16px;
     background:rgba(11,16,32,.55);
     padding:10px;
-    max-height: 90px;
+    max-height: 82px;
     overflow:auto;
     font-size:12px;
     color:var(--muted);
@@ -352,7 +329,7 @@
   }
   .log b{ color:var(--ink); }
 
-  /* FX overlay */
+  /* FX Banner */
   #fxLayer{ position:fixed; inset:0; pointer-events:none; z-index:9999; }
   #tradeBanner{
     position:absolute; left:50%; top:12%;
@@ -364,9 +341,85 @@
     background:rgba(10,14,24,.82);
     backdrop-filter: blur(10px);
     box-shadow:0 18px 45px rgba(0,0,0,.55);
-    font:900 18px/1.1 system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    font:900 18px/1.1 system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
     letter-spacing:.4px;
     white-space:nowrap;
+  }
+
+  /* POPUP MODAL */
+  #modalMask{
+    position:fixed; inset:0; z-index:9998;
+    background: rgba(0,0,0,.55);
+    backdrop-filter: blur(6px);
+    display:none;
+    align-items:center;
+    justify-content:center;
+    padding:18px;
+  }
+  .modal{
+    width:min(880px, 96vw);
+    max-height: min(720px, 90vh);
+    overflow:hidden;
+    display:flex;
+    flex-direction:column;
+    border-radius:18px;
+    border:1px solid rgba(255,255,255,.14);
+    background: rgba(10,14,24,.92);
+    box-shadow:0 24px 70px rgba(0,0,0,.65);
+  }
+  .modalHead{
+    padding:14px 14px 10px;
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    gap:10px;
+    border-bottom:1px solid rgba(255,255,255,.08);
+  }
+  .modalTitle{ font-weight:950; font-size:16px; }
+  .modalBody{
+    padding:14px;
+    overflow:auto;
+    min-height:0;
+  }
+  .modalGrid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:12px;
+  }
+  .modalFoot{
+    padding:12px 14px 14px;
+    display:flex;
+    justify-content:flex-end;
+    gap:10px;
+    border-top:1px solid rgba(255,255,255,.08);
+  }
+  .pill{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    padding:8px 10px;
+    border-radius:999px;
+    border:1px solid rgba(255,255,255,.14);
+    background: rgba(255,255,255,.04);
+    color: var(--muted);
+    font-size:12px;
+    font-weight:900;
+  }
+  .kbd{
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size:11px;
+    border:1px solid rgba(255,255,255,.14);
+    border-bottom-width:2px;
+    padding:2px 6px;
+    border-radius:8px;
+    background: rgba(255,255,255,.06);
+    color: var(--ink);
+  }
+
+  /* Small screens: allow page scroll */
+  @media(max-width:980px){
+    body{ overflow:auto; }
+    .wrap{ height:auto; overflow:visible; }
   }
 </style>
 </head>
@@ -374,18 +427,17 @@
 <body>
 <header>
   <h1>🍔 Fast Food CEO Trade Machine</h1>
-  <p>One-screen trade machine. Drag left/right → drop in the center. Build the greatest menu before Turn 10.</p>
+  <p>Drag from left/right → drop into the center outgoing offer. Inbox contains incoming offers only.</p>
 </header>
 
 <div class="wrap">
 
-  <!-- START CARD -->
+  <!-- START -->
   <div class="card" id="startCard">
     <div class="row" style="justify-content:flex-start;">
       <div style="font-weight:950;">Choose your CEO</div>
       <span class="muted">Needs placeholder image: <b>assets/items/placeholder.jpg</b></span>
     </div>
-
     <div class="row" style="margin-top:10px; justify-content:flex-start;">
       <label class="muted">My Chain</label>
       <select id="myTeam"></select>
@@ -399,14 +451,13 @@
 
       <button class="good" id="startBtn">Start Run</button>
     </div>
-
     <div class="small" style="margin-top:10px;">
-      Tip: Keep item images small (webp/jpg under ~250KB) to stay smooth.
+      Tip: add logos in <b>assets/logos/</b> (mcdonalds.png, tacobell.png, etc.). If missing, it falls back to text.
     </div>
   </div>
 
   <!-- GAME -->
-  <div id="gameShell" style="display:none;">
+  <div id="gameShell" style="display:none; flex:1; min-height:0; overflow:hidden; display:flex; flex-direction:column; gap:10px;">
 
     <div class="row">
       <div class="row" style="justify-content:flex-start;">
@@ -446,16 +497,12 @@
       <div class="tab" id="tabMake"><span class="tabIcon">📤</span>Make Offer</div>
     </div>
 
-    <!-- INBOX VIEW -->
-    <div class="card" id="viewInbox" style="flex:1; min-height:0; overflow:hidden; display:flex; flex-direction:column;">
-      <div class="offerList" id="offerList"></div>
-
-      <div class="divider"></div>
-
+    <!-- INBOX VIEW (incoming offers only) -->
+    <div class="card" id="viewInbox">
       <div class="row" style="justify-content:space-between;">
         <div>
-          <div style="font-weight:950;" id="inTitle">Select an offer</div>
-          <div class="muted" id="inMsg">—</div>
+          <div style="font-weight:950;" id="inTitle">Incoming offers</div>
+          <div class="muted" id="inMsg">Pick one to inspect.</div>
         </div>
         <div class="row">
           <span class="badge bR" id="inBadge" style="display:none;">FAIR</span>
@@ -465,29 +512,23 @@
         </div>
       </div>
 
-      <div class="midSplit2" style="margin-top:10px;">
-        <div>
-          <div class="muted" style="font-weight:950; margin-bottom:6px;">You give</div>
-          <div class="dropWrap"><div class="dropZone" id="inYou"></div></div>
-        </div>
-        <div>
-          <div class="muted" style="font-weight:950; margin-bottom:6px;">They give</div>
-          <div class="dropWrap"><div class="dropZone" id="inThey"></div></div>
-        </div>
-      </div>
+      <div class="offerList" id="offerList"></div>
 
       <div class="divider"></div>
-      <div style="font-weight:950;" id="inEval">—</div>
-      <div class="muted" id="inEval2">—</div>
+
+      <div class="row" style="justify-content:space-between;">
+        <div style="font-weight:950;" id="inEval">—</div>
+        <div class="muted" id="inEval2">—</div>
+      </div>
     </div>
 
-    <!-- MAKE OFFER VIEW -->
-    <div class="card" id="viewMake" style="display:none; flex:1; min-height:0; overflow:hidden;">
+    <!-- MAKE OFFER VIEW (OUTGOING BUILDER CENTER) -->
+    <div class="card" id="viewMake" style="display:none;">
 
-      <div id="makeTopBar">
+      <div class="row" style="justify-content:space-between;">
         <div>
-          <div style="font-weight:950;">Trade Center (Drag & Drop)</div>
-          <div class="muted">Left = your menu, right = target CEO. Build trades in the middle.</div>
+          <div style="font-weight:950;">Trade Center (Outgoing Offer)</div>
+          <div class="muted">Drag from left/right into the center. Then Send Offer.</div>
         </div>
         <div class="row" style="justify-content:flex-end;">
           <label class="muted">Target CEO</label>
@@ -496,123 +537,114 @@
         </div>
       </div>
 
-      <div class="makeScreen">
-        <div class="make3">
+      <div class="make3">
 
-          <!-- LEFT: YOUR MENU -->
-          <div class="makeCol card" style="background:rgba(11,16,32,.55); border:1px solid var(--line); padding:12px;">
-            <div class="colHeader">
-              <div>
-                <div style="font-weight:950;">Your Menu</div>
-                <div class="muted" id="myCount">—</div>
-              </div>
-              <div class="logoSlot" id="logoLeftSlot">YOU</div>
+        <!-- LEFT -->
+        <div class="makeCol">
+          <div class="colHeader">
+            <div>
+              <div style="font-weight:950;">Your Menu</div>
+              <div class="muted" id="myCount">—</div>
             </div>
-            <div class="rosterGrid" id="myRoster"></div>
+            <div class="logoSlot" id="logoLeftSlot">YOU</div>
           </div>
-
-          <!-- MIDDLE: INCOMING + OUTGOING -->
-          <div class="makeCol card midCol" style="background:rgba(11,16,32,.55); border:1px solid var(--line); padding:12px;">
-
-            <!-- Incoming -->
-            <div class="midSection" style="display:flex; flex-direction:column; min-height:0;">
-              <div class="midTop">
-                <div>
-                  <div style="font-weight:950;">Incoming Offer</div>
-                  <div class="muted" id="incomingTitleMini">Pick an offer in Inbox</div>
-                </div>
-                <span class="badge bR" id="incomingBadgeMini" style="display:none;">FAIR</span>
-              </div>
-
-              <div class="logoBridge">
-                <div class="logoPuck" id="logoLeftPuck">YOU</div>
-                <div class="logoArrow">⇄</div>
-                <div class="logoPuck" id="logoRightPuck">THEM</div>
-              </div>
-
-              <div class="midSplit2" style="flex:1; min-height:0;">
-                <div style="min-height:0; display:flex; flex-direction:column;">
-                  <div class="muted" style="font-weight:900; margin:4px 0 6px;">You receive</div>
-                  <div class="dropWrap" style="flex:1; min-height:0;">
-                    <div class="dropZone" id="incomingYouMini"></div>
-                  </div>
-                </div>
-                <div style="min-height:0; display:flex; flex-direction:column;">
-                  <div class="muted" style="font-weight:900; margin:4px 0 6px;">You give</div>
-                  <div class="dropWrap" style="flex:1; min-height:0;">
-                    <div class="dropZone" id="incomingTheyMini"></div>
-                  </div>
-                </div>
-              </div>
-
-              <div class="row" style="justify-content:flex-end; margin-top:10px;">
-                <button class="good" id="miniAccept">Accept</button>
-                <button class="ghost" id="miniCounter">Counter</button>
-                <button class="danger" id="miniReject">Reject</button>
-              </div>
-            </div>
-
-            <div class="divider"></div>
-
-            <!-- Outgoing -->
-            <div class="midSection" style="display:flex; flex-direction:column; min-height:0;">
-              <div style="font-weight:950;">Outgoing Offer (Build Yours)</div>
-              <div class="muted">Drag items into both packages, then Send.</div>
-
-              <div class="midSplit2" style="margin-top:8px; flex:1; min-height:0;">
-                <div style="min-height:0; display:flex; flex-direction:column;">
-                  <div class="muted" style="font-weight:900; margin:4px 0 6px;">You give</div>
-                  <div class="dropWrap" style="flex:1; min-height:0;">
-                    <div class="dropZone" id="pkgYou"></div>
-                  </div>
-                </div>
-                <div style="min-height:0; display:flex; flex-direction:column;">
-                  <div class="muted" style="font-weight:900; margin:4px 0 6px;">They give</div>
-                  <div class="dropWrap" style="flex:1; min-height:0;">
-                    <div class="dropZone" id="pkgThey"></div>
-                  </div>
-                </div>
-              </div>
-
-              <div class="divider"></div>
-              <div style="font-weight:950;" id="mkEval">Build a proposal</div>
-              <div class="muted" id="mkEval2">Drag items into both packages.</div>
-            </div>
-
-          </div>
-
-          <!-- RIGHT: THEIR MENU -->
-          <div class="makeCol card" style="background:rgba(11,16,32,.55); border:1px solid var(--line); padding:12px;">
-            <div class="colHeader">
-              <div>
-                <div style="font-weight:950;">Target Menu</div>
-                <div class="muted" id="themCount">—</div>
-              </div>
-              <div class="logoSlot" id="logoRightSlot">THEM</div>
-            </div>
-            <div class="rosterGrid" id="themRoster"></div>
-          </div>
-
+          <div class="rosterGrid" id="myRoster"></div>
         </div>
-      </div>
 
+        <!-- MIDDLE OUTGOING BUILDER -->
+        <div class="makeCol midCenter">
+          <div class="midTopBar">
+            <div>
+              <div style="font-weight:950;">Outgoing Offer</div>
+              <div class="muted">Space for logos shown below.</div>
+            </div>
+            <div class="pill">
+              Drag: <span class="kbd">Left</span>/<span class="kbd">Right</span> → <span class="kbd">Center</span>
+            </div>
+          </div>
+
+          <div class="logoBridge">
+            <div class="logoPuck" id="logoLeftPuck">YOU</div>
+            <div class="logoArrow">⇄</div>
+            <div class="logoPuck" id="logoRightPuck">THEM</div>
+          </div>
+
+          <div class="midSplit2">
+            <div class="dropWrap">
+              <div class="muted" style="font-weight:950;">You give</div>
+              <div class="dropZone" id="pkgYou"></div>
+            </div>
+            <div class="dropWrap">
+              <div class="muted" style="font-weight:950;">They give</div>
+              <div class="dropZone" id="pkgThey"></div>
+            </div>
+          </div>
+
+          <div class="divider"></div>
+          <div style="font-weight:950;" id="mkEval">Build a proposal</div>
+          <div class="muted" id="mkEval2">Drag items into both packages.</div>
+        </div>
+
+        <!-- RIGHT -->
+        <div class="makeCol">
+          <div class="colHeader">
+            <div>
+              <div style="font-weight:950;">Target Menu</div>
+              <div class="muted" id="themCount">—</div>
+            </div>
+            <div class="logoSlot" id="logoRightSlot">THEM</div>
+          </div>
+          <div class="rosterGrid" id="themRoster"></div>
+        </div>
+
+      </div>
     </div>
 
     <div class="log" id="log"></div>
-
   </div>
 </div>
 
 <div id="fxLayer"><div id="tradeBanner"></div></div>
 
+<!-- MODAL for counteroffers/outcomes -->
+<div id="modalMask">
+  <div class="modal">
+    <div class="modalHead">
+      <div>
+        <div class="modalTitle" id="mTitle">Trade Result</div>
+        <div class="muted" id="mSub">—</div>
+      </div>
+      <div class="badge bR" id="mBadge" style="display:none;">FAIR</div>
+    </div>
+    <div class="modalBody">
+      <div class="modalGrid">
+        <div>
+          <div class="muted" style="font-weight:950; margin-bottom:6px;">You give</div>
+          <div class="dropWrap"><div class="dropZone" id="mYou"></div></div>
+        </div>
+        <div>
+          <div class="muted" style="font-weight:950; margin-bottom:6px;">They give</div>
+          <div class="dropWrap"><div class="dropZone" id="mThey"></div></div>
+        </div>
+      </div>
+      <div class="divider" style="margin:12px 0;"></div>
+      <div style="font-weight:950;" id="mEval">—</div>
+      <div class="muted" id="mEval2">—</div>
+    </div>
+    <div class="modalFoot" id="mButtons">
+      <button class="ghost" id="mClose">Close</button>
+    </div>
+  </div>
+</div>
+
 <script>
 /* =========================
-   Fast Food CEO Trade Machine (One Screen)
+   Trade Machine - Outgoing Center + Counteroffer Popup
 ========================= */
 
 const PLACEHOLDER = "assets/items/placeholder.jpg";
 
-/* ===== Data ===== */
+/* ===== Data (same set; you can expand items later) ===== */
 const DATA_SEED = {
   "McDonald's":[
     {name:"Big Mac",base:86,tags:["iconic"],img:"assets/items/big-mac.jpg"},
@@ -747,7 +779,8 @@ let S = {
   inbox: [],
   selectedOfferId: null,
   pkgYou: [],
-  pkgThey: []
+  pkgThey: [],
+  pendingCounter: null // counteroffer payload after you send
 };
 
 function roster(team){ return S.DATA[team] || []; }
@@ -758,32 +791,27 @@ function itemValue(it){
   for(const t of (it.tags||[])) if(BONUS[t]!=null) v += BONUS[t];
   return v;
 }
-
 function power(team){ return roster(team).reduce((a,it)=>a+itemValue(it),0); }
-
 function findItem(team, name){ return roster(team).find(x=>x.name===name) || null; }
-
 function sumNames(team, names){
-  let total = 0;
-  const r = roster(team);
+  let total=0;
+  const r=roster(team);
   for(const n of names){
-    const it = r.find(x=>x.name===n);
-    if(it) total += itemValue(it);
+    const it=r.find(x=>x.name===n);
+    if(it) total+=itemValue(it);
   }
   return total;
 }
-
 function youNet(other, youGive, theyGive){
-  const give = sumNames(S.my, youGive);
-  const get  = sumNames(other, theyGive);
-  return {give, get, diff: (get-give)};
+  const give=sumNames(S.my, youGive);
+  const get=sumNames(other, theyGive);
+  return {give, get, diff:(get-give)};
 }
-
 function theirVerdict(other, youGive, theyGive){
   const p = PERSONALITY[other] || {stingy:0.55, block:0.12};
   const received = sumNames(S.my, youGive);
   const given    = sumNames(other, theyGive);
-  const score = received - given; // + better for them
+  const score = received - given;
 
   const repPenalty = (S.rep < 35) ? 6 : (S.rep < 50) ? 3 : 0;
   const stingyNeed = Math.round((p.stingy - 0.50) * 14);
@@ -822,10 +850,8 @@ function theirVerdict(other, youGive, theyGive){
   `;
   document.head.appendChild(style);
 })();
-
 function showBanner(text, color, shake=false){
   const banner = $("tradeBanner");
-  if(!banner) return;
   banner.textContent = text;
   banner.style.color = color;
   banner.style.animation = "none";
@@ -839,22 +865,13 @@ function showBanner(text, color, shake=false){
 }
 function fxStatus(status){
   if(status==="accepted") showBanner("✅ TRADE ACCEPTED", "#6ef3b2", false);
-  if(status==="countered") showBanner("🔁 TRADE COUNTERED", "#ff8bd3", false);
+  if(status==="countered") showBanner("🔁 COUNTEROFFER!", "#ff8bd3", false);
   if(status==="rejected") showBanner("❌ TRADE REJECTED", "#ff7c7c", true);
-}
-function fxQuality(diff, fairness){
-  if(diff >= 18) showBanner("🚨 BLOCKBUSTER 🚨", "#ff8bd3", false);
-  else if(diff >= -fairness) showBanner("🤝 FAIR DEAL 🤝", "#6ef3b2", false);
-  else showBanner("😈 YOU GOT FLEECED 😈", "#ff7c7c", true);
 }
 
 /* ===== Logos ===== */
-function teamSlug(team){
-  return (team||"").toLowerCase().replace(/[^a-z0-9]+/g,"");
-}
-function logoPath(team){
-  return `assets/logos/${teamSlug(team)}.png`;
-}
+function teamSlug(team){ return (team||"").toLowerCase().replace(/[^a-z0-9]+/g,""); }
+function logoPath(team){ return `assets/logos/${teamSlug(team)}.png`; }
 function setLogo(elId, team, fallbackText){
   const el = $(elId);
   if(!el) return;
@@ -864,10 +881,7 @@ function setLogo(elId, team, fallbackText){
 }
 
 /* ===== Logging ===== */
-function logLine(html){
-  const box = $("log");
-  box.innerHTML = `<div>${html}</div>` + box.innerHTML;
-}
+function logLine(html){ $("log").innerHTML = `<div>${html}</div>` + $("log").innerHTML; }
 
 /* ===== Tabs ===== */
 function setTab(tab){
@@ -879,7 +893,7 @@ function setTab(tab){
   render();
 }
 
-/* ===== Offers ===== */
+/* ===== Inbox offers (incoming only) ===== */
 function badge(type){
   if(type==="block") return {txt:"BLOCKBUSTER 🚨", cls:"bB"};
   if(type==="fleece") return {txt:"FLEECE 😈", cls:"bF"};
@@ -890,7 +904,6 @@ function topItems(team){
     .map(it=>({name:it.name, v:itemValue(it)}))
     .sort((a,b)=>b.v-a.v);
 }
-
 function genInbox(){
   S.inbox = [];
   const others = Object.keys(S.DATA).filter(t=>t!==S.my);
@@ -923,7 +936,7 @@ function genInbox(){
 
     const b = badge(type);
     S.inbox.push({
-      id: `o_${S.turn}_${i}_${from.replace(/\W/g,"")}_${Math.random().toString(16).slice(2)}`,
+      id:`o_${S.turn}_${i}_${from.replace(/\W/g,"")}_${Math.random().toString(16).slice(2)}`,
       from, type, badge:b,
       youGive, theyGive,
       msg: type==="fleece" ? "“This is extremely fair.”" : type==="block" ? "“Let’s change the game.”" : "“Solid deal.”",
@@ -943,6 +956,36 @@ function executeTrade(other, youGive, theyGive){
 
   S.DATA[S.my] = myR.filter(it=>!youGive.includes(it.name)).concat(thGiveItems);
   S.DATA[other] = thR.filter(it=>!theyGive.includes(it.name)).concat(myGiveItems);
+}
+
+/* ===== Modal ===== */
+function closeModal(){
+  $("modalMask").style.display = "none";
+}
+function openModal({title, sub, badgeObj, youGiveTeam, youGive, theyGiveTeam, theyGive, eval1, eval2, buttonsHTML}){
+  $("mTitle").textContent = title;
+  $("mSub").textContent = sub || "";
+  const b = $("mBadge");
+  if(badgeObj){
+    b.style.display = "";
+    b.className = `badge ${badgeObj.cls}`;
+    b.textContent = badgeObj.txt;
+  }else{
+    b.style.display="none";
+  }
+
+  $("mYou").innerHTML = youGive.length
+    ? youGive.map(n=>pkgCardHTML(youGiveTeam,n,false)).join("")
+    : `<div class="muted">Nothing</div>`;
+  $("mThey").innerHTML = theyGive.length
+    ? theyGive.map(n=>pkgCardHTML(theyGiveTeam,n,false)).join("")
+    : `<div class="muted">Nothing</div>`;
+
+  $("mEval").textContent = eval1 || "";
+  $("mEval2").textContent = eval2 || "";
+
+  $("mButtons").innerHTML = buttonsHTML;
+  $("modalMask").style.display = "flex";
 }
 
 /* ===== Render ===== */
@@ -996,76 +1039,35 @@ function renderOfferList(){
 
 function renderOfferDetail(){
   const o = S.inbox.find(x=>x.id===S.selectedOfferId);
-  const inYou = $("inYou");
-  const inThey = $("inThey");
-  inYou.innerHTML = "";
-  inThey.innerHTML = "";
+  const b = $("inBadge");
 
   if(!o){
-    $("inTitle").textContent = "Select an offer";
-    $("inMsg").textContent = "—";
-    $("inBadge").style.display = "none";
-    $("inEval").textContent = "—";
-    $("inEval2").textContent = "—";
-    $("btnAccept").disabled = true;
-    $("btnCounter").disabled = true;
-    $("btnReject").disabled = true;
+    $("inTitle").textContent = "Incoming offers";
+    $("inMsg").textContent = "Pick one to inspect.";
+    b.style.display="none";
+    $("inEval").textContent="—";
+    $("inEval2").textContent="—";
+    $("btnAccept").disabled=true;
+    $("btnCounter").disabled=true;
+    $("btnReject").disabled=true;
     return;
   }
 
-  $("inTitle").textContent = `${o.from} offer`;
+  $("inTitle").textContent = `${o.from} → ${S.my}`;
   $("inMsg").textContent = o.msg;
-  const b = $("inBadge");
-  b.style.display = "";
+  b.style.display="";
   b.className = `badge ${o.badge.cls}`;
   b.textContent = o.badge.txt;
-
-  inYou.innerHTML = (o.youGive.length ? o.youGive.map(n=>pkgCardHTML(S.my,n,false)).join("") : `<div class="muted">Nothing</div>`);
-  inThey.innerHTML = (o.theyGive.length ? o.theyGive.map(n=>pkgCardHTML(o.from,n,false)).join("") : `<div class="muted">Nothing</div>`);
 
   const y = youNet(o.from, o.youGive, o.theyGive);
   const t = theirVerdict(o.from, o.youGive, o.theyGive);
   $("inEval").textContent = y.diff>=0 ? `Net: You WIN by ${y.diff}` : `Net: You LOSE by ${Math.abs(y.diff)}`;
   $("inEval2").textContent = `They likely: ${t.verdict.toUpperCase()} (theirScore=${t.score})`;
 
-  const disabled = o.handled || (S.turn > S.maxTurns) || (power(S.my) >= S.targetPower);
-  $("btnAccept").disabled = disabled;
-  $("btnCounter").disabled = disabled;
-  $("btnReject").disabled = disabled;
-}
-
-function renderIncomingMini(){
-  const title = $("incomingTitleMini");
-  const badgeEl = $("incomingBadgeMini");
-  const zYou = $("incomingYouMini");
-  const zThey = $("incomingTheyMini");
-
-  const o = S.inbox.find(x=>x.id===S.selectedOfferId);
-
-  if(!o){
-    title.textContent = "Pick an offer in Inbox";
-    badgeEl.style.display = "none";
-    zYou.innerHTML = `<div class="muted">—</div>`;
-    zThey.innerHTML = `<div class="muted">—</div>`;
-    $("miniAccept").disabled = true;
-    $("miniReject").disabled = true;
-    $("miniCounter").disabled = true;
-    return;
-  }
-
-  title.textContent = `${o.from} → ${S.my}`;
-  badgeEl.style.display = "";
-  badgeEl.className = `badge ${o.badge.cls}`;
-  badgeEl.textContent = o.badge.txt;
-
-  // In mini incoming: YOU RECEIVE = theirGive, YOU GIVE = yourGive
-  zYou.innerHTML = o.theyGive.length ? o.theyGive.map(n=>pkgCardHTML(o.from,n,false)).join("") : `<div class="muted">Nothing</div>`;
-  zThey.innerHTML = o.youGive.length ? o.youGive.map(n=>pkgCardHTML(S.my,n,false)).join("") : `<div class="muted">Nothing</div>`;
-
   const disabled = o.handled || (S.turn>S.maxTurns) || (power(S.my)>=S.targetPower);
-  $("miniAccept").disabled = disabled;
-  $("miniReject").disabled = disabled;
-  $("miniCounter").disabled = disabled;
+  $("btnAccept").disabled=disabled;
+  $("btnCounter").disabled=disabled;
+  $("btnReject").disabled=disabled;
 }
 
 function renderTargets(){
@@ -1156,7 +1158,7 @@ function renderMake(){
     $("mkEval2").textContent = `They likely: ${t.verdict.toUpperCase()} (theirScore=${t.score})`;
   }
 
-  $("btnSend").disabled = S.outboundUsed || (S.turn>S.maxTurns) || (power(S.my)>=S.targetPower);
+  $("btnSend").disabled = (S.turn>S.maxTurns) || (power(S.my)>=S.targetPower);
 }
 
 function renderLogos(){
@@ -1168,11 +1170,10 @@ function renderLogos(){
 }
 
 function render(){
+  renderTargets();
   renderHUD();
   renderOfferList();
   renderOfferDetail();
-  renderIncomingMini();
-  renderTargets();
   renderLogos();
   if(S.tab==="make") renderMake();
 }
@@ -1197,17 +1198,17 @@ function startRun(){
   S.fairness = parseInt($("fairness").value,10) || 8;
   S.turn = 1;
   S.rep = 50;
-  S.outboundUsed = false;
   S.pkgYou = [];
   S.pkgThey = [];
+  S.pendingCounter = null;
   $("log").innerHTML = "";
 
   genInbox();
 
   $("startCard").style.display = "none";
   $("gameShell").style.display = "flex";
-
   setTab("make");
+
   logLine(`🎬 New run: CEO of <b>${esc(S.my)}</b>. Turn 1 begins.`);
   render();
 }
@@ -1221,10 +1222,7 @@ function acceptSelected(){
   o.handled = true;
 
   S.rep = clamp(S.rep + (y.diff>=0?3:-3), 0, 100);
-
-  fxQuality(y.diff, S.fairness);
   fxStatus("accepted");
-
   logLine(`✅ Accepted <b>${esc(o.from)}</b>. Net ${y.diff>=0?"+":""}${y.diff}. Power <b>${power(S.my)}</b>.`);
   render();
 }
@@ -1233,7 +1231,6 @@ function rejectSelected(){
   const o = S.inbox.find(x=>x.id===S.selectedOfferId);
   if(!o || o.handled) return;
   o.handled = true;
-
   S.rep = clamp(S.rep+1, 0, 100);
   fxStatus("rejected");
   logLine(`❌ Rejected <b>${esc(o.from)}</b>.`);
@@ -1244,50 +1241,160 @@ function counterSelected(){
   const o = S.inbox.find(x=>x.id===S.selectedOfferId);
   if(!o || o.handled) return;
 
+  // Switch to Make Offer and prefill YOUR outgoing builder with their offer (so you can counter)
   $("targetTeam").value = o.from;
   S.pkgYou = [...o.youGive];
   S.pkgThey = [...o.theyGive];
-  S.outboundUsed = false;
 
   fxStatus("countered");
   setTab("make");
-  logLine(`🔁 Countering <b>${esc(o.from)}</b>. Adjust packages then Send.`);
+  logLine(`🔁 Countering <b>${esc(o.from)}</b>. Edit packages then Send.`);
   render();
 }
 
-function sendOffer(){
-  if(S.outboundUsed) return;
-  const target = $("targetTeam").value;
+function buildCounterOffer(target, yourGive, theirGive){
+  // Make them "improve their side": either remove a thing they give OR add one more thing you give.
+  const tgtRoster = roster(target).slice().sort((a,b)=>itemValue(b)-itemValue(a));
+  const myRoster  = roster(S.my).slice().sort((a,b)=>itemValue(b)-itemValue(a));
 
+  let newYouGive = [...yourGive];
+  let newTheyGive = [...theirGive];
+
+  // If they were giving a lot, they might take some back.
+  if(newTheyGive.length>0 && Math.random()<0.55){
+    // remove their lowest value give
+    const vals = newTheyGive.map(n=>({n,v:itemValue(findItem(target,n))})).sort((a,b)=>a.v-b.v);
+    newTheyGive = newTheyGive.filter(n=>n!==vals[0].n);
+  } else {
+    // ask you to add one more medium item
+    const candidates = myRoster.map(x=>x.name).filter(n=>!newYouGive.includes(n));
+    if(candidates.length){
+      newYouGive.push(candidates[Math.floor(Math.random()*Math.min(3,candidates.length))]);
+    }
+  }
+
+  // Ensure not empty
+  if(newTheyGive.length===0){
+    const fallback = tgtRoster.find(x=>!theirGive.includes(x.name));
+    if(fallback) newTheyGive = [fallback.name];
+  }
+
+  return {youGive:newYouGive, theyGive:newTheyGive};
+}
+
+function sendOffer(){
+  const target = $("targetTeam").value;
   if(S.pkgYou.length===0 || S.pkgThey.length===0){
     logLine("⚠️ Add items to BOTH sides before sending.");
     return;
   }
 
-  const t = theirVerdict(target, S.pkgYou, S.pkgThey);
   const y = youNet(target, S.pkgYou, S.pkgThey);
-  S.outboundUsed = true;
+  const t = theirVerdict(target, S.pkgYou, S.pkgThey);
 
   if(t.verdict==="accept"){
     executeTrade(target, S.pkgYou, S.pkgThey);
     S.rep = clamp(S.rep+3, 0, 100);
-
-    fxQuality(y.diff, S.fairness);
     fxStatus("accepted");
-
     logLine(`📤 <b>${esc(target)}</b> ACCEPTED. Net ${y.diff>=0?"+":""}${y.diff}. Power <b>${power(S.my)}</b>.`);
+
+    openModal({
+      title: "✅ TRADE ACCEPTED",
+      sub: `${target} agreed to your offer.`,
+      badgeObj: badge("fair"),
+      youGiveTeam: S.my, youGive: S.pkgYou,
+      theyGiveTeam: target, theyGive: S.pkgThey,
+      eval1: y.diff>=0 ? `Net: You WIN by ${y.diff}` : `Net: You LOSE by ${Math.abs(y.diff)}`,
+      eval2: `Reputation: ${S.rep}`,
+      buttonsHTML: `<button class="good" id="mCloseBtn">Nice</button>`
+    });
+    setTimeout(()=>{ const b=$("mCloseBtn"); if(b) b.onclick=closeModal; }, 0);
+
     S.pkgYou=[]; S.pkgThey=[];
-  } else if(t.verdict==="counter"){
-    fxStatus("countered");
-    S.rep = clamp(S.rep-1, 0, 100);
-    logLine(`🔁 <b>${esc(target)}</b> COUNTERED: “Need more value.” Try adding something.`);
-    S.outboundUsed = false; // allow re-send after adjusting
-  } else {
-    fxStatus("rejected");
-    S.rep = clamp(S.rep-2, 0, 100);
-    logLine(`❌ <b>${esc(target)}</b> REJECTED your offer.`);
-    S.outboundUsed = false; // allow re-try
+    render();
+    return;
   }
+
+  if(t.verdict==="reject"){
+    S.rep = clamp(S.rep-2, 0, 100);
+    fxStatus("rejected");
+    logLine(`❌ <b>${esc(target)}</b> REJECTED your offer.`);
+
+    openModal({
+      title: "❌ TRADE REJECTED",
+      sub: `${target}: “No chance.”`,
+      badgeObj: badge("fleece"),
+      youGiveTeam: S.my, youGive: S.pkgYou,
+      theyGiveTeam: target, theyGive: S.pkgThey,
+      eval1: y.diff>=0 ? `Net: You WIN by ${y.diff} (but they still said no)` : `Net: You LOSE by ${Math.abs(y.diff)}`,
+      eval2: `Try adding value or lowering your ask.`,
+      buttonsHTML: `<button class="ghost" id="mCloseBtn">Back</button>`
+    });
+    setTimeout(()=>{ const b=$("mCloseBtn"); if(b) b.onclick=closeModal; }, 0);
+
+    render();
+    return;
+  }
+
+  // COUNTEROFFER POPUP (only after you send)
+  const counter = buildCounterOffer(target, S.pkgYou, S.pkgThey);
+  S.pendingCounter = { target, original:{youGive:[...S.pkgYou], theyGive:[...S.pkgThey]}, counter };
+
+  S.rep = clamp(S.rep-1, 0, 100);
+  fxStatus("countered");
+  logLine(`🔁 <b>${esc(target)}</b> COUNTEROFFERED.`);
+
+  const y2 = youNet(target, counter.youGive, counter.theyGive);
+  openModal({
+    title: "🔁 COUNTEROFFER!",
+    sub: `${target} changed the terms.`,
+    badgeObj: badge("block"),
+    youGiveTeam: S.my, youGive: counter.youGive,
+    theyGiveTeam: target, theyGive: counter.theyGive,
+    eval1: y2.diff>=0 ? `Net: You WIN by ${y2.diff}` : `Net: You LOSE by ${Math.abs(y2.diff)}`,
+    eval2: `Accept it, reject it, or counter back by editing your offer.`,
+    buttonsHTML: `
+      <button class="good" id="mAccept">Accept Counter</button>
+      <button class="danger" id="mReject">Reject</button>
+      <button class="hot" id="mEdit">Counter Back</button>
+    `
+  });
+
+  setTimeout(()=>{
+    $("mAccept").onclick = ()=>{
+      const pc = S.pendingCounter;
+      if(!pc) return closeModal();
+      executeTrade(pc.target, pc.counter.youGive, pc.counter.theyGive);
+      S.rep = clamp(S.rep+2, 0, 100);
+      fxStatus("accepted");
+      logLine(`✅ Accepted ${esc(pc.target)} counter. Power <b>${power(S.my)}</b>.`);
+      closeModal();
+      S.pkgYou=[]; S.pkgThey=[];
+      S.pendingCounter=null;
+      render();
+    };
+    $("mReject").onclick = ()=>{
+      S.rep = clamp(S.rep+0, 0, 100);
+      fxStatus("rejected");
+      logLine(`❌ Rejected ${esc(S.pendingCounter?.target||"")} counter.`);
+      closeModal();
+      S.pendingCounter=null;
+      render();
+    };
+    $("mEdit").onclick = ()=>{
+      // Load counter into outgoing builder so user can adjust and send again
+      const pc = S.pendingCounter;
+      if(!pc) return closeModal();
+      $("targetTeam").value = pc.target;
+      S.pkgYou = [...pc.counter.youGive];
+      S.pkgThey = [...pc.counter.theyGive];
+      closeModal();
+      setTab("make");
+      logLine(`🛠️ Editing counteroffer vs <b>${esc(pc.target)}</b>. Drag/drop changes then Send.`);
+      S.pendingCounter=null;
+      render();
+    };
+  }, 0);
 
   render();
 }
@@ -1302,10 +1409,9 @@ function endTurn(){
     return;
   }
   S.turn++;
-  S.outboundUsed = false;
   S.pkgYou=[]; S.pkgThey=[];
+  S.pendingCounter=null;
   genInbox();
-
   showBanner(`➡️ TURN ${S.turn}`, "#ffd27c", false);
   logLine(`➡️ Turn ${S.turn} begins. New inbox offers arrived.`);
   render();
@@ -1313,10 +1419,8 @@ function endTurn(){
 
 /* ===== Init ===== */
 function init(){
-  // Fill CEO dropdown
   $("myTeam").innerHTML = Object.keys(DATA_SEED).map(t=>`<option value="${esc(t)}">${esc(t)}</option>`).join("");
 
-  // Buttons
   $("startBtn").addEventListener("click", startRun);
   $("newRun").addEventListener("click", ()=>location.reload());
   $("endTurn").addEventListener("click", endTurn);
@@ -1326,27 +1430,23 @@ function init(){
     render();
   });
 
-  // Tabs
   $("tabInbox").addEventListener("click", ()=>setTab("inbox"));
   $("tabMake").addEventListener("click", ()=>setTab("make"));
 
-  // Inbox actions (big + mini)
   $("btnAccept").addEventListener("click", acceptSelected);
   $("btnReject").addEventListener("click", rejectSelected);
   $("btnCounter").addEventListener("click", counterSelected);
 
-  $("miniAccept").addEventListener("click", acceptSelected);
-  $("miniReject").addEventListener("click", rejectSelected);
-  $("miniCounter").addEventListener("click", counterSelected);
-
-  // Make actions
   $("btnSend").addEventListener("click", sendOffer);
 
-  // Target changes should refresh rosters + packages
   $("targetTeam").addEventListener("change", ()=>{
-    S.pkgThey = []; // clear their side to avoid mismatched names
+    // Clear their side when changing targets to avoid mismatches
+    S.pkgThey = [];
     render();
   });
+
+  $("mClose").addEventListener("click", closeModal);
+  $("modalMask").addEventListener("click",(e)=>{ if(e.target.id==="modalMask") closeModal(); });
 
   // Drop zones
   wireDrop("pkgYou", (p)=>{
@@ -1374,3 +1474,4 @@ document.addEventListener("DOMContentLoaded", ()=>{
 
 </body>
 </html>
+
