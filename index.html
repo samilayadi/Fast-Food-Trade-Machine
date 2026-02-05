@@ -1,0 +1,941 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Fast Food Trade Machine (Game)</title>
+  <style>
+    :root { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; }
+    body { margin: 0; background:#0b0f19; color:#e8eefc; }
+    header { padding: 18px 16px; border-bottom: 1px solid #1d2740; background:#0f1629; position: sticky; top:0; z-index: 3;}
+    header h1 { margin:0; font-size: 18px; letter-spacing: .2px; }
+    header p { margin: 6px 0 0; color:#b8c5e6; font-size: 13px; }
+
+    .wrap { max-width: 1240px; margin: 0 auto; padding: 14px 12px 36px; }
+    .row { display:flex; gap: 12px; flex-wrap: wrap; }
+    .card {
+      background:#0f1629; border:1px solid #1d2740; border-radius: 12px;
+      padding: 12px; box-shadow: 0 10px 25px rgba(0,0,0,.25);
+    }
+    .card h2 { margin:0 0 10px; font-size: 14px; color:#cfe0ff; display:flex; align-items:center; justify-content:space-between; gap:10px;}
+    .controls { display:flex; gap:10px; flex-wrap: wrap; align-items:center; }
+    select, input[type="text"], input[type="number"] {
+      background:#0b1020; color:#e8eefc; border:1px solid #233055;
+      border-radius: 10px; padding: 10px 10px; font-size: 14px; outline: none;
+    }
+    button {
+      background:#1e2a4d; color:#e8eefc; border:1px solid #2a3a66;
+      padding: 10px 12px; border-radius: 10px; cursor:pointer; font-weight: 700;
+    }
+    button:hover { filter: brightness(1.08); }
+    button.ghost { background: transparent; border:1px dashed #2a3a66; color:#b8c5e6; font-weight: 700; }
+    button.danger { background:#3a1b2a; border-color:#5a2741; }
+    button.good { background:#153a2a; border-color:#2a664a; }
+
+    .grid { display:grid; grid-template-columns: 1fr 1fr; gap:12px; }
+    @media (max-width: 900px){ .grid{ grid-template-columns: 1fr; } }
+
+    .panel { display:flex; flex-direction: column; gap:10px; }
+    .muted { color:#b8c5e6; font-size: 12px; }
+    .pillrow { display:flex; gap:8px; flex-wrap: wrap; }
+    .pill { font-size: 12px; padding: 4px 8px; border-radius: 999px; border:1px solid #2a3a66; color:#cfe0ff; background:#0b1020; }
+
+    .list { background:#0b1020; border:1px solid #233055; border-radius: 12px; overflow: hidden; }
+    .list .hdr { display:flex; justify-content:space-between; padding: 10px 12px; border-bottom:1px solid #1d2740; color:#b8c5e6; font-size: 12px;}
+    .items { max-height: 320px; overflow:auto; }
+    .item { display:flex; gap:10px; justify-content:space-between; align-items:flex-start; padding: 10px 12px; border-bottom:1px solid #121a31; }
+    .item:last-child { border-bottom: none; }
+    .item .name { font-weight: 800; }
+    .item .meta { font-size: 12px; color:#b8c5e6; margin-top: 2px; }
+    .item .val { font-variant-numeric: tabular-nums; font-weight: 900; }
+    .item .btns { display:flex; gap: 6px; }
+    .small { padding: 8px 10px; font-size: 12px; border-radius: 10px; }
+
+    .summary { display:flex; justify-content:space-between; gap:10px; align-items:center; margin-top:10px; }
+    .big { font-size: 18px; font-weight: 950; font-variant-numeric: tabular-nums; }
+
+    .result {
+      border-radius: 12px; padding: 12px; border:1px solid #233055;
+      background: linear-gradient(180deg, rgba(30,42,77,.35), rgba(11,16,32,.35));
+    }
+    .result .status { font-weight: 950; font-size: 16px; }
+    .ok { color:#6ef3b2; }
+    .bad { color:#ff7c7c; }
+    .warn { color:#ffd27c; }
+
+    .footer { margin-top: 12px; font-size: 12px; color:#b8c5e6; line-height: 1.35; }
+    .kbd { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; padding: 2px 6px; border:1px solid #2a3a66; border-radius: 8px; background:#0b1020; }
+
+    .topbar { display:flex; justify-content:space-between; gap:12px; flex-wrap:wrap; align-items:center; }
+    .stat { display:flex; gap:6px; align-items:baseline; }
+    .stat b { font-variant-numeric: tabular-nums; }
+    .divider { height:1px; background:#1d2740; margin: 10px 0; }
+
+    .modalback {
+      position: fixed; inset:0; background: rgba(0,0,0,.55);
+      display:none; align-items:center; justify-content:center; padding: 16px; z-index: 99;
+    }
+    .modal { max-width: 760px; width: 100%; }
+    .modal h3 { margin:0 0 8px; font-size: 16px; }
+    .modal p { margin: 6px 0; color:#b8c5e6; }
+  </style>
+</head>
+<body>
+<header>
+  <h1>🍔 Fast Food Trade Machine — Game Mode</h1>
+  <p>Career Mode + Negotiation Mode: trade items, take counteroffers, and try to hit your franchise goals.</p>
+</header>
+
+<div class="wrap">
+
+  <!-- GAME SETUP -->
+  <div class="card" id="setupCard">
+    <h2>
+      Start Game
+      <span class="muted">Edit rosters/values inside <span class="kbd">DATA</span> if you want.</span>
+    </h2>
+
+    <div class="controls">
+      <label class="muted">Your Franchise</label>
+      <select id="playerTeam"></select>
+
+      <label class="muted">Career Trades</label>
+      <select id="maxTrades">
+        <option value="8">8</option>
+        <option value="10" selected>10</option>
+        <option value="12">12</option>
+      </select>
+
+      <label class="muted">Career Goal (Rating)</label>
+      <input id="goalRating" type="number" value="520" min="250" max="999" style="width:110px" />
+
+      <label class="muted">Fairness Window</label>
+      <select id="window">
+        <option value="5">±5 (strict)</option>
+        <option value="8" selected>±8 (normal)</option>
+        <option value="12">±12 (loose)</option>
+      </select>
+
+      <label class="muted">Chaos Mode</label>
+      <select id="chaos">
+        <option value="0">Off</option>
+        <option value="1" selected>On (bonuses/penalties)</option>
+      </select>
+
+      <button id="startGame" class="good">Start</button>
+    </div>
+
+    <div class="pillrow" style="margin-top:10px">
+      <span class="pill">Sauce = +6</span>
+      <span class="pill">Limited-Time = +8</span>
+      <span class="pill">Iconic = +5</span>
+      <span class="pill">Broken Machine Risk = −7</span>
+      <span class="pill">Drive-thru Speed = +3</span>
+      <span class="pill">Negotiation: 3 counters max</span>
+      <span class="pill">Lowballing hurts reputation</span>
+    </div>
+  </div>
+
+  <!-- GAME HUD + CONTROLS -->
+  <div class="card" id="hudCard" style="display:none;">
+    <div class="topbar">
+      <div class="row">
+        <div class="stat"><span class="muted">Franchise:</span> <b id="hudFranchise"></b></div>
+        <div class="stat"><span class="muted">Career Trades Left:</span> <b id="hudTradesLeft"></b></div>
+        <div class="stat"><span class="muted">Approved Trades:</span> <b id="hudApproved"></b></div>
+        <div class="stat"><span class="muted">Reputation:</span> <b id="hudRep"></b></div>
+        <div class="stat"><span class="muted">Franchise Rating:</span> <b id="hudRating"></b></div>
+        <div class="stat"><span class="muted">Goal:</span> <b id="hudGoal"></b></div>
+      </div>
+      <div class="controls">
+        <button id="resetTrade" class="ghost">Reset Current Trade</button>
+        <button id="newGame" class="danger">New Game</button>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="controls">
+      <label class="muted">Team A</label>
+      <select id="teamA"></select>
+
+      <label class="muted">Team B</label>
+      <select id="teamB"></select>
+
+      <button id="swapTeams" class="ghost">Swap</button>
+    </div>
+  </div>
+
+  <!-- ROSTERS + TRADE PANELS -->
+  <div class="grid" id="mainGrid" style="margin-top:12px; display:none;">
+    <div class="card panel">
+      <h2>
+        Team A Roster
+        <span class="muted" id="aCount"></span>
+      </h2>
+      <div class="list">
+        <div class="hdr"><span>Item</span><span>Value</span></div>
+        <div class="items" id="rosterA"></div>
+      </div>
+
+      <div>
+        <div class="muted">Team A gives</div>
+        <div class="list">
+          <div class="hdr"><span>Included</span><span>Value</span></div>
+          <div class="items" id="givesA"></div>
+        </div>
+        <div class="summary">
+          <span class="muted">Total</span>
+          <span class="big" id="totalA">0</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card panel">
+      <h2>
+        Team B Roster
+        <span class="muted" id="bCount"></span>
+      </h2>
+      <div class="list">
+        <div class="hdr"><span>Item</span><span>Value</span></div>
+        <div class="items" id="rosterB"></div>
+      </div>
+
+      <div>
+        <div class="muted">Team B gives</div>
+        <div class="list">
+          <div class="hdr"><span>Included</span><span>Value</span></div>
+          <div class="items" id="givesB"></div>
+        </div>
+        <div class="summary">
+          <span class="muted">Total</span>
+          <span class="big" id="totalB">0</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RESULT + NEGOTIATION -->
+  <div class="card" id="resultCard" style="margin-top:12px; display:none;">
+    <h2>Trade Result + Negotiation</h2>
+    <div class="result">
+      <div class="status warn" id="statusText">Add items to both sides to evaluate.</div>
+      <div class="muted" id="reasonText" style="margin-top:6px"></div>
+
+      <div class="divider"></div>
+
+      <div class="controls">
+        <button id="askCounter" class="ghost">Ask for Counteroffer</button>
+        <button id="executeTrade" class="good">Execute Trade</button>
+        <button id="declineTrade" class="danger">Decline</button>
+      </div>
+
+      <div style="margin-top:10px">
+        <div class="muted">Counteroffer Options (accept one)</div>
+        <div id="counterArea" style="margin-top:8px"></div>
+      </div>
+
+      <div class="footer">
+        “Game feel” tips: try one fleece offer (reputation drops), then negotiate into a fair deal, then do a blockbuster.
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- WIN/LOSE MODAL -->
+<div class="modalback" id="modalBack">
+  <div class="card modal">
+    <h3 id="modalTitle">Game Over</h3>
+    <p id="modalBody"></p>
+    <div class="divider"></div>
+    <div class="controls">
+      <button id="modalContinue" class="good">Keep Playing (Sandbox)</button>
+      <button id="modalRestart" class="danger">New Game</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/**
+ * FAST FOOD TRADE MACHINE (GAME)
+ * Career Mode:
+ *  - You control one franchise. Execute trades to raise Franchise Rating to the goal within N executed trades.
+ * Negotiation Mode:
+ *  - Ask for counteroffers (max 3 per negotiation). Lowballing hurts reputation. Accept counter to auto-adjust packages.
+ */
+
+// ---------- Base rosters (immutable seed) ----------
+const DATA_SEED = {
+  "McDonald's": [
+    { name:"Big Mac", base:86, tags:["iconic"] },
+    { name:"McNuggets (10pc)", base:78, tags:["iconic"] },
+    { name:"Fries", base:80, tags:["iconic","speed"] },
+    { name:"McFlurry", base:74, tags:["broken"] },
+    { name:"Happy Meal Toy", base:62, tags:["nostalgia"] }
+  ],
+  "Chick-fil-A": [
+    { name:"Spicy Chicken Sandwich", base:92, tags:["iconic"] },
+    { name:"Waffle Fries", base:86, tags:["iconic","speed"] },
+    { name:"Chick-fil-A Sauce", base:66, tags:["sauce"] },
+    { name:"Nuggets (12ct)", base:82, tags:["iconic"] },
+    { name:"Lemonade", base:75, tags:["iconic"] }
+  ],
+  "Taco Bell": [
+    { name:"Baja Blast", base:90, tags:["iconic"] },
+    { name:"Crunchwrap Supreme", base:88, tags:["iconic"] },
+    { name:"Doritos Locos Taco", base:84, tags:["iconic"] },
+    { name:"Nacho Fries (LTO)", base:83, tags:["lto"] },
+    { name:"Fire Sauce", base:64, tags:["sauce"] }
+  ],
+  "Wendy's": [
+    { name:"Baconator", base:88, tags:["iconic"] },
+    { name:"Spicy Nuggets", base:83, tags:["iconic"] },
+    { name:"Frosty", base:80, tags:["iconic"] },
+    { name:"4 for $4 (Value Deal)", base:76, tags:["value"] },
+    { name:"Dave's Single", base:82, tags:["iconic"] }
+  ],
+  "Burger King": [
+    { name:"Whopper", base:84, tags:["iconic"] },
+    { name:"Chicken Fries", base:76, tags:["iconic"] },
+    { name:"Onion Rings", base:73, tags:["iconic"] },
+    { name:"Impossible Whopper", base:78, tags:["lto"] },
+    { name:"Hershey's Pie", base:72, tags:["dessert"] }
+  ],
+  "Subway": [
+    { name:"Footlong Sub", base:80, tags:["iconic"] },
+    { name:"The Italian B.M.T.", base:82, tags:["iconic"] },
+    { name:"Cookies", base:70, tags:["dessert"] },
+    { name:"Toasted Upgrade", base:66, tags:["upgrade"] },
+    { name:"$5 Footlong Nostalgia", base:74, tags:["nostalgia"] }
+  ],
+  "KFC": [
+    { name:"Original Recipe Bucket", base:86, tags:["iconic"] },
+    { name:"Biscuits", base:74, tags:["iconic"] },
+    { name:"Mashed Potatoes & Gravy", base:76, tags:["iconic"] },
+    { name:"Famous Bowl", base:79, tags:["iconic"] },
+    { name:"Secret Recipe Hype", base:72, tags:["nostalgia"] }
+  ],
+  "Popeyes": [
+    { name:"Chicken Sandwich", base:91, tags:["iconic"] },
+    { name:"Cajun Fries", base:82, tags:["speed"] },
+    { name:"Biscuits", base:73, tags:["iconic"] },
+    { name:"Spicy Mayo", base:66, tags:["sauce"] },
+    { name:"Ghost Pepper Wings (LTO)", base:84, tags:["lto"] }
+  ],
+  "Chipotle": [
+    { name:"Chicken Bowl", base:86, tags:["iconic"] },
+    { name:"Guac", base:78, tags:["upgrade"] },
+    { name:"Chips", base:74, tags:["iconic"] },
+    { name:"Double Protein Upgrade", base:82, tags:["upgrade"] },
+    { name:"Lifestyle Bowl (LTO)", base:79, tags:["lto"] }
+  ],
+  "In-N-Out": [
+    { name:"Double-Double", base:90, tags:["iconic"] },
+    { name:"Animal Style Fries", base:85, tags:["iconic","upgrade"] },
+    { name:"Secret Menu Clout", base:78, tags:["nostalgia"] },
+    { name:"Neapolitan Shake", base:76, tags:["dessert"] },
+    { name:"Drive-Thru Efficiency", base:74, tags:["speed"] }
+  ]
+};
+
+// ---------- Rules ----------
+const BONUS = { sauce: 6, lto: 8, iconic: 5, broken: -7, speed: 3 };
+
+function deepClone(obj){ return JSON.parse(JSON.stringify(obj)); }
+
+function itemValue(item, chaosOn){
+  if(!item) return 0;
+  if(!chaosOn) return item.base;
+  let v = item.base;
+  const tags = new Set(item.tags || []);
+  if(tags.has("sauce")) v += BONUS.sauce;
+  if(tags.has("lto")) v += BONUS.lto;
+  if(tags.has("iconic")) v += BONUS.iconic;
+  if(tags.has("broken")) v += BONUS.broken;
+  if(tags.has("speed")) v += BONUS.speed;
+  return v;
+}
+
+// ---------- DOM helpers ----------
+const el = (id) => document.getElementById(id);
+function escapeHtml(s){ return (s+"").replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
+
+// ---------- Game State ----------
+let game = {
+  started: false,
+  chaosOn: true,
+  window: 8,
+
+  // career
+  playerTeam: null,
+  tradesLeft: 10,
+  goalRating: 520,
+  approvedTrades: 0,
+
+  // negotiation
+  reputation: 100,
+  countersLeft: 3,
+  lastCounterOptions: [],
+
+  // rosters (mutable)
+  DATA: {},
+
+  // current matchup + packages
+  aTeam: null,
+  bTeam: null,
+  givesA: [],
+  givesB: []
+};
+
+function teams(){ return Object.keys(game.DATA); }
+
+function buildSelect(selectId, options){
+  const s = el(selectId);
+  s.innerHTML = "";
+  for(const t of options){
+    const o = document.createElement("option");
+    o.value = t;
+    o.textContent = t;
+    s.appendChild(o);
+  }
+}
+
+function initSetup(){
+  const t = Object.keys(DATA_SEED);
+  buildSelect("playerTeam", t);
+}
+
+function startGame(){
+  game.started = true;
+  game.chaosOn = el("chaos").value === "1";
+  game.window = parseInt(el("window").value, 10);
+
+  game.playerTeam = el("playerTeam").value;
+  game.tradesLeft = parseInt(el("maxTrades").value, 10);
+  game.goalRating = Math.max(250, Math.min(999, parseInt(el("goalRating").value || "520", 10)));
+  game.approvedTrades = 0;
+
+  game.reputation = 100;
+  game.countersLeft = 3;
+  game.lastCounterOptions = [];
+
+  // clone rosters for real ownership changes
+  game.DATA = deepClone(DATA_SEED);
+
+  // default matchup: player franchise vs next team
+  const tms = teams();
+  game.aTeam = game.playerTeam;
+  game.bTeam = tms.find(x => x !== game.aTeam) || tms[0];
+  game.givesA = [];
+  game.givesB = [];
+
+  // show UI
+  el("setupCard").style.display = "none";
+  el("hudCard").style.display = "";
+  el("mainGrid").style.display = "";
+  el("resultCard").style.display = "";
+
+  buildSelect("teamA", tms);
+  buildSelect("teamB", tms);
+  el("teamA").value = game.aTeam;
+  el("teamB").value = game.bTeam;
+
+  rerender();
+}
+
+function newGame(){
+  // reset UI
+  game = {
+    started: false,
+    chaosOn: true,
+    window: 8,
+    playerTeam: null,
+    tradesLeft: 10,
+    goalRating: 520,
+    approvedTrades: 0,
+    reputation: 100,
+    countersLeft: 3,
+    lastCounterOptions: [],
+    DATA: {},
+    aTeam: null,
+    bTeam: null,
+    givesA: [],
+    givesB: []
+  };
+  el("modalBack").style.display = "none";
+  el("setupCard").style.display = "";
+  el("hudCard").style.display = "none";
+  el("mainGrid").style.display = "none";
+  el("resultCard").style.display = "none";
+  initSetup();
+}
+
+function resetTrade(){
+  game.givesA = [];
+  game.givesB = [];
+  game.countersLeft = 3;
+  game.lastCounterOptions = [];
+  rerender();
+}
+
+function swapTeams(){
+  const a = game.aTeam;
+  game.aTeam = game.bTeam;
+  game.bTeam = a;
+  resetTrade();
+}
+
+// ---------- Rendering ----------
+function renderHUD(){
+  el("hudFranchise").textContent = game.playerTeam;
+  el("hudTradesLeft").textContent = String(game.tradesLeft);
+  el("hudApproved").textContent = String(game.approvedTrades);
+  el("hudRep").textContent = String(game.reputation);
+  el("hudGoal").textContent = String(game.goalRating);
+  el("hudRating").textContent = String(franchiseRating(game.playerTeam));
+}
+
+function renderRoster(team, containerId, side){
+  const roster = (game.DATA[team] || [])
+    .map(x => ({...x, v:itemValue(x, game.chaosOn)}))
+    .sort((a,b)=> b.v - a.v);
+
+  el(side === "A" ? "aCount" : "bCount").textContent = `${roster.length} items`;
+
+  const container = el(containerId);
+  container.innerHTML = "";
+
+  for(const it of roster){
+    const row = document.createElement("div");
+    row.className = "item";
+
+    const left = document.createElement("div");
+    left.style.flex = "1";
+    left.innerHTML = `<div class="name">${escapeHtml(it.name)}</div>
+                      <div class="meta">${(it.tags||[]).map(t=>`#${escapeHtml(t)}`).join(" ")}</div>`;
+
+    const right = document.createElement("div");
+    right.style.display = "flex";
+    right.style.alignItems = "center";
+    right.style.gap = "8px";
+    right.innerHTML = `<div class="val">${it.v}</div>`;
+
+    const btn = document.createElement("button");
+    btn.className = "small";
+    btn.textContent = "Add";
+    btn.onclick = () => addToTrade(side, it.name);
+    right.appendChild(btn);
+
+    row.appendChild(left);
+    row.appendChild(right);
+    container.appendChild(row);
+  }
+}
+
+function renderGives(side, containerId){
+  const team = side === "A" ? game.aTeam : game.bTeam;
+  const gives = side === "A" ? game.givesA : game.givesB;
+
+  const container = el(containerId);
+  container.innerHTML = "";
+
+  if(gives.length === 0){
+    const empty = document.createElement("div");
+    empty.className = "item";
+    empty.innerHTML = `<div class="meta">No items added yet.</div>`;
+    container.appendChild(empty);
+    return;
+  }
+
+  for(const name of gives){
+    const it = (game.DATA[team] || []).find(x => x.name === name);
+    const v = itemValue(it, game.chaosOn);
+
+    const row = document.createElement("div");
+    row.className = "item";
+
+    const left = document.createElement("div");
+    left.style.flex = "1";
+    left.innerHTML = `<div class="name">${escapeHtml(name)}</div>
+                      <div class="meta">${(it?.tags||[]).map(t=>`#${escapeHtml(t)}`).join(" ")}</div>`;
+
+    const right = document.createElement("div");
+    right.className = "btns";
+    right.innerHTML = `<div class="val" style="align-self:center">${v}</div>`;
+
+    const rm = document.createElement("button");
+    rm.className = "small";
+    rm.textContent = "Remove";
+    rm.onclick = () => removeFromTrade(side, name);
+
+    right.appendChild(rm);
+    row.appendChild(left);
+    row.appendChild(right);
+    container.appendChild(row);
+  }
+}
+
+function tradeTotals(){
+  const sum = (team, names) => names.reduce((acc, n) => {
+    const it = (game.DATA[team] || []).find(x => x.name === n);
+    return acc + itemValue(it, game.chaosOn);
+  }, 0);
+  return { a: sum(game.aTeam, game.givesA), b: sum(game.bTeam, game.givesB) };
+}
+
+function franchiseRating(team){
+  const roster = game.DATA[team] || [];
+  return roster.reduce((acc, it) => acc + itemValue(it, game.chaosOn), 0);
+}
+
+function addToTrade(side, itemName){
+  const list = side === "A" ? game.givesA : game.givesB;
+  const team = side === "A" ? game.aTeam : game.bTeam;
+  // ensure item exists on that roster
+  if(!(game.DATA[team] || []).some(x => x.name === itemName)) return;
+  if(list.includes(itemName)) return; // no duplicates
+  list.push(itemName);
+  rerender();
+}
+
+function removeFromTrade(side, itemName){
+  const list = side === "A" ? game.givesA : game.givesB;
+  const idx = list.indexOf(itemName);
+  if(idx >= 0) list.splice(idx, 1);
+  rerender();
+}
+
+// ---------- Negotiation / Counteroffers ----------
+function evaluateTrade(){
+  const {a,b} = tradeTotals();
+  const diff = a - b; // positive => A giving more
+  const abs = Math.abs(diff);
+
+  if(game.givesA.length === 0 || game.givesB.length === 0){
+    return { ok:false, statusClass:"warn", status:"Waiting for a real trade…", reason:"Add at least 1 item to both sides.", a, b, abs, diff };
+  }
+
+  if(abs <= game.window){
+    return { ok:true, statusClass:"ok", status:"✅ Trade Approved", reason:`Values match within ±${game.window}. (A: ${a} vs B: ${b})`, a, b, abs, diff };
+  }
+
+  const underSide = diff < 0 ? "A" : "B"; // diff < 0 => A underpaying
+  const overSide  = diff < 0 ? "B" : "A";
+  const need = abs - game.window;
+
+  const underTeam = underSide === "A" ? game.aTeam : game.bTeam;
+  const overTeam  = overSide  === "A" ? game.aTeam : game.bTeam;
+
+  const underGives = underSide === "A" ? game.givesA : game.givesB;
+  const overGives  = overSide  === "A" ? game.givesA : game.givesB;
+
+  // candidates to add (from underTeam roster not already in their package)
+  const underRoster = (game.DATA[underTeam] || [])
+    .map(it => ({...it, v:itemValue(it, game.chaosOn)}))
+    .filter(it => !underGives.includes(it.name))
+    .sort((x,y)=> y.v - x.v);
+
+  // candidates to remove (from overTeam package)
+  const overIncluded = overGives
+    .map(n => {
+      const it = (game.DATA[overTeam] || []).find(x=>x.name===n);
+      return it ? {...it, v:itemValue(it, game.chaosOn)} : {name:n, v:0, tags:[]};
+    })
+    .sort((x,y)=> y.v - x.v);
+
+  const options = [];
+
+  // Option 1: add one item that covers need
+  const addOne = underRoster.find(it => it.v >= need) || underRoster[0];
+  if(addOne){
+    options.push({
+      label: `Counter 1: ${underTeam} adds "${addOne.name}" (+${addOne.v})`,
+      action: () => {
+        // add to under side package
+        if(underSide === "A") addToTrade("A", addOne.name);
+        else addToTrade("B", addOne.name);
+      }
+    });
+  }
+
+  // Option 2: add two items pair close to need
+  let pair = null;
+  for(let i=0;i<Math.min(underRoster.length, 8) && !pair;i++){
+    for(let j=i+1;j<Math.min(underRoster.length, 10);j++){
+      const s = underRoster[i].v + underRoster[j].v;
+      if(s >= need && s <= need + 12){ pair = [underRoster[i], underRoster[j]]; break; }
+    }
+  }
+  if(pair){
+    options.push({
+      label: `Counter 2: ${underTeam} adds "${pair[0].name}" (+${pair[0].v}) and "${pair[1].name}" (+${pair[1].v})`,
+      action: () => {
+        if(underSide === "A"){ addToTrade("A", pair[0].name); addToTrade("A", pair[1].name); }
+        else { addToTrade("B", pair[0].name); addToTrade("B", pair[1].name); }
+      }
+    });
+  }
+
+  // Option 3: remove one item from over side package
+  const removeOne = overIncluded.find(it => it.v >= need) || overIncluded[overIncluded.length-1];
+  if(removeOne){
+    options.push({
+      label: `Counter 3: ${overTeam} removes "${removeOne.name}" (−${removeOne.v})`,
+      action: () => {
+        if(overSide === "A") removeFromTrade("A", removeOne.name);
+        else removeFromTrade("B", removeOne.name);
+      }
+    });
+  }
+
+  const roast = (() => {
+    if(game.chaosOn && (underTeam === "McDonald's" || overTeam === "McDonald's")){
+      return "McFlurry uptime clauses are messing with valuations.";
+    }
+    if(game.chaosOn && (underTeam === "Taco Bell" || overTeam === "Taco Bell")){
+      return "Baja Blast inflation is real. Every GM knows it.";
+    }
+    return "Offer is missing sauce equity and/or iconic clout.";
+  })();
+
+  return {
+    ok:false,
+    statusClass:"bad",
+    status:"❌ Trade Rejected",
+    reason:`${underTeam} is short by about ${need} trade value. (A: ${a} vs B: ${b}, window ±${game.window})`,
+    a,b,abs,diff,
+    need, underTeam, overTeam, options, roast
+  };
+}
+
+function renderResultAndCounters(){
+  const res = evaluateTrade();
+  el("statusText").className = `status ${res.statusClass}`;
+  el("statusText").textContent = res.status;
+  el("reasonText").textContent = res.reason || "";
+
+  // enable/disable buttons
+  el("executeTrade").disabled = !res.ok || game.tradesLeft <= 0;
+  el("askCounter").disabled = res.ok || game.countersLeft <= 0 || (game.givesA.length===0 || game.givesB.length===0);
+
+  // counter area
+  const area = el("counterArea");
+  area.innerHTML = "";
+
+  // show counters remaining
+  const info = document.createElement("div");
+  info.className = "muted";
+  info.style.marginBottom = "8px";
+  info.textContent = `Counteroffers left this negotiation: ${game.countersLeft} (reputation: ${game.reputation})`;
+  area.appendChild(info);
+
+  if(res.ok){
+    const ok = document.createElement("div");
+    ok.className = "muted";
+    ok.innerHTML = `No counters needed. Execute the trade, or decline and move on.`;
+    area.appendChild(ok);
+    return;
+  }
+
+  if(res.statusClass === "warn"){
+    const w = document.createElement("div");
+    w.className = "muted";
+    w.textContent = "Add at least 1 item to both sides to start negotiation.";
+    area.appendChild(w);
+    return;
+  }
+
+  // If we have stored counter options, show them
+  const options = game.lastCounterOptions.length ? game.lastCounterOptions : (res.options || []);
+  if(!options.length){
+    const none = document.createElement("div");
+    none.className = "muted";
+    none.textContent = "No counteroffer available (try different items).";
+    area.appendChild(none);
+    return;
+  }
+
+  // Roast line
+  const roast = document.createElement("div");
+  roast.className = "muted";
+  roast.style.marginBottom = "10px";
+  roast.textContent = res.roast || "The other GM is unimpressed.";
+  area.appendChild(roast);
+
+  for(const opt of options){
+    const row = document.createElement("div");
+    row.className = "item";
+    row.style.borderRadius = "12px";
+    row.style.border = "1px solid #233055";
+    row.style.marginBottom = "8px";
+    row.style.background = "#0b1020";
+
+    const left = document.createElement("div");
+    left.style.flex = "1";
+    left.innerHTML = `<div class="name">${escapeHtml(opt.label)}</div><div class="meta">Accepting applies the changes to the trade packages.</div>`;
+
+    const right = document.createElement("div");
+    right.className = "btns";
+
+    const btn = document.createElement("button");
+    btn.className = "small good";
+    btn.textContent = "Accept Counter";
+    btn.onclick = () => {
+      opt.action();
+      // accepting a counter is "good faith"
+      game.reputation = Math.min(100, game.reputation + 2);
+      rerender();
+    };
+
+    right.appendChild(btn);
+    row.appendChild(left);
+    row.appendChild(right);
+    area.appendChild(row);
+  }
+}
+
+function askForCounter(){
+  // If rejected, generate and store counters; decrement counter count; apply a small rep effect if offer is nasty
+  const res = evaluateTrade();
+  if(res.ok || res.statusClass !== "bad") return;
+
+  game.countersLeft = Math.max(0, game.countersLeft - 1);
+
+  // Reputation hit based on how far off you are (lowball penalty)
+  const penalty = Math.min(12, Math.max(2, Math.floor((res.need || 10) / 8) * 2));
+  game.reputation = Math.max(0, game.reputation - penalty);
+
+  game.lastCounterOptions = (res.options || []).slice(0, 3);
+  rerender();
+}
+
+// ---------- Execute / Decline ----------
+function executeTrade(){
+  const res = evaluateTrade();
+  if(!res.ok) return;
+  if(game.tradesLeft <= 0) return;
+
+  // perform roster swap (ownership changes)
+  const aRoster = game.DATA[game.aTeam] || [];
+  const bRoster = game.DATA[game.bTeam] || [];
+
+  // remove items from A roster that A gives
+  const aGivesItems = game.givesA.map(name => aRoster.find(x => x.name === name)).filter(Boolean);
+  const bGivesItems = game.givesB.map(name => bRoster.find(x => x.name === name)).filter(Boolean);
+
+  game.DATA[game.aTeam] = aRoster.filter(x => !game.givesA.includes(x.name)).concat(bGivesItems);
+  game.DATA[game.bTeam] = bRoster.filter(x => !game.givesB.includes(x.name)).concat(aGivesItems);
+
+  game.tradesLeft -= 1;
+  game.approvedTrades += 1;
+
+  // reputation reward for fair deal
+  game.reputation = Math.min(100, game.reputation + 5);
+
+  // reset negotiation for next trade
+  game.givesA = [];
+  game.givesB = [];
+  game.countersLeft = 3;
+  game.lastCounterOptions = [];
+
+  // check win/lose (Career mode)
+  checkGameEnd();
+
+  rerender();
+}
+
+function declineTrade(){
+  // Declining ends the current negotiation (like walking away)
+  game.givesA = [];
+  game.givesB = [];
+  game.countersLeft = 3;
+  game.lastCounterOptions = [];
+  // small rep change (walking away isn't terrible)
+  game.reputation = Math.max(0, game.reputation - 1);
+  rerender();
+}
+
+function checkGameEnd(){
+  const rating = franchiseRating(game.playerTeam);
+
+  if(rating >= game.goalRating){
+    showModal(
+      "🏆 YOU WIN",
+      `Your franchise (${game.playerTeam}) hit a rating of ${rating} (goal: ${game.goalRating}). Approved trades: ${game.approvedTrades}. Reputation: ${game.reputation}.`,
+    );
+    return;
+  }
+
+  if(game.tradesLeft <= 0){
+    showModal(
+      "💀 CAREER MODE OVER",
+      `You ran out of trades. Final franchise rating: ${rating} (goal: ${game.goalRating}). Approved trades: ${game.approvedTrades}. Reputation: ${game.reputation}.`,
+    );
+    return;
+  }
+
+  if(game.reputation <= 0){
+    showModal(
+      "🚫 BLACKLISTED",
+      `Your reputation hit 0. Other chains refuse to negotiate. Final franchise rating: ${rating} (goal: ${game.goalRating}).`,
+    );
+    return;
+  }
+}
+
+// ---------- Main rerender ----------
+function rerender(){
+  if(!game.started) return;
+
+  // keep selects synced
+  el("teamA").value = game.aTeam;
+  el("teamB").value = game.bTeam;
+
+  renderHUD();
+
+  renderRoster(game.aTeam, "rosterA", "A");
+  renderRoster(game.bTeam, "rosterB", "B");
+  renderGives("A", "givesA");
+  renderGives("B", "givesB");
+
+  const {a,b} = tradeTotals();
+  el("totalA").textContent = a;
+  el("totalB").textContent = b;
+
+  renderResultAndCounters();
+}
+
+// ---------- Modal ----------
+function showModal(title, body){
+  el("modalTitle").textContent = title;
+  el("modalBody").textContent = body;
+  el("modalBack").style.display = "flex";
+}
+function hideModal(){
+  el("modalBack").style.display = "none";
+}
+
+// ---------- Wire up ----------
+function init(){
+  initSetup();
+
+  el("startGame").addEventListener("click", startGame);
+  el("newGame").addEventListener("click", newGame);
+  el("resetTrade").addEventListener("click", resetTrade);
+
+  el("teamA").addEventListener("change", (e) => { game.aTeam = e.target.value; resetTrade(); });
+  el("teamB").addEventListener("change", (e) => { game.bTeam = e.target.value; resetTrade(); });
+  el("swapTeams").addEventListener("click", swapTeams);
+
+  el("askCounter").addEventListener("click", askForCounter);
+  el("executeTrade").addEventListener("click", executeTrade);
+  el("declineTrade").addEventListener("click", declineTrade);
+
+  el("modalContinue").addEventListener("click", () => { hideModal(); /* keep playing as sandbox */ });
+  el("modalRestart").addEventListener("click", () => { hideModal(); newGame(); });
+}
+init();
+</script>
+</body>
+</html>
