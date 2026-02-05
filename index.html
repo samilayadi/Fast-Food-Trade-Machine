@@ -21,7 +21,7 @@
   }
 
   header{
-    padding:12px 12px;
+    padding:10px 12px;
     border-bottom:1px solid var(--line);
     background:rgba(15,22,41,.95);
     position:sticky; top:0; z-index:10;
@@ -32,7 +32,7 @@
   .wrap{
     max-width:1200px;
     margin:0 auto;
-    height: calc(100vh - 76px);
+    height: calc(100vh - 72px);
     padding:10px 12px 12px;
     overflow:hidden;
     display:flex;
@@ -102,14 +102,14 @@
   .tab.active{ outline:2px solid rgba(110,243,178,.45); }
   .tabIcon{ font-size:14px; }
 
-  /* ===== One-screen view area ===== */
+  /* One-screen view area */
   #viewInbox, #viewMake{
     flex:1; min-height:0; overflow:hidden;
     display:flex; flex-direction:column;
     gap:10px;
   }
 
-  /* ===== 3 column trade center ===== */
+  /* 3 columns */
   .make3{
     flex:1;
     min-height:0;
@@ -134,8 +134,9 @@
     align-items:center;
     gap:10px;
   }
+
   .logoSlot{
-    width:50px; height:50px;
+    width:48px; height:48px;
     border-radius:16px;
     border:1px dashed rgba(184,197,230,.35);
     display:flex; align-items:center; justify-content:center;
@@ -146,42 +147,76 @@
     overflow:hidden;
     flex:0 0 auto;
   }
-  .logoSlot img{ width:100%; height:100%; object-fit:contain; display:block; padding:8px; }
+  .logoSlot img{ width:100%; height:100%; object-fit:contain; display:block; padding:7px; }
 
+  /* ===== GRID MENU TILES (NEW) ===== */
   .rosterGrid{
     flex:1;
     min-height:0;
     overflow:auto;
     padding-right:6px;
     display:grid;
-    grid-template-columns:1fr;
+    grid-template-columns: repeat(3, minmax(0, 1fr)); /* 3-wide like you wanted */
     gap:10px;
+  }
+  @media(max-width:1100px){
+    .rosterGrid{ grid-template-columns: repeat(2, minmax(0,1fr)); }
   }
 
   .tile{
-    display:flex; gap:10px; align-items:center;
     border:1px solid var(--line);
-    border-radius:18px;
+    border-radius:16px;
     background:rgba(11,16,32,.78);
     padding:10px;
     user-select:none;
     cursor:grab;
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+    aspect-ratio: 1 / 1; /* square tiles */
   }
   .tile:active{ cursor:grabbing; }
 
   .thumb{
-    width:72px; height:72px; /* smaller for fit */
-    border-radius:16px;
+    width:100%;
+    border-radius:14px;
     border:1px solid var(--line);
     overflow:hidden;
     background:var(--panel2);
-    flex:0 0 auto;
+    flex:1;
+    min-height:0;
   }
   .thumb img{ width:100%; height:100%; object-fit:cover; display:block; }
 
-  .name{ font-weight:950; font-size:13px; }
-  .meta{ font-size:11px; color:var(--muted); margin-top:4px; }
-  .val{ margin-left:auto; font-weight:950; font-size:14px; font-variant-numeric:tabular-nums; }
+  .tBottom{
+    display:flex;
+    align-items:flex-start;
+    gap:8px;
+  }
+  .tName{
+    font-weight:950;
+    font-size:12px;
+    line-height:1.2;
+    min-width:0;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+  }
+  .tTags{
+    font-size:10px;
+    color:var(--muted);
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+    margin-top:3px;
+  }
+  .tVal{
+    margin-left:auto;
+    font-weight:950;
+    font-size:12px;
+    font-variant-numeric:tabular-nums;
+    color:rgba(232,238,252,.92);
+  }
 
   .divider{ height:1px; background:#1d2740; }
 
@@ -191,6 +226,7 @@
     display:flex; flex-direction:column;
     gap:10px;
   }
+
   .midTopBar{
     display:flex;
     justify-content:space-between;
@@ -206,7 +242,7 @@
     gap:10px;
   }
   .logoPuck{
-    width:46px; height:46px;
+    width:44px; height:44px;
     border-radius:999px;
     border:1px solid rgba(184,197,230,.25);
     background:rgba(15,22,41,.65);
@@ -261,7 +297,7 @@
     padding:8px;
   }
   .mini{
-    width:62px; height:62px;
+    width:56px; height:56px;
     border-radius:14px;
     overflow:hidden;
     border:1px solid var(--line);
@@ -282,7 +318,7 @@
     cursor:pointer;
   }
 
-  /* Inbox cards */
+  /* ===== INBOX CARDS SHOW OFFERS (NEW) ===== */
   .offerList{
     flex:1;
     min-height:0;
@@ -293,14 +329,55 @@
     padding-right:6px;
   }
   @media(max-width:980px){ .offerList{ grid-template-columns:1fr; } }
+
   .offerCard{
     border:1px solid var(--line);
     border-radius:16px;
     background:rgba(11,16,32,.55);
     padding:10px;
     cursor:pointer;
+    display:flex;
+    flex-direction:column;
+    gap:8px;
   }
   .offerCard:hover{ filter:brightness(1.06); }
+  .offerCard.selected{ outline:2px solid rgba(110,243,178,.45); }
+
+  .offerTop{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    gap:8px;
+  }
+  .offerTitle{ font-weight:950; font-size:13px; }
+  .offerSub{ color:var(--muted); font-size:11px; margin-top:2px; }
+
+  .offerSplit{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:8px;
+  }
+  .offerBox{
+    border:1px solid rgba(184,197,230,.16);
+    border-radius:14px;
+    padding:8px;
+    background:rgba(15,22,41,.35);
+    min-height:70px;
+  }
+  .offerBox .lbl{ font-size:10px; color:var(--muted); font-weight:950; margin-bottom:6px; }
+  .miniRow{
+    display:flex;
+    flex-wrap:wrap;
+    gap:6px;
+  }
+  .miniThumb{
+    width:34px; height:34px;
+    border-radius:10px;
+    overflow:hidden;
+    border:1px solid rgba(184,197,230,.22);
+    background:rgba(11,16,32,.7);
+  }
+  .miniThumb img{ width:100%; height:100%; object-fit:cover; display:block; }
 
   .badge{
     display:inline-block;
@@ -309,19 +386,19 @@
     font-size:11px;
     border:1px solid var(--line);
     font-weight:950;
-    margin-bottom:8px;
+    white-space:nowrap;
   }
   .bF{ color:var(--bad); border-color: rgba(255,124,124,.45); background: rgba(255,124,124,.08); }
   .bR{ color:var(--good); border-color: rgba(110,243,178,.45); background: rgba(110,243,178,.07); }
   .bB{ color:var(--hot); border-color: rgba(255,139,211,.45); background: rgba(255,139,211,.08); }
 
-  /* Log (small) */
+  /* Log */
   .log{
     border:1px solid var(--line);
     border-radius:16px;
     background:rgba(11,16,32,.55);
     padding:10px;
-    max-height: 82px;
+    max-height: 78px;
     overflow:auto;
     font-size:12px;
     color:var(--muted);
@@ -346,7 +423,7 @@
     white-space:nowrap;
   }
 
-  /* POPUP MODAL */
+  /* Modal */
   #modalMask{
     position:fixed; inset:0; z-index:9998;
     background: rgba(0,0,0,.55);
@@ -393,30 +470,8 @@
     gap:10px;
     border-top:1px solid rgba(255,255,255,.08);
   }
-  .pill{
-    display:inline-flex;
-    align-items:center;
-    gap:8px;
-    padding:8px 10px;
-    border-radius:999px;
-    border:1px solid rgba(255,255,255,.14);
-    background: rgba(255,255,255,.04);
-    color: var(--muted);
-    font-size:12px;
-    font-weight:900;
-  }
-  .kbd{
-    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-    font-size:11px;
-    border:1px solid rgba(255,255,255,.14);
-    border-bottom-width:2px;
-    padding:2px 6px;
-    border-radius:8px;
-    background: rgba(255,255,255,.06);
-    color: var(--ink);
-  }
 
-  /* Small screens: allow page scroll */
+  /* Allow page scroll on tiny screens only */
   @media(max-width:980px){
     body{ overflow:auto; }
     .wrap{ height:auto; overflow:visible; }
@@ -427,7 +482,7 @@
 <body>
 <header>
   <h1>🍔 Fast Food CEO Trade Machine</h1>
-  <p>Drag from left/right → drop into the center outgoing offer. Inbox contains incoming offers only.</p>
+  <p>Grid menus for video clarity + inbox shows full trade packages.</p>
 </header>
 
 <div class="wrap">
@@ -452,7 +507,7 @@
       <button class="good" id="startBtn">Start Run</button>
     </div>
     <div class="small" style="margin-top:10px;">
-      Tip: add logos in <b>assets/logos/</b> (mcdonalds.png, tacobell.png, etc.). If missing, it falls back to text.
+      Tip: logos in <b>assets/logos/</b> (mcdonalds.png, tacobell.png, etc.). If missing, it falls back to text.
     </div>
   </div>
 
@@ -497,7 +552,7 @@
       <div class="tab" id="tabMake"><span class="tabIcon">📤</span>Make Offer</div>
     </div>
 
-    <!-- INBOX VIEW (incoming offers only) -->
+    <!-- INBOX VIEW -->
     <div class="card" id="viewInbox">
       <div class="row" style="justify-content:space-between;">
         <div>
@@ -522,13 +577,13 @@
       </div>
     </div>
 
-    <!-- MAKE OFFER VIEW (OUTGOING BUILDER CENTER) -->
+    <!-- MAKE OFFER VIEW -->
     <div class="card" id="viewMake" style="display:none;">
 
       <div class="row" style="justify-content:space-between;">
         <div>
           <div style="font-weight:950;">Trade Center (Outgoing Offer)</div>
-          <div class="muted">Drag from left/right into the center. Then Send Offer.</div>
+          <div class="muted">Drag from the grid menus into the center.</div>
         </div>
         <div class="row" style="justify-content:flex-end;">
           <label class="muted">Target CEO</label>
@@ -551,15 +606,12 @@
           <div class="rosterGrid" id="myRoster"></div>
         </div>
 
-        <!-- MIDDLE OUTGOING BUILDER -->
+        <!-- MIDDLE -->
         <div class="makeCol midCenter">
           <div class="midTopBar">
             <div>
               <div style="font-weight:950;">Outgoing Offer</div>
-              <div class="muted">Space for logos shown below.</div>
-            </div>
-            <div class="pill">
-              Drag: <span class="kbd">Left</span>/<span class="kbd">Right</span> → <span class="kbd">Center</span>
+              <div class="muted">Drop into both boxes, then Send.</div>
             </div>
           </div>
 
@@ -606,7 +658,7 @@
 
 <div id="fxLayer"><div id="tradeBanner"></div></div>
 
-<!-- MODAL for counteroffers/outcomes -->
+<!-- MODAL -->
 <div id="modalMask">
   <div class="modal">
     <div class="modalHead">
@@ -639,12 +691,12 @@
 
 <script>
 /* =========================
-   Trade Machine - Outgoing Center + Counteroffer Popup
+   Trade Machine
 ========================= */
 
 const PLACEHOLDER = "assets/items/placeholder.jpg";
 
-/* ===== Data (same set; you can expand items later) ===== */
+/* ===== Data ===== */
 const DATA_SEED = {
   "McDonald's":[
     {name:"Big Mac",base:86,tags:["iconic"],img:"assets/items/big-mac.jpg"},
@@ -774,13 +826,12 @@ let S = {
   targetPower: 650,
   rep: 50,
   fairness: 8,
-  outboundUsed: false,
   tab: "inbox",
   inbox: [],
   selectedOfferId: null,
   pkgYou: [],
   pkgThey: [],
-  pendingCounter: null // counteroffer payload after you send
+  pendingCounter: null
 };
 
 function roster(team){ return S.DATA[team] || []; }
@@ -824,7 +875,7 @@ function theirVerdict(other, youGive, theyGive){
   return {score, verdict, acceptThresh};
 }
 
-/* ===== FX Banner ===== */
+/* FX Banner */
 (function setupFX(){
   const style = document.createElement("style");
   style.textContent = `
@@ -842,11 +893,6 @@ function theirVerdict(other, youGive, theyGive){
       80%{ transform:translate(-4px,-3px); }
       100%{ transform:translate(0,0); }
     }
-    @keyframes flashRed {
-      0%{ box-shadow: inset 0 0 0 0 rgba(255,90,90,0); }
-      35%{ box-shadow: inset 0 0 0 18px rgba(255,90,90,.12); }
-      100%{ box-shadow: inset 0 0 0 0 rgba(255,90,90,0); }
-    }
   `;
   document.head.appendChild(style);
 })();
@@ -860,7 +906,7 @@ function showBanner(text, color, shake=false){
   if(shake){
     document.body.style.animation="none";
     document.body.offsetHeight;
-    document.body.style.animation="screenShake 420ms ease-in-out, flashRed 520ms ease-out";
+    document.body.style.animation="screenShake 420ms ease-in-out";
   }
 }
 function fxStatus(status){
@@ -869,7 +915,7 @@ function fxStatus(status){
   if(status==="rejected") showBanner("❌ TRADE REJECTED", "#ff7c7c", true);
 }
 
-/* ===== Logos ===== */
+/* Logos */
 function teamSlug(team){ return (team||"").toLowerCase().replace(/[^a-z0-9]+/g,""); }
 function logoPath(team){ return `assets/logos/${teamSlug(team)}.png`; }
 function setLogo(elId, team, fallbackText){
@@ -880,10 +926,10 @@ function setLogo(elId, team, fallbackText){
     onerror="this.remove(); this.parentElement.textContent='${esc(fallbackText)}';">`;
 }
 
-/* ===== Logging ===== */
+/* Logging */
 function logLine(html){ $("log").innerHTML = `<div>${html}</div>` + $("log").innerHTML; }
 
-/* ===== Tabs ===== */
+/* Tabs */
 function setTab(tab){
   S.tab = tab;
   $("tabInbox").classList.toggle("active", tab==="inbox");
@@ -893,7 +939,7 @@ function setTab(tab){
   render();
 }
 
-/* ===== Inbox offers (incoming only) ===== */
+/* Inbox offers */
 function badge(type){
   if(type==="block") return {txt:"BLOCKBUSTER 🚨", cls:"bB"};
   if(type==="fleece") return {txt:"FLEECE 😈", cls:"bF"};
@@ -946,7 +992,7 @@ function genInbox(){
   S.selectedOfferId = S.inbox[0]?.id || null;
 }
 
-/* ===== Trading ===== */
+/* Trading */
 function executeTrade(other, youGive, theyGive){
   const myR = roster(S.my);
   const thR = roster(other);
@@ -958,9 +1004,22 @@ function executeTrade(other, youGive, theyGive){
   S.DATA[other] = thR.filter(it=>!theyGive.includes(it.name)).concat(myGiveItems);
 }
 
-/* ===== Modal ===== */
-function closeModal(){
-  $("modalMask").style.display = "none";
+/* Modal */
+function closeModal(){ $("modalMask").style.display = "none"; }
+function pkgCardHTML(team, name, removable){
+  const it = findItem(team, name);
+  const v = itemValue(it);
+  const img = it?.img || PLACEHOLDER;
+  return `
+    <div class="pkgCard" data-name="${esc(name)}">
+      <div class="mini">${imgHTML(img, name)}</div>
+      <div style="min-width:0;">
+        <b title="${esc(name)}">${esc(name)}</b>
+        <span>Value: ${v}</span>
+      </div>
+      ${removable ? `<button data-remove="1" title="Remove">Remove</button>` : ``}
+    </div>
+  `;
 }
 function openModal({title, sub, badgeObj, youGiveTeam, youGive, theyGiveTeam, theyGive, eval1, eval2, buttonsHTML}){
   $("mTitle").textContent = title;
@@ -988,7 +1047,7 @@ function openModal({title, sub, badgeObj, youGiveTeam, youGive, theyGiveTeam, th
   $("modalMask").style.display = "flex";
 }
 
-/* ===== Render ===== */
+/* Render */
 function renderHUD(){
   $("hudTeam").textContent = S.my || "—";
   $("goalTxt").textContent = S.targetPower;
@@ -1003,35 +1062,56 @@ function renderHUD(){
   $("hudRepNote").textContent = S.rep>=60 ? "Respected 🙂" : S.rep>=40 ? "Neutral 😐" : S.rep>=20 ? "Sketchy 😒" : "Public Enemy 😤";
 }
 
-function pkgCardHTML(team, name, removable){
-  const it = findItem(team, name);
-  const v = itemValue(it);
-  const img = it?.img || PLACEHOLDER;
-  return `
-    <div class="pkgCard" data-name="${esc(name)}">
-      <div class="mini">${imgHTML(img, name)}</div>
-      <div style="min-width:0;">
-        <b title="${esc(name)}">${esc(name)}</b>
-        <span>Value: ${v}</span>
-      </div>
-      ${removable ? `<button data-remove="1" title="Remove">Remove</button>` : ``}
-    </div>
-  `;
+function renderTargets(){
+  const sel = $("targetTeam");
+  const teams = Object.keys(S.DATA).filter(t=>t!==S.my);
+  const prev = sel.value;
+  sel.innerHTML = teams.map(t=>`<option value="${esc(t)}">${esc(t)}</option>`).join("");
+  sel.value = teams.includes(prev) ? prev : teams[0];
 }
 
 function renderOfferList(){
   const list = $("offerList");
   list.innerHTML = "";
+
   for(const o of S.inbox){
     const div = document.createElement("div");
-    div.className = "offerCard";
+    div.className = "offerCard" + (o.id===S.selectedOfferId ? " selected" : "");
     div.dataset.offerId = o.id;
+
+    const youThumbs = o.youGive.map(n=>{
+      const it = findItem(S.my, n);
+      return `<div class="miniThumb">${imgHTML(it?.img, n)}</div>`;
+    }).join("") || `<span class="muted">—</span>`;
+
+    const theyThumbs = o.theyGive.map(n=>{
+      const it = findItem(o.from, n);
+      return `<div class="miniThumb">${imgHTML(it?.img, n)}</div>`;
+    }).join("") || `<span class="muted">—</span>`;
+
     div.innerHTML = `
-      <span class="badge ${o.badge.cls}">${esc(o.badge.txt)}</span>
-      <div style="font-weight:950">${esc(o.from)} → ${esc(S.my)}</div>
-      <div class="muted" style="margin-top:6px;">${esc(o.msg)}</div>
-      <div class="muted" style="margin-top:6px;">${o.handled ? "✅ handled" : "⏳ pending"}</div>
+      <div class="offerTop">
+        <div>
+          <div class="offerTitle">${esc(o.from)} → ${esc(S.my)}</div>
+          <div class="offerSub">${esc(o.msg)}</div>
+        </div>
+        <span class="badge ${o.badge.cls}">${esc(o.badge.txt)}</span>
+      </div>
+
+      <div class="offerSplit">
+        <div class="offerBox">
+          <div class="lbl">You give</div>
+          <div class="miniRow">${youThumbs}</div>
+        </div>
+        <div class="offerBox">
+          <div class="lbl">You get</div>
+          <div class="miniRow">${theyThumbs}</div>
+        </div>
+      </div>
+
+      <div class="muted">${o.handled ? "✅ handled" : "⏳ pending"}</div>
     `;
+
     div.onclick = ()=>{ S.selectedOfferId = o.id; render(); };
     list.appendChild(div);
   }
@@ -1070,14 +1150,6 @@ function renderOfferDetail(){
   $("btnReject").disabled=disabled;
 }
 
-function renderTargets(){
-  const sel = $("targetTeam");
-  const teams = Object.keys(S.DATA).filter(t=>t!==S.my);
-  const prev = sel.value;
-  sel.innerHTML = teams.map(t=>`<option value="${esc(t)}">${esc(t)}</option>`).join("");
-  sel.value = teams.includes(prev) ? prev : teams[0];
-}
-
 function renderRoster(team, containerId){
   const c = $(containerId);
   c.innerHTML = "";
@@ -1099,11 +1171,13 @@ function renderRoster(team, containerId){
 
     div.innerHTML = `
       <div class="thumb">${imgHTML(x.it.img, x.it.name)}</div>
-      <div style="min-width:0;">
-        <div class="name">${esc(x.it.name)}</div>
-        <div class="meta">${(x.it.tags||[]).map(t=>"#"+esc(t)).join(" ")}</div>
+      <div class="tBottom">
+        <div style="min-width:0;">
+          <div class="tName" title="${esc(x.it.name)}">${esc(x.it.name)}</div>
+          <div class="tTags">${(x.it.tags||[]).map(t=>"#"+esc(t)).join(" ")}</div>
+        </div>
+        <div class="tVal">${x.v}</div>
       </div>
-      <div class="val">${x.v}</div>
     `;
     c.appendChild(div);
   }
@@ -1178,7 +1252,7 @@ function render(){
   if(S.tab==="make") renderMake();
 }
 
-/* ===== Drag & Drop ===== */
+/* Drag & Drop */
 function wireDrop(zoneId, acceptFn){
   const z = $(zoneId);
   z.addEventListener("dragover",(ev)=>{ ev.preventDefault(); z.classList.add("dragover"); });
@@ -1191,7 +1265,7 @@ function wireDrop(zoneId, acceptFn){
   });
 }
 
-/* ===== Actions ===== */
+/* Actions */
 function startRun(){
   S.DATA = clone(DATA_SEED);
   S.my = $("myTeam").value;
@@ -1241,7 +1315,6 @@ function counterSelected(){
   const o = S.inbox.find(x=>x.id===S.selectedOfferId);
   if(!o || o.handled) return;
 
-  // Switch to Make Offer and prefill YOUR outgoing builder with their offer (so you can counter)
   $("targetTeam").value = o.from;
   S.pkgYou = [...o.youGive];
   S.pkgThey = [...o.theyGive];
@@ -1253,32 +1326,25 @@ function counterSelected(){
 }
 
 function buildCounterOffer(target, yourGive, theirGive){
-  // Make them "improve their side": either remove a thing they give OR add one more thing you give.
   const tgtRoster = roster(target).slice().sort((a,b)=>itemValue(b)-itemValue(a));
   const myRoster  = roster(S.my).slice().sort((a,b)=>itemValue(b)-itemValue(a));
 
   let newYouGive = [...yourGive];
   let newTheyGive = [...theirGive];
 
-  // If they were giving a lot, they might take some back.
   if(newTheyGive.length>0 && Math.random()<0.55){
-    // remove their lowest value give
     const vals = newTheyGive.map(n=>({n,v:itemValue(findItem(target,n))})).sort((a,b)=>a.v-b.v);
     newTheyGive = newTheyGive.filter(n=>n!==vals[0].n);
   } else {
-    // ask you to add one more medium item
     const candidates = myRoster.map(x=>x.name).filter(n=>!newYouGive.includes(n));
     if(candidates.length){
       newYouGive.push(candidates[Math.floor(Math.random()*Math.min(3,candidates.length))]);
     }
   }
-
-  // Ensure not empty
   if(newTheyGive.length===0){
     const fallback = tgtRoster.find(x=>!theirGive.includes(x.name));
     if(fallback) newTheyGive = [fallback.name];
   }
-
   return {youGive:newYouGive, theyGive:newTheyGive};
 }
 
@@ -1319,7 +1385,6 @@ function sendOffer(){
     S.rep = clamp(S.rep-2, 0, 100);
     fxStatus("rejected");
     logLine(`❌ <b>${esc(target)}</b> REJECTED your offer.`);
-
     openModal({
       title: "❌ TRADE REJECTED",
       sub: `${target}: “No chance.”`,
@@ -1331,12 +1396,10 @@ function sendOffer(){
       buttonsHTML: `<button class="ghost" id="mCloseBtn">Back</button>`
     });
     setTimeout(()=>{ const b=$("mCloseBtn"); if(b) b.onclick=closeModal; }, 0);
-
     render();
     return;
   }
 
-  // COUNTEROFFER POPUP (only after you send)
   const counter = buildCounterOffer(target, S.pkgYou, S.pkgThey);
   S.pendingCounter = { target, original:{youGive:[...S.pkgYou], theyGive:[...S.pkgThey]}, counter };
 
@@ -1374,7 +1437,6 @@ function sendOffer(){
       render();
     };
     $("mReject").onclick = ()=>{
-      S.rep = clamp(S.rep+0, 0, 100);
       fxStatus("rejected");
       logLine(`❌ Rejected ${esc(S.pendingCounter?.target||"")} counter.`);
       closeModal();
@@ -1382,7 +1444,6 @@ function sendOffer(){
       render();
     };
     $("mEdit").onclick = ()=>{
-      // Load counter into outgoing builder so user can adjust and send again
       const pc = S.pendingCounter;
       if(!pc) return closeModal();
       $("targetTeam").value = pc.target;
@@ -1390,7 +1451,7 @@ function sendOffer(){
       S.pkgThey = [...pc.counter.theyGive];
       closeModal();
       setTab("make");
-      logLine(`🛠️ Editing counteroffer vs <b>${esc(pc.target)}</b>. Drag/drop changes then Send.`);
+      logLine(`🛠️ Editing counteroffer vs <b>${esc(pc.target)}</b>.`);
       S.pendingCounter=null;
       render();
     };
@@ -1417,7 +1478,7 @@ function endTurn(){
   render();
 }
 
-/* ===== Init ===== */
+/* Init */
 function init(){
   $("myTeam").innerHTML = Object.keys(DATA_SEED).map(t=>`<option value="${esc(t)}">${esc(t)}</option>`).join("");
 
@@ -1440,7 +1501,6 @@ function init(){
   $("btnSend").addEventListener("click", sendOffer);
 
   $("targetTeam").addEventListener("change", ()=>{
-    // Clear their side when changing targets to avoid mismatches
     S.pkgThey = [];
     render();
   });
@@ -1464,6 +1524,19 @@ function init(){
   });
 
   $("log").innerHTML = `<div class="muted">Start a run to begin.</div>`;
+}
+
+/* Drop helper */
+function wireDrop(zoneId, acceptFn){
+  const z = $(zoneId);
+  z.addEventListener("dragover",(ev)=>{ ev.preventDefault(); z.classList.add("dragover"); });
+  z.addEventListener("dragleave",()=>z.classList.remove("dragover"));
+  z.addEventListener("drop",(ev)=>{
+    ev.preventDefault(); z.classList.remove("dragover");
+    let payload=null;
+    try{ payload = JSON.parse(ev.dataTransfer.getData("text/plain")); }catch{}
+    if(payload) acceptFn(payload);
+  });
 }
 
 document.addEventListener("DOMContentLoaded", ()=>{
