@@ -151,7 +151,105 @@
     font:900 18px/1.1 system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
     letter-spacing:.4px;
     white-space:nowrap;
+.make3{
+  display:grid;
+  grid-template-columns: 1fr 1.15fr 1fr;
+  gap:12px;
+  margin-top:12px;
+  align-items:start;
+}
+.makeCol{ min-width:0; }
+
+.colHeader{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:10px;
+  margin-bottom:8px;
+}
+.logoSlot{
+  width:58px; height:58px;
+  border-radius:16px;
+  border:1px dashed rgba(184,197,230,.35);
+  display:flex; align-items:center; justify-content:center;
+  color:var(--muted);
+  background:rgba(15,22,41,.55);
+  font-weight:900;
+  font-size:11px;
+}
+
+.midCol .dropZone{ min-height:170px; }
+.dropZoneMini{ min-height:120px; opacity:.98; }
+
+.midSection{ padding:4px 0; }
+
+.midTop{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:10px;
+}
+
+.midSplit2{
+  display:grid;
+  grid-template-columns: 1fr 1fr;
+  gap:10px;
+}
+@media(max-width:980px){
+  .make3{ grid-template-columns: 1fr; }
+  .midSplit2{ grid-template-columns: 1fr; }
+}
+
+.logoBridge{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:10px;
+  margin:10px 0;
+}
+.logoPuck{
+  width:52px; height:52px;
+  border-radius:999px;
+  border:1px solid rgba(184,197,230,.25);
+  background:rgba(15,22,41,.65);
+  display:flex; align-items:center; justify-content:center;
+  font-weight:950;
+  color:var(--muted);
+  font-size:11px;
+}
+.logoArrow{
+  font-weight:950;
+  color:rgba(184,197,230,.75);
+  font-size:18px; /* Windows-friendly spacing + recording layout */
+@media (min-width: 1200px){
+  .make3{
+    grid-template-columns: 1.05fr 1.2fr 1.05fr; /* slightly wider middle */
+    gap:14px;
   }
+  .rosterGrid{ gap:14px; }
+  .tile{ padding:14px; }
+  .thumb{ width:104px; height:104px; }     /* BIGGER tiles for video */
+  .pkgCard .mini{ width:86px; height:86px; }/* Bigger package cards */
+  .midCol .dropZone{ min-height:190px; }
+}
+
+@media (min-width: 1600px){
+  .make3{
+    grid-template-columns: 1.1fr 1.3fr 1.1fr; /* even more breathing room */
+    gap:16px;
+  }
+  .thumb{ width:116px; height:116px; }
+  .pkgCard .mini{ width:96px; height:96px; }
+  .midCol .dropZone{ min-height:210px; }
+}
+
+/* Keep middle visible when dragging */
+.midCol{
+  position: sticky;
+  top: 78px; /* below header */
+}
+
+}
 </style>
 </head>
 
@@ -263,18 +361,112 @@
       </div>
 
       <!-- MAKE OFFER VIEW -->
-      <div id="viewMake" style="display:none; margin-top:12px;">
-        <div class="row" style="justify-content:space-between;">
-          <div>
-            <div style="font-weight:950;">Drag & Drop Offer Builder</div>
-            <div class="muted">Drag from rosters into the two packages. Then click Send. (1 offer per turn)</div>
-          </div>
-          <div class="row" style="justify-content:flex-end;">
-            <label class="muted">Target CEO</label>
-            <select id="targetTeam"></select>
-            <button class="good" id="btnSend">Send Offer</button>
+      <div id="viewMake" <div class="row" style="justify-content:space-between;">
+  <div>
+    <div style="font-weight:950;">Trade Center (Drag & Drop)</div>
+    <div class="muted">Left = you, right = them, build offers in the middle.</div>
+  </div>
+  <div class="row" style="justify-content:flex-end;">
+    <label class="muted">Target CEO</label>
+    <select id="targetTeam"></select>
+    <button class="good" id="btnSend">Send Offer</button>
+  </div>
+</div>
+
+<div class="make3">
+  <!-- LEFT: YOUR MENU -->
+  <div class="card makeCol" style="background:rgba(11,16,32,.55); border:1px solid var(--line);">
+    <div class="colHeader">
+      <div>
+        <div style="font-weight:950;">Your Menu</div>
+        <div class="muted" id="myCount"></div>
+      </div>
+      <div class="logoSlot" title="Drop your logo here later">LOGO</div>
+    </div>
+    <div class="rosterGrid" id="myRoster"></div>
+  </div>
+
+  <!-- MIDDLE: INCOMING + OUTGOING -->
+  <div class="card makeCol midCol" style="background:rgba(11,16,32,.55); border:1px solid var(--line);">
+    <!-- Incoming -->
+    <div class="midSection">
+      <div class="midTop">
+        <div>
+          <div style="font-weight:950;">Incoming Offer</div>
+          <div class="muted" id="incomingTitleMini">Select an offer in Inbox</div>
+        </div>
+        <span class="badge bR" id="incomingBadgeMini" style="display:none;">FAIR</span>
+      </div>
+
+      <div class="logoBridge">
+        <div class="logoPuck" id="logoLeftPuck">YOU</div>
+        <div class="logoArrow">⇄</div>
+        <div class="logoPuck" id="logoRightPuck">THEM</div>
+      </div>
+
+      <div class="midSplit2">
+        <div>
+          <div class="muted" style="font-weight:900; margin:4px 0 6px;">You receive</div>
+          <div class="dropWrap">
+            <div class="dropZone dropZoneMini" id="incomingYouMini"></div>
           </div>
         </div>
+        <div>
+          <div class="muted" style="font-weight:900; margin:4px 0 6px;">You give</div>
+          <div class="dropWrap">
+            <div class="dropZone dropZoneMini" id="incomingTheyMini"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row" style="justify-content:flex-end; margin-top:10px;">
+        <button class="good" id="miniAccept">Accept</button>
+        <button class="ghost" id="miniCounter">Counter</button>
+        <button class="danger" id="miniReject">Reject</button>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- Outgoing -->
+    <div class="midSection">
+      <div style="font-weight:950;">Outgoing Offer (Build Yours)</div>
+      <div class="muted">Drag from left/right menus into the packages.</div>
+
+      <div class="midSplit2" style="margin-top:8px;">
+        <div>
+          <div class="muted" style="font-weight:900; margin:4px 0 6px;">You give</div>
+          <div class="dropWrap">
+            <div class="dropZone" id="pkgYou"></div>
+          </div>
+        </div>
+        <div>
+          <div class="muted" style="font-weight:900; margin:4px 0 6px;">They give</div>
+          <div class="dropWrap">
+            <div class="dropZone" id="pkgThey"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+      <div style="font-weight:950;" id="mkEval">Build a proposal</div>
+      <div class="muted" id="mkEval2">Drag items into both packages.</div>
+    </div>
+  </div>
+
+  <!-- RIGHT: THEIR MENU -->
+  <div class="card makeCol" style="background:rgba(11,16,32,.55); border:1px solid var(--line);">
+    <div class="colHeader">
+      <div>
+        <div style="font-weight:950;">Target Menu</div>
+        <div class="muted" id="themCount"></div>
+      </div>
+      <div class="logoSlot" title="Drop their logo here later">LOGO</div>
+    </div>
+    <div class="rosterGrid" id="themRoster"></div>
+  </div>
+</div>
+
 
         <div class="grid2">
           <div class="card" style="background:rgba(11,16,32,.55); border:1px solid var(--line);">
@@ -529,6 +721,20 @@ function theirVerdict(other, youGive, theyGive){
     if(kind==="block"){ text="🚨 BLOCKBUSTER 🚨"; color="#ff8bd3"; }
     else if(kind==="fair"){ text="🤝 FAIR DEAL 🤝"; color="#6ef3b2"; }
     else if(kind==="fleece"){ text="😈 YOU GOT FLEECED 😈"; color="#ff7c7c"; }
+function tradeStatus(status){
+  // status: "accepted" | "rejected" | "countered"
+  if(status==="accepted") tradeFX("fair");     // keeps the nice vibe
+  else if(status==="countered") tradeFX("block"); // flashy
+  else tradeFX("fleece");                      // shake for rejection
+
+  // overwrite banner text to be explicit
+  const banner = $("tradeBanner");
+  if(!banner) return;
+
+  if(status==="accepted"){ banner.textContent = "✅ TRADE ACCEPTED"; banner.style.color = "#6ef3b2"; }
+  if(status==="countered"){ banner.textContent = "🔁 TRADE COUNTERED"; banner.style.color = "#ff8bd3"; }
+  if(status==="rejected"){ banner.textContent = "❌ TRADE REJECTED"; banner.style.color = "#ff7c7c"; }
+}
 
     banner.textContent = text;
     banner.style.color = color;
@@ -857,7 +1063,8 @@ function acceptSelected(){
   else tradeFX("fleece");
 
   executeTrade(o.from, o.youGive, o.theyGive);
-  o.handled = true;
+  o.handled = true; tradeStatus("accepted");
+
 
   S.rep = clamp(S.rep + (y.diff>=0?3:-3), 0, 100);
   logLine(`✅ Accepted <b>${esc(o.from)}</b>. Net ${y.diff>=0?"+":""}${y.diff}. Power <b>${power(S.my)}</b>.`);
@@ -867,7 +1074,8 @@ function acceptSelected(){
 function rejectSelected(){
   const o = S.inbox.find(x=>x.id===S.selectedOfferId);
   if(!o || o.handled) return;
-  o.handled = true;
+  o.handled = true; tradeStatus("rejected");
+
   tradeFX("fleece");
   S.rep = clamp(S.rep+1, 0, 100);
   logLine(`❌ Rejected <b>${esc(o.from)}</b>.`);
@@ -876,7 +1084,8 @@ function rejectSelected(){
 
 function counterSelected(){
   const o = S.inbox.find(x=>x.id===S.selectedOfferId);
-  if(!o || o.handled) return;
+  if(!o || o.handled) return; tradeStatus("countered");
+
   $("targetTeam").value = o.from;
   S.pkgYou = [...o.youGive];
   S.pkgThey = [...o.theyGive];
@@ -899,7 +1108,8 @@ function sendOffer(){
   const t = theirVerdict(target, S.pkgYou, S.pkgThey);
   const y = youNet(target, S.pkgYou, S.pkgThey);
 
-  if(t.verdict==="accept"){
+  if(t.verdict==="accept"){ tradeStatus("accepted");
+
     if(y.diff>=18) tradeFX("block");
     else if(y.diff>=-S.fairness) tradeFX("fair");
     else tradeFX("fleece");
@@ -908,14 +1118,16 @@ function sendOffer(){
     S.rep = clamp(S.rep+3, 0, 100);
     logLine(`📤 <b>${esc(target)}</b> ACCEPTED. Net ${y.diff>=0?"+":""}${y.diff}.`);
     S.pkgYou=[]; S.pkgThey=[];
-  } else if(t.verdict==="counter"){
+  } else if(t.verdict==="counter"){ tradeStatus("countered");
+
     tradeFX("fair");
     S.rep = clamp(S.rep-1, 0, 100);
     logLine(`🔁 <b>${esc(target)}</b> COUNTERED: “Need more value.” Add an item.`);
   } else {
     tradeFX("fleece");
     S.rep = clamp(S.rep-2, 0, 100);
-    logLine(`❌ <b>${esc(target)}</b> REJECTED your offer.`);
+    logLine(`❌ <b>${esc(target)}</b> REJECTED your offer.`); tradeStatus("rejected");
+
   }
   render();
 }
@@ -935,7 +1147,43 @@ function endTurn(){
   genInbox();
   tradeFX("fair");
   logLine(`➡️ Turn ${S.turn} begins. New inbox offers arrived.`);
-  render();
+  render(); function renderIncomingMini(){
+  const title = $("incomingTitleMini");
+  const badge = $("incomingBadgeMini");
+  const zYou = $("incomingYouMini");
+  const zThey = $("incomingTheyMini"); renderIncomingMini();
+
+
+  if(!title || !badge || !zYou || !zThey) return;
+
+  const o = S.inbox.find(x=>x.id===S.selectedOfferId);
+
+  if(!o){
+    title.textContent = "Select an offer in Inbox";
+    badge.style.display = "none";
+    zYou.innerHTML = `<div class="muted">—</div>`;
+    zThey.innerHTML = `<div class="muted">—</div>`;
+    $("miniAccept").disabled = true;
+    $("miniReject").disabled = true;
+    $("miniCounter").disabled = true;
+    return;
+  }
+
+  title.textContent = `${o.from} → ${S.my}`;
+  badge.style.display = "";
+  badge.className = `badge ${o.badge.cls}`;
+  badge.textContent = o.badge.txt;
+
+  // In this mini view, show what YOU would receive (theirGive) and what YOU would give (yourGive)
+  zYou.innerHTML = o.theyGive.length ? o.theyGive.map(n=>pkgCardHTML(o.from,n,false)).join("") : `<div class="muted">Nothing</div>`;
+  zThey.innerHTML = o.youGive.length ? o.youGive.map(n=>pkgCardHTML(S.my,n,false)).join("") : `<div class="muted">Nothing</div>`;
+
+  const disabled = o.handled || (S.turn>S.maxTurns) || (power(S.my)>=S.targetPower);
+  $("miniAccept").disabled = disabled;
+  $("miniReject").disabled = disabled;
+  $("miniCounter").disabled = disabled;
+}
+
 }
 
 /* ===== INIT ===== */
@@ -947,6 +1195,10 @@ $("targetTeam").addEventListener("change", () => {
   // When you switch target CEO, clear their side of the package (prevents weird mismatches)
   S.pkgThey = [];
   renderMake();
+$("miniAccept").addEventListener("click", acceptSelected);
+$("miniReject").addEventListener("click", rejectSelected);
+$("miniCounter").addEventListener("click", counterSelected);
+
 });
 
   // Buttons
