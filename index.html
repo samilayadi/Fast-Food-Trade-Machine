@@ -17,7 +17,7 @@
   body{
     margin:0; color:var(--ink);
     background:linear-gradient(180deg,#070a12,#0b0f19);
-    overflow:hidden; /* NO PAGE SCROLL */
+    overflow:hidden;
   }
 
   header{
@@ -102,24 +102,22 @@
   .tab.active{ outline:2px solid rgba(110,243,178,.45); }
   .tabIcon{ font-size:14px; }
 
-  /* One-screen view area */
   #viewInbox, #viewMake{
     flex:1; min-height:0; overflow:hidden;
     display:flex; flex-direction:column;
     gap:10px;
   }
 
-  /* 3 columns */
+  /* ===== 3-column make layout (FIXED so center won't squeeze right menu off-screen) ===== */
   .make3{
     flex:1;
     min-height:0;
     overflow:hidden;
     display:grid;
-    grid-template-columns: 1fr 1.25fr 1fr;
+    grid-template-columns: minmax(280px, 1fr) minmax(420px, 1.15fr) minmax(280px, 1fr);
     gap:12px;
     align-items:stretch;
   }
-
   .makeCol{
     min-height:0;
     overflow:hidden;
@@ -149,14 +147,14 @@
   }
   .logoSlot img{ width:100%; height:100%; object-fit:contain; display:block; padding:7px; }
 
-  /* ===== GRID MENU TILES (NEW) ===== */
+  /* ===== GRID MENU TILES ===== */
   .rosterGrid{
     flex:1;
     min-height:0;
     overflow:auto;
     padding-right:6px;
     display:grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr)); /* 3-wide like you wanted */
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap:10px;
   }
   @media(max-width:1100px){
@@ -173,7 +171,7 @@
     display:flex;
     flex-direction:column;
     gap:8px;
-    aspect-ratio: 1 / 1; /* square tiles */
+    aspect-ratio: 1 / 1;
   }
   .tile:active{ cursor:grabbing; }
 
@@ -227,14 +225,6 @@
     gap:10px;
   }
 
-  .midTopBar{
-    display:flex;
-    justify-content:space-between;
-    align-items:flex-start;
-    gap:10px;
-    flex-wrap:wrap;
-  }
-
   .logoBridge{
     display:flex;
     align-items:center;
@@ -283,42 +273,57 @@
     border:2px dashed rgba(184,197,230,.18);
     border-radius:16px;
     padding:10px;
-    display:flex;
-    flex-direction:column;
+    display:grid; /* KEY: grid tiles, not stacked list */
+    grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
     gap:10px;
+    align-content:start;
   }
   .dropZone.dragover{ border-color: var(--good); background: rgba(110,243,178,.06); }
 
+  /* ===== Package tiles (BIGGER + Remove always visible) ===== */
   .pkgCard{
-    display:flex; gap:10px; align-items:center;
+    position:relative;
     border:1px solid var(--line);
     border-radius:16px;
-    background:rgba(15,22,41,.9);
-    padding:8px;
+    background:rgba(15,22,41,.92);
+    padding:10px;
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+    min-height: 180px;
   }
   .mini{
-    width:56px; height:56px;
+    width:100%;
+    height: 120px;
     border-radius:14px;
     overflow:hidden;
     border:1px solid var(--line);
     background:var(--panel2);
-    flex:0 0 auto;
   }
   .mini img{ width:100%; height:100%; object-fit:cover; display:block; }
-  .pkgCard b{ font-size:12px; display:block; }
-  .pkgCard span{ font-size:11px; color:var(--muted); display:block; margin-top:4px; }
-  .pkgCard button{
-    margin-left:auto;
-    padding:7px 9px;
-    border-radius:12px;
-    background:transparent;
-    border:1px solid var(--line);
-    color:var(--muted);
+  .pkgMeta b{
     font-size:12px;
+    display:block;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+  }
+  .pkgMeta span{ font-size:11px; color:var(--muted); display:block; margin-top:4px; }
+
+  .rmBtn{
+    position:absolute;
+    top:8px; right:8px;
+    padding:6px 8px;
+    border-radius:12px;
+    background:rgba(10,14,24,.75);
+    border:1px solid rgba(184,197,230,.25);
+    color:var(--ink);
+    font-size:11px;
     cursor:pointer;
   }
+  .rmBtn:hover{ filter:brightness(1.08); }
 
-  /* ===== INBOX CARDS SHOW OFFERS (NEW) ===== */
+  /* ===== INBOX shows big images + names ===== */
   .offerList{
     flex:1;
     min-height:0;
@@ -338,7 +343,7 @@
     cursor:pointer;
     display:flex;
     flex-direction:column;
-    gap:8px;
+    gap:10px;
   }
   .offerCard:hover{ filter:brightness(1.06); }
   .offerCard.selected{ outline:2px solid rgba(110,243,178,.45); }
@@ -355,29 +360,51 @@
   .offerSplit{
     display:grid;
     grid-template-columns:1fr 1fr;
-    gap:8px;
+    gap:10px;
   }
   .offerBox{
     border:1px solid rgba(184,197,230,.16);
     border-radius:14px;
-    padding:8px;
+    padding:10px;
     background:rgba(15,22,41,.35);
-    min-height:70px;
+    min-height:140px;
   }
-  .offerBox .lbl{ font-size:10px; color:var(--muted); font-weight:950; margin-bottom:6px; }
-  .miniRow{
+  .offerBox .lbl{ font-size:10px; color:var(--muted); font-weight:950; margin-bottom:8px; }
+
+  .bigRow{
     display:flex;
-    flex-wrap:wrap;
-    gap:6px;
+    flex-direction:column;
+    gap:10px;
   }
-  .miniThumb{
-    width:34px; height:34px;
-    border-radius:10px;
+  .bigItem{
+    display:flex;
+    gap:10px;
+    align-items:center;
+    border:1px solid rgba(184,197,230,.14);
+    border-radius:14px;
+    padding:8px;
+    background:rgba(10,14,24,.35);
+  }
+  .bigThumb{
+    width:74px; height:74px;
+    border-radius:14px;
     overflow:hidden;
     border:1px solid rgba(184,197,230,.22);
     background:rgba(11,16,32,.7);
+    flex:0 0 auto;
   }
-  .miniThumb img{ width:100%; height:100%; object-fit:cover; display:block; }
+  .bigThumb img{ width:100%; height:100%; object-fit:cover; display:block; }
+  .bigName{
+    font-weight:950;
+    font-size:12px;
+    line-height:1.2;
+  }
+  .bigVal{
+    margin-top:4px;
+    font-size:11px;
+    color:var(--muted);
+    font-variant-numeric:tabular-nums;
+  }
 
   .badge{
     display:inline-block;
@@ -392,7 +419,6 @@
   .bR{ color:var(--good); border-color: rgba(110,243,178,.45); background: rgba(110,243,178,.07); }
   .bB{ color:var(--hot); border-color: rgba(255,139,211,.45); background: rgba(255,139,211,.08); }
 
-  /* Log */
   .log{
     border:1px solid var(--line);
     border-radius:16px;
@@ -406,7 +432,7 @@
   }
   .log b{ color:var(--ink); }
 
-  /* FX Banner */
+  /* FX Layer */
   #fxLayer{ position:fixed; inset:0; pointer-events:none; z-index:9999; }
   #tradeBanner{
     position:absolute; left:50%; top:12%;
@@ -421,6 +447,12 @@
     font:900 18px/1.1 system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
     letter-spacing:.4px;
     white-space:nowrap;
+  }
+  #confettiCanvas{
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
   }
 
   /* Modal */
@@ -471,7 +503,6 @@
     border-top:1px solid rgba(255,255,255,.08);
   }
 
-  /* Allow page scroll on tiny screens only */
   @media(max-width:980px){
     body{ overflow:auto; }
     .wrap{ height:auto; overflow:visible; }
@@ -482,7 +513,7 @@
 <body>
 <header>
   <h1>🍔 Fast Food CEO Trade Machine</h1>
-  <p>Grid menus for video clarity + inbox shows full trade packages.</p>
+  <p>Cleaner center packages + inbox shows full offers + blockbuster confetti.</p>
 </header>
 
 <div class="wrap">
@@ -608,11 +639,9 @@
 
         <!-- MIDDLE -->
         <div class="makeCol midCenter">
-          <div class="midTopBar">
-            <div>
-              <div style="font-weight:950;">Outgoing Offer</div>
-              <div class="muted">Drop into both boxes, then Send.</div>
-            </div>
+          <div>
+            <div style="font-weight:950;">Outgoing Offer</div>
+            <div class="muted">Drop into both boxes, then Send.</div>
           </div>
 
           <div class="logoBridge">
@@ -656,7 +685,10 @@
   </div>
 </div>
 
-<div id="fxLayer"><div id="tradeBanner"></div></div>
+<div id="fxLayer">
+  <canvas id="confettiCanvas"></canvas>
+  <div id="tradeBanner"></div>
+</div>
 
 <!-- MODAL -->
 <div id="modalMask">
@@ -875,7 +907,21 @@ function theirVerdict(other, youGive, theyGive){
   return {score, verdict, acceptThresh};
 }
 
-/* FX Banner */
+/* ===== BLOCKBUSTER CHECK ===== */
+function isBlockbuster(other, youGive, theyGive){
+  let hi=0;
+  for(const n of youGive){
+    const it = findItem(S.my, n);
+    if(itemValue(it) >= 89) hi++;
+  }
+  for(const n of theyGive){
+    const it = findItem(other, n);
+    if(itemValue(it) >= 89) hi++;
+  }
+  return hi >= 2;
+}
+
+/* FX Banner + Shake */
 (function setupFX(){
   const style = document.createElement("style");
   style.textContent = `
@@ -887,15 +933,16 @@ function theirVerdict(other, youGive, theyGive){
     }
     @keyframes screenShake {
       0%{ transform:translate(0,0); }
-      20%{ transform:translate(6px,-4px); }
-      40%{ transform:translate(-6px,3px); }
-      60%{ transform:translate(5px,4px); }
-      80%{ transform:translate(-4px,-3px); }
+      20%{ transform:translate(7px,-5px); }
+      40%{ transform:translate(-7px,4px); }
+      60%{ transform:translate(6px,5px); }
+      80%{ transform:translate(-5px,-4px); }
       100%{ transform:translate(0,0); }
     }
   `;
   document.head.appendChild(style);
 })();
+
 function showBanner(text, color, shake=false){
   const banner = $("tradeBanner");
   banner.textContent = text;
@@ -906,10 +953,90 @@ function showBanner(text, color, shake=false){
   if(shake){
     document.body.style.animation="none";
     document.body.offsetHeight;
-    document.body.style.animation="screenShake 420ms ease-in-out";
+    document.body.style.animation="screenShake 520ms ease-in-out";
   }
 }
-function fxStatus(status){
+
+/* ===== CONFETTI ===== */
+let confettiRunning=false;
+function resizeConfetti(){
+  const c = $("confettiCanvas");
+  const dpr = Math.max(1, window.devicePixelRatio || 1);
+  c.width = Math.floor(window.innerWidth * dpr);
+  c.height = Math.floor(window.innerHeight * dpr);
+}
+window.addEventListener("resize", resizeConfetti);
+
+function startConfetti(durationMs=1600, count=160){
+  if(confettiRunning) return;
+  confettiRunning=true;
+
+  resizeConfetti();
+  const c = $("confettiCanvas");
+  const ctx = c.getContext("2d");
+  const dpr = Math.max(1, window.devicePixelRatio || 1);
+
+  const W = c.width, H = c.height;
+  const parts = [];
+  for(let i=0;i<count;i++){
+    parts.push({
+      x: Math.random()*W,
+      y: -Math.random()*H*0.6,
+      vx: (Math.random()*2-1) * 2.2 * dpr,
+      vy: (Math.random()*2+2.8) * 2.8 * dpr,
+      s: (Math.random()*6+6) * dpr,
+      r: Math.random()*Math.PI,
+      vr:(Math.random()*2-1)*0.12,
+      a: 0.9
+    });
+  }
+
+  const t0 = performance.now();
+  function tick(t){
+    const dt = (t - t0);
+    ctx.clearRect(0,0,W,H);
+
+    for(const p of parts){
+      p.x += p.vx;
+      p.y += p.vy;
+      p.r += p.vr;
+      p.vy += 0.04 * dpr; // gravity
+      p.vx *= 0.995;
+
+      // simple wrap
+      if(p.x < -40*dpr) p.x = W+40*dpr;
+      if(p.x > W+40*dpr) p.x = -40*dpr;
+
+      // fade near end
+      const fade = 1 - (dt / durationMs);
+      p.a = Math.max(0, Math.min(0.9, fade));
+
+      ctx.save();
+      ctx.globalAlpha = p.a;
+      ctx.translate(p.x,p.y);
+      ctx.rotate(p.r);
+      // no fixed colors: use random-ish via HSL
+      ctx.fillStyle = `hsl(${Math.floor((p.x/W)*360)}, 90%, 60%)`;
+      ctx.fillRect(-p.s/2, -p.s/2, p.s, p.s*0.65);
+      ctx.restore();
+    }
+
+    if(dt < durationMs){
+      requestAnimationFrame(tick);
+    } else {
+      ctx.clearRect(0,0,W,H);
+      confettiRunning=false;
+    }
+  }
+  requestAnimationFrame(tick);
+}
+
+function fxStatus(status, blockbuster=false){
+  if(blockbuster){
+    showBanner("🚨 BLOCKBUSTER TRADE!", "#ff8bd3", true);
+    startConfetti(1800, 180);
+    return;
+  }
   if(status==="accepted") showBanner("✅ TRADE ACCEPTED", "#6ef3b2", false);
   if(status==="countered") showBanner("🔁 COUNTEROFFER!", "#ff8bd3", false);
   if(status==="rejected") showBanner("❌ TRADE REJECTED", "#ff7c7c", true);
@@ -1013,11 +1140,11 @@ function pkgCardHTML(team, name, removable){
   return `
     <div class="pkgCard" data-name="${esc(name)}">
       <div class="mini">${imgHTML(img, name)}</div>
-      <div style="min-width:0;">
+      <div class="pkgMeta" style="min-width:0;">
         <b title="${esc(name)}">${esc(name)}</b>
         <span>Value: ${v}</span>
       </div>
-      ${removable ? `<button data-remove="1" title="Remove">Remove</button>` : ``}
+      ${removable ? `<button class="rmBtn" data-remove="1" title="Remove">Remove</button>` : ``}
     </div>
   `;
 }
@@ -1079,15 +1206,31 @@ function renderOfferList(){
     div.className = "offerCard" + (o.id===S.selectedOfferId ? " selected" : "");
     div.dataset.offerId = o.id;
 
-    const youThumbs = o.youGive.map(n=>{
+    const youRows = o.youGive.map(n=>{
       const it = findItem(S.my, n);
-      return `<div class="miniThumb">${imgHTML(it?.img, n)}</div>`;
-    }).join("") || `<span class="muted">—</span>`;
+      return `
+        <div class="bigItem">
+          <div class="bigThumb">${imgHTML(it?.img, n)}</div>
+          <div style="min-width:0;">
+            <div class="bigName" title="${esc(n)}">${esc(n)}</div>
+            <div class="bigVal">Value: ${itemValue(it)}</div>
+          </div>
+        </div>
+      `;
+    }).join("") || `<div class="muted">—</div>`;
 
-    const theyThumbs = o.theyGive.map(n=>{
+    const theyRows = o.theyGive.map(n=>{
       const it = findItem(o.from, n);
-      return `<div class="miniThumb">${imgHTML(it?.img, n)}</div>`;
-    }).join("") || `<span class="muted">—</span>`;
+      return `
+        <div class="bigItem">
+          <div class="bigThumb">${imgHTML(it?.img, n)}</div>
+          <div style="min-width:0;">
+            <div class="bigName" title="${esc(n)}">${esc(n)}</div>
+            <div class="bigVal">Value: ${itemValue(it)}</div>
+          </div>
+        </div>
+      `;
+    }).join("") || `<div class="muted">—</div>`;
 
     div.innerHTML = `
       <div class="offerTop">
@@ -1101,11 +1244,11 @@ function renderOfferList(){
       <div class="offerSplit">
         <div class="offerBox">
           <div class="lbl">You give</div>
-          <div class="miniRow">${youThumbs}</div>
+          <div class="bigRow">${youRows}</div>
         </div>
         <div class="offerBox">
           <div class="lbl">You get</div>
-          <div class="miniRow">${theyThumbs}</div>
+          <div class="bigRow">${theyRows}</div>
         </div>
       </div>
 
@@ -1292,11 +1435,14 @@ function acceptSelected(){
   if(!o || o.handled) return;
 
   const y = youNet(o.from, o.youGive, o.theyGive);
+  const blockbuster = isBlockbuster(o.from, o.youGive, o.theyGive);
+
   executeTrade(o.from, o.youGive, o.theyGive);
   o.handled = true;
 
   S.rep = clamp(S.rep + (y.diff>=0?3:-3), 0, 100);
-  fxStatus("accepted");
+  fxStatus("accepted", blockbuster);
+
   logLine(`✅ Accepted <b>${esc(o.from)}</b>. Net ${y.diff>=0?"+":""}${y.diff}. Power <b>${power(S.my)}</b>.`);
   render();
 }
@@ -1359,15 +1505,16 @@ function sendOffer(){
   const t = theirVerdict(target, S.pkgYou, S.pkgThey);
 
   if(t.verdict==="accept"){
+    const blockbuster = isBlockbuster(target, S.pkgYou, S.pkgThey);
     executeTrade(target, S.pkgYou, S.pkgThey);
     S.rep = clamp(S.rep+3, 0, 100);
-    fxStatus("accepted");
+    fxStatus("accepted", blockbuster);
     logLine(`📤 <b>${esc(target)}</b> ACCEPTED. Net ${y.diff>=0?"+":""}${y.diff}. Power <b>${power(S.my)}</b>.`);
 
     openModal({
-      title: "✅ TRADE ACCEPTED",
+      title: blockbuster ? "🚨 BLOCKBUSTER TRADE!" : "✅ TRADE ACCEPTED",
       sub: `${target} agreed to your offer.`,
-      badgeObj: badge("fair"),
+      badgeObj: badge(blockbuster ? "block" : "fair"),
       youGiveTeam: S.my, youGive: S.pkgYou,
       theyGiveTeam: target, theyGive: S.pkgThey,
       eval1: y.diff>=0 ? `Net: You WIN by ${y.diff}` : `Net: You LOSE by ${Math.abs(y.diff)}`,
@@ -1427,9 +1574,12 @@ function sendOffer(){
     $("mAccept").onclick = ()=>{
       const pc = S.pendingCounter;
       if(!pc) return closeModal();
+
+      const blockbuster = isBlockbuster(pc.target, pc.counter.youGive, pc.counter.theyGive);
       executeTrade(pc.target, pc.counter.youGive, pc.counter.theyGive);
       S.rep = clamp(S.rep+2, 0, 100);
-      fxStatus("accepted");
+      fxStatus("accepted", blockbuster);
+
       logLine(`✅ Accepted ${esc(pc.target)} counter. Power <b>${power(S.my)}</b>.`);
       closeModal();
       S.pkgYou=[]; S.pkgThey=[];
@@ -1508,7 +1658,6 @@ function init(){
   $("mClose").addEventListener("click", closeModal);
   $("modalMask").addEventListener("click",(e)=>{ if(e.target.id==="modalMask") closeModal(); });
 
-  // Drop zones
   wireDrop("pkgYou", (p)=>{
     if(S.tab!=="make") return;
     if(p.team !== S.my) return;
@@ -1524,19 +1673,8 @@ function init(){
   });
 
   $("log").innerHTML = `<div class="muted">Start a run to begin.</div>`;
-}
 
-/* Drop helper */
-function wireDrop(zoneId, acceptFn){
-  const z = $(zoneId);
-  z.addEventListener("dragover",(ev)=>{ ev.preventDefault(); z.classList.add("dragover"); });
-  z.addEventListener("dragleave",()=>z.classList.remove("dragover"));
-  z.addEventListener("drop",(ev)=>{
-    ev.preventDefault(); z.classList.remove("dragover");
-    let payload=null;
-    try{ payload = JSON.parse(ev.dataTransfer.getData("text/plain")); }catch{}
-    if(payload) acceptFn(payload);
-  });
+  resizeConfetti();
 }
 
 document.addEventListener("DOMContentLoaded", ()=>{
@@ -1547,4 +1685,3 @@ document.addEventListener("DOMContentLoaded", ()=>{
 
 </body>
 </html>
-
