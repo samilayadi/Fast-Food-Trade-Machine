@@ -1,776 +1,701 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>Fast Food CEO Trade Machine</title>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Fast Food Trade Machine</title>
 
-<style>
-  :root{
-    --bg:#070a12; --panel:#0f1629; --panel2:#0b1020;
-    --ink:#e8eefc; --muted:#b8c5e6; --line:#233055;
-    --good:#6ef3b2; --bad:#ff7c7c; --warn:#ffd27c; --hot:#ff8bd3;
-    font-family: system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
-  }
+  <!-- Helps relative asset paths on GitHub Pages project sites -->
+  <base href="./">
 
-  html, body { height:100%; }
-  body{
-    margin:0; color:var(--ink);
-    background:linear-gradient(180deg,#070a12,#0b0f19);
-    overflow:hidden;
-  }
+  <style>
+    :root{
+      --bg:#070a14;
+      --panel:rgba(12,16,34,.72);
+      --panel2:rgba(12,16,34,.52);
+      --stroke:rgba(255,255,255,.10);
+      --stroke2:rgba(255,255,255,.08);
+      --text:#eaf0ff;
+      --muted:rgba(234,240,255,.65);
+      --good:#6ef3b2;
+      --bad:#ff7c7c;
+      --pink:#ff8bd3;
+      --btn:#1a2140;
+      --shadow:0 18px 60px rgba(0,0,0,.55);
+      --r:18px;
+      --r2:14px;
+      --gap:14px;
+      --tile:92px; /* square tile size */
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      background:
+        radial-gradient(1200px 700px at 10% 10%, rgba(66,122,255,.18), transparent 58%),
+        radial-gradient(900px 600px at 85% 20%, rgba(255,139,211,.14), transparent 55%),
+        radial-gradient(1000px 800px at 45% 90%, rgba(110,243,178,.10), transparent 55%),
+        var(--bg);
+      color:var(--text);
+      height:100vh;
+      overflow:hidden; /* ONE SCREEN */
+    }
+    a{color:inherit}
+    .wrap{
+      height:100vh;
+      padding:16px;
+      display:grid;
+      grid-template-rows: auto auto 1fr auto;
+      gap:14px;
+      max-width:1280px;
+      margin:0 auto;
+    }
+    .topRow{
+      display:flex;
+      gap:12px;
+      align-items:stretch;
+    }
+    .topBox{
+      flex:1;
+      background:linear-gradient(180deg, rgba(20,26,56,.78), rgba(10,12,26,.72));
+      border:1px solid var(--stroke);
+      border-radius:var(--r);
+      padding:14px;
+      box-shadow:var(--shadow);
+    }
+    .topBox h1{
+      margin:0 0 8px;
+      font-size:18px;
+      letter-spacing:.2px;
+    }
+    .row{
+      display:flex;
+      gap:12px;
+      align-items:center;
+      flex-wrap:wrap;
+    }
+    .label{font-size:12px;color:var(--muted)}
+    select, button{
+      font:inherit;
+    }
+    select{
+      background:rgba(8,10,22,.72);
+      color:var(--text);
+      border:1px solid var(--stroke);
+      border-radius:12px;
+      padding:8px 10px;
+      outline:none;
+    }
+    button{
+      border:1px solid var(--stroke);
+      background:linear-gradient(180deg, rgba(30,40,90,.55), rgba(14,18,40,.6));
+      color:var(--text);
+      padding:10px 14px;
+      border-radius:14px;
+      cursor:pointer;
+      transition:.15s transform ease, .15s filter ease;
+    }
+    button:hover{filter:brightness(1.08)}
+    button:active{transform:scale(.98)}
+    .btnGood{border-color:rgba(110,243,178,.35); background:linear-gradient(180deg, rgba(18,120,78,.55), rgba(14,18,40,.62))}
+    .btnBad{border-color:rgba(255,124,124,.35); background:linear-gradient(180deg, rgba(135,34,52,.55), rgba(14,18,40,.62))}
+    .btnPink{border-color:rgba(255,139,211,.35); background:linear-gradient(180deg, rgba(120,28,98,.55), rgba(14,18,40,.62))}
+    .btnSmall{padding:8px 12px;border-radius:12px;font-size:13px}
+    .pill{
+      display:inline-flex; align-items:center; gap:8px;
+      border:1px solid var(--stroke);
+      border-radius:999px;
+      padding:6px 10px;
+      background:rgba(8,10,22,.55);
+      color:var(--muted);
+      font-size:12px;
+      white-space:nowrap;
+    }
+    .pill strong{color:var(--text);font-weight:700}
+    .statsRow{
+      display:grid;
+      grid-template-columns: 2fr 1fr 1fr 1fr auto;
+      gap:12px;
+      align-items:stretch;
+    }
+    .stat{
+      background:linear-gradient(180deg, rgba(20,26,56,.70), rgba(10,12,26,.70));
+      border:1px solid var(--stroke);
+      border-radius:var(--r);
+      padding:12px 14px;
+      box-shadow:var(--shadow);
+      min-height:78px;
+    }
+    .stat .k{font-size:12px;color:var(--muted)}
+    .stat .v{font-size:22px;font-weight:800;margin-top:2px}
+    .stat .s{font-size:12px;color:var(--muted);margin-top:2px}
+    .statWide .v{font-size:26px}
+    .rightBtns{display:flex; gap:10px; justify-content:flex-end; align-items:flex-start}
+    .tabs{
+      display:flex; gap:10px; align-items:center;
+      margin-top:10px;
+    }
+    .tabBtn{
+      display:inline-flex; align-items:center; gap:10px;
+      padding:10px 14px;
+      border-radius:14px;
+      border:1px solid var(--stroke);
+      background:rgba(8,10,22,.55);
+      font-weight:700;
+    }
+    .tabBtn.active{
+      border-color:rgba(110,243,178,.45);
+      box-shadow:0 0 0 3px rgba(110,243,178,.10) inset;
+    }
 
-  header{
-    padding:10px 12px;
-    border-bottom:1px solid var(--line);
-    background:rgba(15,22,41,.95);
-    position:sticky; top:0; z-index:10;
-  }
-  header h1{ margin:0; font-size:18px; }
-  header p{ margin:6px 0 0; color:var(--muted); font-size:12px; line-height:1.35; }
+    .main{
+      background:linear-gradient(180deg, rgba(20,26,56,.66), rgba(10,12,26,.66));
+      border:1px solid var(--stroke);
+      border-radius:var(--r);
+      box-shadow:var(--shadow);
+      padding:14px;
+      display:grid;
+      grid-template-rows:auto 1fr;
+      min-height:0;
+    }
+    .mainHead{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:12px;
+      margin-bottom:10px;
+    }
+    .mainHead h2{margin:0;font-size:16px}
+    .mainHead .hint{font-size:12px;color:var(--muted)}
+    .tradeGrid{
+      min-height:0;
+      display:grid;
+      grid-template-columns: 1fr 1.1fr 1fr;
+      gap:12px;
+      align-items:stretch;
+    }
+    .col{
+      background:rgba(8,10,22,.35);
+      border:1px solid var(--stroke2);
+      border-radius:var(--r2);
+      padding:10px;
+      min-height:0;
+      display:grid;
+      grid-template-rows:auto 1fr;
+      gap:10px;
+      overflow:hidden;
+    }
+    .colTitle{
+      display:flex; justify-content:space-between; align-items:baseline; gap:10px;
+    }
+    .colTitle .t{font-weight:800}
+    .colTitle .sub{font-size:12px;color:var(--muted)}
+    .menuGrid{
+      display:grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap:10px;
+      align-content:start;
+      overflow:auto;
+      padding-right:6px;
+    }
+    .tile{
+      border:1px solid var(--stroke2);
+      background:linear-gradient(180deg, rgba(22,28,62,.55), rgba(10,12,26,.65));
+      border-radius:16px;
+      padding:8px;
+      display:grid;
+      grid-template-rows: var(--tile) auto auto;
+      gap:6px;
+      cursor:grab;
+      user-select:none;
+      position:relative;
+    }
+    .tile:active{cursor:grabbing}
+    .thumb{
+      border-radius:14px;
+      overflow:hidden;
+      border:1px solid rgba(255,255,255,.08);
+      background:rgba(255,255,255,.03);
+      position:relative;
+    }
+    .thumb img{
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      display:block;
+    }
+    .tile .nm{
+      font-weight:800;
+      font-size:12px;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    .tile .tg{
+      font-size:11px;
+      color:var(--muted);
+      display:flex; gap:6px; flex-wrap:wrap;
+      min-height:14px;
+    }
+    .tile .val{
+      position:absolute;
+      right:10px; bottom:8px;
+      font-weight:900;
+      font-size:12px;
+      color:rgba(234,240,255,.85);
+      background:rgba(0,0,0,.24);
+      border:1px solid rgba(255,255,255,.08);
+      padding:4px 8px;
+      border-radius:999px;
+    }
 
-  .wrap{
-    max-width:1200px;
-    margin:0 auto;
-    height: calc(100vh - 72px);
-    padding:10px 12px 12px;
-    overflow:hidden;
-    display:flex;
-    flex-direction:column;
-    box-sizing:border-box;
-    gap:10px;
-  }
+    .center{
+      min-height:0;
+      display:grid;
+      grid-template-rows:auto 1fr auto;
+      gap:10px;
+    }
+    .centerTop{
+      display:flex; justify-content:space-between; align-items:center; gap:10px;
+    }
+    .centerTop .swap{
+      display:flex; align-items:center; gap:10px; color:var(--muted); font-size:12px;
+    }
+    .dropRow{
+      min-height:0;
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:12px;
+      align-items:stretch;
+    }
+    .dropZone{
+      border:2px dashed rgba(255,255,255,.18);
+      background:rgba(8,10,22,.28);
+      border-radius:16px;
+      padding:10px;
+      min-height:0;
+      display:grid;
+      grid-template-rows:auto 1fr;
+      gap:10px;
+      overflow:hidden;
+    }
+    .dzTitle{
+      display:flex; justify-content:space-between; align-items:center;
+      font-weight:900;
+      font-size:12px;
+      color:rgba(234,240,255,.85);
+    }
+    .dzTitle .sum{font-size:11px;color:var(--muted);font-weight:700}
+    .pkgGrid{
+      overflow:auto;
+      padding-right:6px;
+      display:grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap:10px;
+      align-content:start;
+    }
+    .pkgCard{
+      border:1px solid var(--stroke2);
+      background:linear-gradient(180deg, rgba(22,28,62,.50), rgba(10,12,26,.60));
+      border-radius:16px;
+      padding:8px;
+      display:grid;
+      grid-template-rows: 64px auto;
+      gap:6px;
+      position:relative;
+    }
+    .pkgCard .mini{
+      border-radius:12px;
+      overflow:hidden;
+      border:1px solid rgba(255,255,255,.08);
+      background:rgba(255,255,255,.03);
+    }
+    .pkgCard .mini img{width:100%;height:100%;object-fit:cover;display:block}
+    .pkgMeta b{
+      display:block;
+      font-size:12px;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    .pkgMeta span{font-size:11px;color:var(--muted)}
+    .rmBtn{
+      position:absolute; right:8px; top:8px;
+      font-size:11px;
+      padding:6px 8px;
+      border-radius:12px;
+      background:rgba(0,0,0,.25);
+    }
+    .centerBottom{
+      display:flex; justify-content:space-between; align-items:center; gap:10px;
+      padding-top:6px;
+      border-top:1px solid rgba(255,255,255,.07);
+      color:var(--muted);
+      font-size:12px;
+    }
 
-  .card{
-    background:rgba(15,22,41,.92);
-    border:1px solid var(--line);
-    border-radius:16px;
-    padding:12px;
-    box-sizing:border-box;
-  }
+    .inbox{
+      min-height:0;
+      overflow:auto;
+      padding-right:6px;
+      display:grid;
+      grid-template-columns: repeat(3, minmax(0,1fr));
+      gap:12px;
+      align-content:start;
+    }
+    .offerCard{
+      border:1px solid var(--stroke2);
+      background:linear-gradient(180deg, rgba(22,28,62,.55), rgba(10,12,26,.65));
+      border-radius:16px;
+      padding:10px;
+      display:grid;
+      gap:10px;
+      cursor:pointer;
+    }
+    .offerCard.active{outline:3px solid rgba(110,243,178,.14); border-color:rgba(110,243,178,.35)}
+    .offerTop{
+      display:flex; justify-content:space-between; align-items:flex-start; gap:10px;
+    }
+    .offerTop b{font-size:13px}
+    .badge{
+      font-size:11px;
+      padding:4px 8px;
+      border-radius:999px;
+      border:1px solid var(--stroke2);
+      color:rgba(234,240,255,.9);
+      background:rgba(0,0,0,.22);
+      white-space:nowrap;
+    }
+    .badge.fair{border-color:rgba(110,243,178,.35); color:rgba(110,243,178,.95)}
+    .badge.fleece{border-color:rgba(255,124,124,.35); color:rgba(255,124,124,.95)}
+    .badge.block{border-color:rgba(255,139,211,.40); color:rgba(255,139,211,.95)}
+    .offerBody{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:10px;
+    }
+    .offerSide .st{font-size:11px;color:var(--muted);font-weight:800;margin-bottom:6px}
+    .offerMiniGrid{
+      display:grid;
+      grid-template-columns: repeat(2, minmax(0,1fr));
+      gap:8px;
+    }
+    .offerMini{
+      border:1px solid var(--stroke2);
+      border-radius:14px;
+      overflow:hidden;
+      background:rgba(255,255,255,.03);
+      height:70px;
+      position:relative;
+    }
+    .offerMini img{width:100%;height:100%;object-fit:cover;display:block}
+    .offerMini .cap{
+      position:absolute; left:6px; right:6px; bottom:6px;
+      font-size:10px; font-weight:800;
+      background:rgba(0,0,0,.35);
+      border:1px solid rgba(255,255,255,.10);
+      border-radius:10px;
+      padding:3px 6px;
+      white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+    }
 
-  .row{ display:flex; gap:10px; flex-wrap:wrap; align-items:center; justify-content:space-between; }
-  .muted{ color:var(--muted); font-size:12px; }
-  .small{ font-size:11px; color:var(--muted); }
+    .log{
+      background:linear-gradient(180deg, rgba(20,26,56,.55), rgba(10,12,26,.55));
+      border:1px solid var(--stroke);
+      border-radius:var(--r);
+      padding:10px 12px;
+      box-shadow:var(--shadow);
+      height:92px;
+      overflow:auto;
+      color:rgba(234,240,255,.75);
+      font-size:12px;
+      line-height:1.45;
+    }
 
-  select,button{
-    background:var(--panel2); color:var(--ink);
-    border:1px solid var(--line);
-    border-radius:12px;
-    padding:10px 10px;
-    font-size:14px;
-  }
-  button{ cursor:pointer; font-weight:950; background:#1e2a4d; }
-  button:hover{ filter:brightness(1.06); }
-  button.good{ background:#153a2a; border-color:#2a664a; }
-  button.danger{ background:#3a1b2a; border-color:#5a2741; }
-  button.hot{ background:#3a1432; border-color:#6b2a5f; }
-  button.ghost{ background:transparent; border:1px dashed var(--line); color:var(--muted); }
-  button:disabled{ opacity:.55; cursor:not-allowed; }
+    /* Banner */
+    #tradeBanner{
+      position:fixed;
+      left:50%;
+      top:14px;
+      transform:translateX(-50%);
+      z-index:50;
+      font-weight:900;
+      letter-spacing:.3px;
+      font-size:14px;
+      padding:10px 14px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,.12);
+      background:rgba(0,0,0,.25);
+      opacity:0;
+      pointer-events:none;
+      box-shadow:0 16px 50px rgba(0,0,0,.45);
+    }
+    @keyframes bannerIn{
+      0%{opacity:0; transform:translateX(-50%) translateY(-10px) scale(.98)}
+      10%{opacity:1}
+      40%{opacity:1; transform:translateX(-50%) translateY(0) scale(1)}
+      100%{opacity:0; transform:translateX(-50%) translateY(-10px) scale(.98)}
+    }
+    @keyframes screenShake{
+      0%{transform:translate(0,0)}
+      15%{transform:translate(-7px, 2px)}
+      30%{transform:translate(7px, -2px)}
+      45%{transform:translate(-6px, -1px)}
+      60%{transform:translate(6px, 1px)}
+      75%{transform:translate(-4px, 2px)}
+      100%{transform:translate(0,0)}
+    }
 
-  /* HUD */
-  .hud{
-    display:grid;
-    grid-template-columns: 2fr 1fr 1fr 1fr;
-    gap:10px;
-  }
-  @media(max-width:980px){ .hud{ grid-template-columns:1fr 1fr; } }
+    /* Modal */
+    #modalMask{
+      position:fixed; inset:0;
+      background:rgba(0,0,0,.55);
+      display:none;
+      align-items:center;
+      justify-content:center;
+      z-index:60;
+      padding:16px;
+    }
+    #modal{
+      width:min(980px, 100%);
+      background:linear-gradient(180deg, rgba(20,26,56,.92), rgba(10,12,26,.92));
+      border:1px solid rgba(255,255,255,.14);
+      border-radius:20px;
+      box-shadow:0 30px 90px rgba(0,0,0,.65);
+      overflow:hidden;
+    }
+    .mHead{
+      padding:14px 16px;
+      border-bottom:1px solid rgba(255,255,255,.10);
+      display:flex; justify-content:space-between; align-items:flex-start; gap:12px;
+    }
+    .mTitleWrap{display:grid; gap:4px}
+    #mTitle{font-weight:1000; letter-spacing:.2px}
+    #mSub{font-size:12px;color:var(--muted)}
+    #mBadge{align-self:flex-start}
+    .mBody{
+      padding:14px 16px;
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:12px;
+      border-bottom:1px solid rgba(255,255,255,.10);
+    }
+    .mSide{
+      border:1px solid rgba(255,255,255,.10);
+      border-radius:16px;
+      background:rgba(8,10,22,.35);
+      padding:10px;
+      min-height:160px;
+      overflow:auto;
+    }
+    .mSide h4{margin:0 0 8px;font-size:12px;color:rgba(234,240,255,.85)}
+    .mEval{
+      padding:12px 16px;
+      display:flex; justify-content:space-between; gap:12px; flex-wrap:wrap;
+      color:rgba(234,240,255,.85);
+      font-weight:900;
+    }
+    .mBtns{
+      padding:14px 16px;
+      display:flex; justify-content:flex-end; gap:10px;
+    }
 
-  .hudBox{
-    border:1px solid var(--line);
-    border-radius:16px;
-    background:rgba(11,16,32,.7);
-    padding:10px;
-  }
-  .hudBox .k{ font-size:12px; color:var(--muted); }
-  .hudBox .v{ font-size:22px; font-weight:950; margin-top:4px; font-variant-numeric:tabular-nums; }
-  .hudBox .s{ font-size:12px; color:var(--muted); margin-top:4px; line-height:1.35; }
+    /* Confetti canvas */
+    #confettiCanvas{
+      position:fixed; inset:0;
+      pointer-events:none;
+      z-index:55;
+    }
 
-  /* Tabs */
-  .tabs{ display:flex; gap:10px; flex-wrap:wrap; }
-  .tab{
-    padding:9px 12px;
-    border-radius:12px;
-    border:1px solid var(--line);
-    background:rgba(11,16,32,.6);
-    cursor:pointer;
-    font-weight:950;
-    display:flex;
-    align-items:center;
-    gap:8px;
-  }
-  .tab.active{ outline:2px solid rgba(110,243,178,.45); }
-  .tabIcon{ font-size:14px; }
-
-  #viewInbox, #viewMake{
-    flex:1; min-height:0; overflow:hidden;
-    display:flex; flex-direction:column;
-    gap:10px;
-  }
-
-  /* ===== 3-column make layout (FIXED so center won't squeeze right menu off-screen) ===== */
-  .make3{
-    flex:1;
-    min-height:0;
-    overflow:hidden;
-    display:grid;
-    grid-template-columns: minmax(280px, 1fr) minmax(420px, 1.15fr) minmax(280px, 1fr);
-    gap:12px;
-    align-items:stretch;
-  }
-  .makeCol{
-    min-height:0;
-    overflow:hidden;
-    display:flex;
-    flex-direction:column;
-    gap:10px;
-  }
-
-  .colHeader{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    gap:10px;
-  }
-
-  .logoSlot{
-    width:48px; height:48px;
-    border-radius:16px;
-    border:1px dashed rgba(184,197,230,.35);
-    display:flex; align-items:center; justify-content:center;
-    background:rgba(15,22,41,.55);
-    color:var(--muted);
-    font-weight:950;
-    font-size:11px;
-    overflow:hidden;
-    flex:0 0 auto;
-  }
-  .logoSlot img{ width:100%; height:100%; object-fit:contain; display:block; padding:7px; }
-
-  /* ===== GRID MENU TILES ===== */
-  .rosterGrid{
-    flex:1;
-    min-height:0;
-    overflow:auto;
-    padding-right:6px;
-    display:grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap:10px;
-  }
-  @media(max-width:1100px){
-    .rosterGrid{ grid-template-columns: repeat(2, minmax(0,1fr)); }
-  }
-
-  .tile{
-    border:1px solid var(--line);
-    border-radius:16px;
-    background:rgba(11,16,32,.78);
-    padding:10px;
-    user-select:none;
-    cursor:grab;
-    display:flex;
-    flex-direction:column;
-    gap:8px;
-    aspect-ratio: 1 / 1;
-  }
-  .tile:active{ cursor:grabbing; }
-
-  .thumb{
-    width:100%;
-    border-radius:14px;
-    border:1px solid var(--line);
-    overflow:hidden;
-    background:var(--panel2);
-    flex:1;
-    min-height:0;
-  }
-  .thumb img{ width:100%; height:100%; object-fit:cover; display:block; }
-
-  .tBottom{
-    display:flex;
-    align-items:flex-start;
-    gap:8px;
-  }
-  .tName{
-    font-weight:950;
-    font-size:12px;
-    line-height:1.2;
-    min-width:0;
-    overflow:hidden;
-    text-overflow:ellipsis;
-    white-space:nowrap;
-  }
-  .tTags{
-    font-size:10px;
-    color:var(--muted);
-    overflow:hidden;
-    text-overflow:ellipsis;
-    white-space:nowrap;
-    margin-top:3px;
-  }
-  .tVal{
-    margin-left:auto;
-    font-weight:950;
-    font-size:12px;
-    font-variant-numeric:tabular-nums;
-    color:rgba(232,238,252,.92);
-  }
-
-  .divider{ height:1px; background:#1d2740; }
-
-  /* Middle outgoing builder */
-  .midCenter{
-    min-height:0; overflow:hidden;
-    display:flex; flex-direction:column;
-    gap:10px;
-  }
-
-  .logoBridge{
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    gap:10px;
-  }
-  .logoPuck{
-    width:44px; height:44px;
-    border-radius:999px;
-    border:1px solid rgba(184,197,230,.25);
-    background:rgba(15,22,41,.65);
-    display:flex; align-items:center; justify-content:center;
-    font-weight:950;
-    color:var(--muted);
-    font-size:11px;
-    overflow:hidden;
-    flex:0 0 auto;
-  }
-  .logoPuck img{ width:100%; height:100%; object-fit:contain; display:block; padding:9px; }
-  .logoArrow{ font-weight:950; color:rgba(184,197,230,.75); font-size:18px; }
-
-  .midSplit2{
-    flex:1;
-    min-height:0;
-    overflow:hidden;
-    display:grid;
-    grid-template-columns:1fr 1fr;
-    gap:10px;
-  }
-
-  .dropWrap{
-    border:1px solid var(--line);
-    border-radius:16px;
-    background:rgba(11,16,32,.55);
-    padding:10px;
-    min-height:0;
-    display:flex;
-    flex-direction:column;
-    gap:8px;
-  }
-
-  .dropZone{
-    flex:1;
-    min-height:0;
-    overflow:auto;
-    border:2px dashed rgba(184,197,230,.18);
-    border-radius:16px;
-    padding:10px;
-    display:grid; /* KEY: grid tiles, not stacked list */
-    grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
-    gap:10px;
-    align-content:start;
-  }
-  .dropZone.dragover{ border-color: var(--good); background: rgba(110,243,178,.06); }
-
-  /* ===== Package tiles (BIGGER + Remove always visible) ===== */
-  .pkgCard{
-    position:relative;
-    border:1px solid var(--line);
-    border-radius:16px;
-    background:rgba(15,22,41,.92);
-    padding:10px;
-    display:flex;
-    flex-direction:column;
-    gap:8px;
-    min-height: 180px;
-  }
-  .mini{
-    width:100%;
-    height: 120px;
-    border-radius:14px;
-    overflow:hidden;
-    border:1px solid var(--line);
-    background:var(--panel2);
-  }
-  .mini img{ width:100%; height:100%; object-fit:cover; display:block; }
-  .pkgMeta b{
-    font-size:12px;
-    display:block;
-    white-space:nowrap;
-    overflow:hidden;
-    text-overflow:ellipsis;
-  }
-  .pkgMeta span{ font-size:11px; color:var(--muted); display:block; margin-top:4px; }
-
-  .rmBtn{
-    position:absolute;
-    top:8px; right:8px;
-    padding:6px 8px;
-    border-radius:12px;
-    background:rgba(10,14,24,.75);
-    border:1px solid rgba(184,197,230,.25);
-    color:var(--ink);
-    font-size:11px;
-    cursor:pointer;
-  }
-  .rmBtn:hover{ filter:brightness(1.08); }
-
-  /* ===== INBOX shows big images + names ===== */
-  .offerList{
-    flex:1;
-    min-height:0;
-    overflow:auto;
-    display:grid;
-    grid-template-columns: repeat(3, minmax(0,1fr));
-    gap:10px;
-    padding-right:6px;
-  }
-  @media(max-width:980px){ .offerList{ grid-template-columns:1fr; } }
-
-  .offerCard{
-    border:1px solid var(--line);
-    border-radius:16px;
-    background:rgba(11,16,32,.55);
-    padding:10px;
-    cursor:pointer;
-    display:flex;
-    flex-direction:column;
-    gap:10px;
-  }
-  .offerCard:hover{ filter:brightness(1.06); }
-  .offerCard.selected{ outline:2px solid rgba(110,243,178,.45); }
-
-  .offerTop{
-    display:flex;
-    justify-content:space-between;
-    align-items:flex-start;
-    gap:8px;
-  }
-  .offerTitle{ font-weight:950; font-size:13px; }
-  .offerSub{ color:var(--muted); font-size:11px; margin-top:2px; }
-
-  .offerSplit{
-    display:grid;
-    grid-template-columns:1fr 1fr;
-    gap:10px;
-  }
-  .offerBox{
-    border:1px solid rgba(184,197,230,.16);
-    border-radius:14px;
-    padding:10px;
-    background:rgba(15,22,41,.35);
-    min-height:140px;
-  }
-  .offerBox .lbl{ font-size:10px; color:var(--muted); font-weight:950; margin-bottom:8px; }
-
-  .bigRow{
-    display:flex;
-    flex-direction:column;
-    gap:10px;
-  }
-  .bigItem{
-    display:flex;
-    gap:10px;
-    align-items:center;
-    border:1px solid rgba(184,197,230,.14);
-    border-radius:14px;
-    padding:8px;
-    background:rgba(10,14,24,.35);
-  }
-  .bigThumb{
-    width:74px; height:74px;
-    border-radius:14px;
-    overflow:hidden;
-    border:1px solid rgba(184,197,230,.22);
-    background:rgba(11,16,32,.7);
-    flex:0 0 auto;
-  }
-  .bigThumb img{ width:100%; height:100%; object-fit:cover; display:block; }
-  .bigName{
-    font-weight:950;
-    font-size:12px;
-    line-height:1.2;
-  }
-  .bigVal{
-    margin-top:4px;
-    font-size:11px;
-    color:var(--muted);
-    font-variant-numeric:tabular-nums;
-  }
-
-  .badge{
-    display:inline-block;
-    padding:3px 8px;
-    border-radius:999px;
-    font-size:11px;
-    border:1px solid var(--line);
-    font-weight:950;
-    white-space:nowrap;
-  }
-  .bF{ color:var(--bad); border-color: rgba(255,124,124,.45); background: rgba(255,124,124,.08); }
-  .bR{ color:var(--good); border-color: rgba(110,243,178,.45); background: rgba(110,243,178,.07); }
-  .bB{ color:var(--hot); border-color: rgba(255,139,211,.45); background: rgba(255,139,211,.08); }
-
-  .log{
-    border:1px solid var(--line);
-    border-radius:16px;
-    background:rgba(11,16,32,.55);
-    padding:10px;
-    max-height: 78px;
-    overflow:auto;
-    font-size:12px;
-    color:var(--muted);
-    line-height:1.45;
-  }
-  .log b{ color:var(--ink); }
-
-  /* FX Layer */
-  #fxLayer{ position:fixed; inset:0; pointer-events:none; z-index:9999; }
-  #tradeBanner{
-    position:absolute; left:50%; top:12%;
-    transform:translateX(-50%) translateY(-20px);
-    opacity:0;
-    padding:14px 18px;
-    border-radius:16px;
-    border:1px solid rgba(255,255,255,.16);
-    background:rgba(10,14,24,.82);
-    backdrop-filter: blur(10px);
-    box-shadow:0 18px 45px rgba(0,0,0,.55);
-    font:900 18px/1.1 system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
-    letter-spacing:.4px;
-    white-space:nowrap;
-  }
-  #confettiCanvas{
-    position:absolute;
-    inset:0;
-    width:100%;
-    height:100%;
-  }
-
-  /* Modal */
-  #modalMask{
-    position:fixed; inset:0; z-index:9998;
-    background: rgba(0,0,0,.55);
-    backdrop-filter: blur(6px);
-    display:none;
-    align-items:center;
-    justify-content:center;
-    padding:18px;
-  }
-  .modal{
-    width:min(880px, 96vw);
-    max-height: min(720px, 90vh);
-    overflow:hidden;
-    display:flex;
-    flex-direction:column;
-    border-radius:18px;
-    border:1px solid rgba(255,255,255,.14);
-    background: rgba(10,14,24,.92);
-    box-shadow:0 24px 70px rgba(0,0,0,.65);
-  }
-  .modalHead{
-    padding:14px 14px 10px;
-    display:flex;
-    justify-content:space-between;
-    align-items:flex-start;
-    gap:10px;
-    border-bottom:1px solid rgba(255,255,255,.08);
-  }
-  .modalTitle{ font-weight:950; font-size:16px; }
-  .modalBody{
-    padding:14px;
-    overflow:auto;
-    min-height:0;
-  }
-  .modalGrid{
-    display:grid;
-    grid-template-columns:1fr 1fr;
-    gap:12px;
-  }
-  .modalFoot{
-    padding:12px 14px 14px;
-    display:flex;
-    justify-content:flex-end;
-    gap:10px;
-    border-top:1px solid rgba(255,255,255,.08);
-  }
-
-  @media(max-width:980px){
-    body{ overflow:auto; }
-    .wrap{ height:auto; overflow:visible; }
-  }
-</style>
+    /* Scrollbars subtle */
+    ::-webkit-scrollbar{width:10px;height:10px}
+    ::-webkit-scrollbar-thumb{background:rgba(255,255,255,.10); border-radius:999px}
+    ::-webkit-scrollbar-track{background:transparent}
+  </style>
 </head>
-
 <body>
-<header>
-  <h1>🍔 Fast Food CEO Trade Machine</h1>
-  <p>Cleaner center packages + inbox shows full offers + blockbuster confetti.</p>
-</header>
+
+<canvas id="confettiCanvas"></canvas>
+<div id="tradeBanner"></div>
 
 <div class="wrap">
 
-  <!-- START -->
-  <div class="card" id="startCard">
-    <div class="row" style="justify-content:flex-start;">
-      <div style="font-weight:950;">Choose your CEO</div>
-      <span class="muted">Needs placeholder image: <b>assets/items/placeholder.jpg</b></span>
-    </div>
-    <div class="row" style="margin-top:10px; justify-content:flex-start;">
-      <label class="muted">My Chain</label>
-      <select id="myTeam"></select>
+  <!-- Setup / CEO selection -->
+  <div class="topRow">
+    <div class="topBox">
+      <h1>Choose your CEO <span class="label" id="phHint" style="margin-left:8px;"></span></h1>
+      <div class="row">
+        <div class="label">My Chain</div>
+        <select id="myTeam"></select>
 
-      <label class="muted">Fairness</label>
-      <select id="fairness">
-        <option value="6">±6 strict</option>
-        <option value="8" selected>±8 normal</option>
-        <option value="12">±12 loose</option>
-      </select>
+        <div class="label">Fairness</div>
+        <select id="fairness">
+          <option value="8">±8 normal</option>
+          <option value="12">±12 loose</option>
+          <option value="5">±5 strict</option>
+        </select>
 
-      <button class="good" id="startBtn">Start Run</button>
-    </div>
-    <div class="small" style="margin-top:10px;">
-      Tip: logos in <b>assets/logos/</b> (mcdonalds.png, tacobell.png, etc.). If missing, it falls back to text.
+        <button id="startBtn" class="btnGood">Start Run</button>
+      </div>
+      <div class="label" style="margin-top:8px;">
+        Tip: item images go in <b>assets/items/</b>. If missing, it falls back to placeholder.
+      </div>
     </div>
   </div>
 
-  <!-- GAME -->
-  <div id="gameShell" style="display:none; flex:1; min-height:0; overflow:hidden; display:flex; flex-direction:column; gap:10px;">
-
-    <div class="row">
-      <div class="row" style="justify-content:flex-start;">
-        <button class="ghost" id="clearProposal">Clear Proposal</button>
-        <button class="danger" id="newRun">New Run</button>
-      </div>
-      <div class="row" style="justify-content:flex-end;">
-        <button class="hot" id="endTurn">End Turn ➜</button>
-      </div>
+  <!-- Header stats -->
+  <div class="statsRow">
+    <div class="stat statWide">
+      <div class="k">You are CEO of</div>
+      <div class="v" id="ceoTeam">—</div>
+      <div class="s" id="goalLine">Goal: <b id="goalNum">1000</b> Power by Turn 10</div>
     </div>
-
-    <div class="hud">
-      <div class="hudBox">
-        <div class="k">You are CEO of</div>
-        <div class="v" id="hudTeam">—</div>
-        <div class="s">Goal: <b id="goalTxt">650</b> Power by Turn 10</div>
-      </div>
-      <div class="hudBox">
-        <div class="k">Turn</div>
-        <div class="v" id="hudTurn">1 / 10</div>
-        <div class="s" id="hudInbox">Inbox offers: 3</div>
-      </div>
-      <div class="hudBox">
-        <div class="k">Menu Power</div>
-        <div class="v" id="hudPower">0</div>
-        <div class="s" id="hudPowerNote">Trade to improve your menu.</div>
-      </div>
-      <div class="hudBox">
-        <div class="k">Reputation</div>
-        <div class="v" id="hudRep">50</div>
-        <div class="s" id="hudRepNote">Neutral 😐</div>
-      </div>
+    <div class="stat">
+      <div class="k">Turn</div>
+      <div class="v"><span id="turnNum">1</span>/10</div>
+      <div class="s">Inbox offers: <span id="inboxCount">0</span></div>
     </div>
-
-    <div class="tabs">
-      <div class="tab active" id="tabInbox"><span class="tabIcon">📥</span>Inbox</div>
-      <div class="tab" id="tabMake"><span class="tabIcon">📤</span>Make Offer</div>
+    <div class="stat">
+      <div class="k">Menu Power</div>
+      <div class="v" id="powerNum">0</div>
+      <div class="s">Trade to improve your menu.</div>
     </div>
-
-    <!-- INBOX VIEW -->
-    <div class="card" id="viewInbox">
-      <div class="row" style="justify-content:space-between;">
-        <div>
-          <div style="font-weight:950;" id="inTitle">Incoming offers</div>
-          <div class="muted" id="inMsg">Pick one to inspect.</div>
-        </div>
-        <div class="row">
-          <span class="badge bR" id="inBadge" style="display:none;">FAIR</span>
-          <button class="good" id="btnAccept" disabled>Accept</button>
-          <button class="ghost" id="btnCounter" disabled>Counter</button>
-          <button class="danger" id="btnReject" disabled>Reject</button>
-        </div>
-      </div>
-
-      <div class="offerList" id="offerList"></div>
-
-      <div class="divider"></div>
-
-      <div class="row" style="justify-content:space-between;">
-        <div style="font-weight:950;" id="inEval">—</div>
-        <div class="muted" id="inEval2">—</div>
-      </div>
+    <div class="stat">
+      <div class="k">Reputation</div>
+      <div class="v" id="repNum">50</div>
+      <div class="s" id="repMood">Neutral 🙂</div>
     </div>
-
-    <!-- MAKE OFFER VIEW -->
-    <div class="card" id="viewMake" style="display:none;">
-
-      <div class="row" style="justify-content:space-between;">
-        <div>
-          <div style="font-weight:950;">Trade Center (Outgoing Offer)</div>
-          <div class="muted">Drag from the grid menus into the center.</div>
-        </div>
-        <div class="row" style="justify-content:flex-end;">
-          <label class="muted">Target CEO</label>
-          <select id="targetTeam"></select>
-          <button class="good" id="btnSend">Send Offer</button>
-        </div>
-      </div>
-
-      <div class="make3">
-
-        <!-- LEFT -->
-        <div class="makeCol">
-          <div class="colHeader">
-            <div>
-              <div style="font-weight:950;">Your Menu</div>
-              <div class="muted" id="myCount">—</div>
-            </div>
-            <div class="logoSlot" id="logoLeftSlot">YOU</div>
-          </div>
-          <div class="rosterGrid" id="myRoster"></div>
-        </div>
-
-        <!-- MIDDLE -->
-        <div class="makeCol midCenter">
-          <div>
-            <div style="font-weight:950;">Outgoing Offer</div>
-            <div class="muted">Drop into both boxes, then Send.</div>
-          </div>
-
-          <div class="logoBridge">
-            <div class="logoPuck" id="logoLeftPuck">YOU</div>
-            <div class="logoArrow">⇄</div>
-            <div class="logoPuck" id="logoRightPuck">THEM</div>
-          </div>
-
-          <div class="midSplit2">
-            <div class="dropWrap">
-              <div class="muted" style="font-weight:950;">You give</div>
-              <div class="dropZone" id="pkgYou"></div>
-            </div>
-            <div class="dropWrap">
-              <div class="muted" style="font-weight:950;">They give</div>
-              <div class="dropZone" id="pkgThey"></div>
-            </div>
-          </div>
-
-          <div class="divider"></div>
-          <div style="font-weight:950;" id="mkEval">Build a proposal</div>
-          <div class="muted" id="mkEval2">Drag items into both packages.</div>
-        </div>
-
-        <!-- RIGHT -->
-        <div class="makeCol">
-          <div class="colHeader">
-            <div>
-              <div style="font-weight:950;">Target Menu</div>
-              <div class="muted" id="themCount">—</div>
-            </div>
-            <div class="logoSlot" id="logoRightSlot">THEM</div>
-          </div>
-          <div class="rosterGrid" id="themRoster"></div>
-        </div>
-
-      </div>
+    <div class="rightBtns">
+      <button id="clearProposal" class="btnSmall">Clear Proposal</button>
+      <button id="newRun" class="btnSmall btnPink">New Run</button>
+      <button id="endTurn" class="btnSmall btnBad">End Turn →</button>
     </div>
-
-    <div class="log" id="log"></div>
   </div>
-</div>
 
-<div id="fxLayer">
-  <canvas id="confettiCanvas"></canvas>
-  <div id="tradeBanner"></div>
-</div>
-
-<!-- MODAL -->
-<div id="modalMask">
-  <div class="modal">
-    <div class="modalHead">
+  <!-- Main -->
+  <div class="main">
+    <div class="mainHead">
       <div>
-        <div class="modalTitle" id="mTitle">Trade Result</div>
-        <div class="muted" id="mSub">—</div>
+        <h2 id="mainTitle">Trade Center (Outgoing Offer)</h2>
+        <div class="hint" id="mainHint">Drag from the grid menus into the center.</div>
       </div>
-      <div class="badge bR" id="mBadge" style="display:none;">FAIR</div>
+      <div class="row">
+        <div class="label">Target CEO</div>
+        <select id="target"></select>
+        <button id="send" class="btnGood">Send Offer</button>
+      </div>
     </div>
-    <div class="modalBody">
-      <div class="modalGrid">
-        <div>
-          <div class="muted" style="font-weight:950; margin-bottom:6px;">You give</div>
-          <div class="dropWrap"><div class="dropZone" id="mYou"></div></div>
+
+    <div id="panelMake" class="tradeGrid">
+      <!-- Left -->
+      <div class="col">
+        <div class="colTitle">
+          <div class="t">Your Menu</div>
+          <div class="sub"><span id="myCount">0</span> items</div>
         </div>
-        <div>
-          <div class="muted" style="font-weight:950; margin-bottom:6px;">They give</div>
-          <div class="dropWrap"><div class="dropZone" id="mThey"></div></div>
+        <div id="myMenu" class="menuGrid"></div>
+      </div>
+
+      <!-- Center -->
+      <div class="col center">
+        <div class="centerTop">
+          <div class="pill"><strong>Outgoing Offer</strong> Drop into both boxes, then send.</div>
+          <div class="swap">↔</div>
+        </div>
+
+        <div class="dropRow">
+          <div class="dropZone" id="dzGive">
+            <div class="dzTitle">
+              <span>You give</span>
+              <span class="sum">Total: <span id="sumGive">0</span></span>
+            </div>
+            <div id="giveYou" class="pkgGrid"></div>
+          </div>
+
+          <div class="dropZone" id="dzGet">
+            <div class="dzTitle">
+              <span>They give</span>
+              <span class="sum">Total: <span id="sumGet">0</span></span>
+            </div>
+            <div id="giveThey" class="pkgGrid"></div>
+          </div>
+        </div>
+
+        <div class="centerBottom">
+          <div id="netLine">Net: —</div>
+          <div id="likelyLine">They likely: —</div>
         </div>
       </div>
-      <div class="divider" style="margin:12px 0;"></div>
-      <div style="font-weight:950;" id="mEval">—</div>
-      <div class="muted" id="mEval2">—</div>
+
+      <!-- Right -->
+      <div class="col">
+        <div class="colTitle">
+          <div class="t">Target Menu</div>
+          <div class="sub"><span id="tgCount">0</span> items</div>
+        </div>
+        <div id="tgMenu" class="menuGrid"></div>
+      </div>
     </div>
-    <div class="modalFoot" id="mButtons">
-      <button class="ghost" id="mClose">Close</button>
+
+    <div id="panelInbox" class="tradeGrid" style="display:none;">
+      <div class="col" style="grid-column:1 / span 3;">
+        <div class="colTitle">
+          <div>
+            <div class="t">Incoming offers</div>
+            <div class="sub">Click one to inspect.</div>
+          </div>
+          <div class="row">
+            <button id="accept" class="btnSmall btnGood">Accept</button>
+            <button id="counter" class="btnSmall btnPink">Counter</button>
+            <button id="reject" class="btnSmall btnBad">Reject</button>
+          </div>
+        </div>
+        <div id="inbox" class="inbox"></div>
+      </div>
     </div>
+
+  </div>
+
+  <!-- Log -->
+  <div class="log" id="log"></div>
+
+</div>
+
+<!-- Modal -->
+<div id="modalMask" onclick="if(event.target.id==='modalMask') closeModal()">
+  <div id="modal" role="dialog" aria-modal="true">
+    <div class="mHead">
+      <div class="mTitleWrap">
+        <div id="mTitle">—</div>
+        <div id="mSub"></div>
+      </div>
+      <div id="mBadge" class="badge" style="display:none;">—</div>
+    </div>
+    <div class="mBody">
+      <div class="mSide">
+        <h4>You give</h4>
+        <div id="mYou"></div>
+      </div>
+      <div class="mSide">
+        <h4>They give</h4>
+        <div id="mThey"></div>
+      </div>
+    </div>
+    <div class="mEval">
+      <div id="mEval">—</div>
+      <div id="mEval2">—</div>
+    </div>
+    <div class="mBtns" id="mButtons"></div>
   </div>
 </div>
 
 <script>
 /* =========================
-   Trade Machine
-========================= */
-
+   DATA (10 chains)
+   ========================= */
 const PLACEHOLDER = "assets/items/placeholder.jpg";
 
-  function itemIndex(){
-  // build a fast lookup: name -> item object (prefer current rosters)
-  const map = new Map();
-  // rosters first (post-trade truth)
-  if (S && S.rosters){
-    for (const team of Object.keys(S.rosters)){
-      for (const it of (S.rosters[team] || [])){
-        if (it && it.name) map.set(it.name, it);
-      }
-    }
-  }
-  // fallback to seed
-  if (typeof DATA_SEED !== "undefined"){
-    for (const team of Object.keys(DATA_SEED)){
-      for (const it of (DATA_SEED[team] || [])){
-        if (it && it.name && !map.has(it.name)) map.set(it.name, it);
-      }
-    }
-  }
-  return map;
-}
-
-function normalizeItem(entry, idx){
-  // entry can be string "Fries" or object {name:"Fries"} or full item
-  if (!entry) return { name:"Unknown", base:0, tags:[], img:"assets/items/placeholder.jpg" };
-
-  if (typeof entry === "string"){
-    return idx.get(entry) || { name:entry, base:0, tags:[], img:"assets/items/placeholder.jpg" };
-  }
-
-  if (entry.name && entry.base != null && entry.img) return entry; // already full
-  if (entry.name){
-    return idx.get(entry.name) || { name:entry.name, base:0, tags:entry.tags||[], img:entry.img||"assets/items/placeholder.jpg" };
-  }
-
-  return { name:"Unknown", base:0, tags:[], img:"assets/items/placeholder.jpg" };
-}
-
-function ensureArray(x){
-  return Array.isArray(x) ? x : (x ? [x] : []);
-}
-
-/* ===== Data ===== */
+// You can swap base scores later. Keep item names stable (used as IDs).
 const DATA_SEED = {
   "McDonald's":[
     {name:"Big Mac",base:86,tags:["iconic"],img:"assets/items/big-mac.jpg"},
@@ -864,127 +789,73 @@ const DATA_SEED = {
   ]
 };
 
-const BONUS = { sauce:6, lto:8, iconic:5, broken:-7, speed:3, upgrade:4, dessert:2, nostalgia:2 };
-
-const PERSONALITY = {
-  "McDonald's":{stingy:0.75, block:0.10},
-  "Taco Bell":{stingy:0.45, block:0.22},
-  "Chick-fil-A":{stingy:0.60, block:0.14},
-  "Raising Cane's":{stingy:0.55, block:0.12},
-  "Burger King":{stingy:0.50, block:0.15},
-  "Chipotle":{stingy:0.70, block:0.12},
-  "Panda Express":{stingy:0.62, block:0.13},
-  "Subway":{stingy:0.52, block:0.10},
-  "Domino's":{stingy:0.45, block:0.20},
-  "Wendy's":{stingy:0.55, block:0.14}
+/* =========================
+   STATE
+   ========================= */
+const S = {
+  started:false,
+  tab:"make",
+  my:null,
+  target:null,
+  fairness:8,
+  turn:1,
+  rep:50,
+  goal:1000,
+  DATA:{}, // live rosters (arrays of full item objects)
+  // outgoing proposal (store full objects for bulletproof popups)
+  giveYou:[],
+  giveThey:[],
+  inbox:[],       // array of offer objects
+  inboxSel:null,  // selected offer id
 };
 
-const $ = (id)=>document.getElementById(id);
-const clone = (x)=>JSON.parse(JSON.stringify(x));
-const clamp = (x,a,b)=>Math.max(a,Math.min(b,x));
-const pick = (arr)=>arr[Math.floor(Math.random()*arr.length)];
-const esc = (s)=>(s+"").replace(/[&<>"']/g,m=>({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[m]));
-
-function imgHTML(src, alt){
-  const safe = src || PLACEHOLDER;
-  return `<img src="${safe}" alt="${esc(alt)}" loading="lazy"
-    onerror="this.onerror=null;this.src='${PLACEHOLDER}';">`;
+function $(id){ return document.getElementById(id); }
+function esc(s){ return String(s).replace(/[&<>"']/g, m=>({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[m])); }
+function cloneItem(it){ return {...it, tags:[...(it.tags||[])]}; }
+function safeImg(it){
+  return (it && it.img) ? it.img : PLACEHOLDER;
 }
 
-/* ===== State ===== */
-let S = {
-  DATA: clone(DATA_SEED),
-  my: null,
-  turn: 1,
-  maxTurns: 10,
-  targetPower: 1000,
-  rep: 50,
-  fairness: 8,
-  tab: "inbox",
-  inbox: [],
-  selectedOfferId: null,
-  pkgYou: [],
-  pkgThey: [],
-  pendingCounter: null
-};
+function logLine(t){
+  const el = $("log");
+  el.innerHTML += `• ${esc(t)}<br/>`;
+  el.scrollTop = el.scrollHeight;
+}
 
+/* =========================
+   ITEM LOOKUP / VALUE
+   ========================= */
 function roster(team){ return S.DATA[team] || []; }
 
 function itemValue(it){
   if(!it) return 0;
-  let v = it.base;
-  for(const t of (it.tags||[])) if(BONUS[t]!=null) v += BONUS[t];
+  // "broken" tag is low value to make it funny (adjust if you want)
+  let v = Number(it.base ?? 0);
+  if((it.tags||[]).includes("broken")) v = Math.max(0, v - 12);
   return v;
 }
-function power(team){ return roster(team).reduce((a,it)=>a+itemValue(it),0); }
-function findItem(team, name){ return roster(team).find(x=>x.name===name) || null; }
-function sumNames(team, names){
-  let total=0;
-  const r=roster(team);
-  for(const n of names){
-    const it=r.find(x=>x.name===n);
-    if(it) total+=itemValue(it);
+
+function findItem(team, name){
+  return roster(team).find(x => x.name === name) || null;
+}
+
+function findItemAnywhere(name){
+  // search live rosters first
+  for(const t of Object.keys(S.DATA)){
+    const hit = roster(t).find(x => x.name === name);
+    if(hit) return hit;
   }
-  return total;
-}
-function youNet(other, youGive, theyGive){
-  const give=sumNames(S.my, youGive);
-  const get=sumNames(other, theyGive);
-  return {give, get, diff:(get-give)};
-}
-function theirVerdict(other, youGive, theyGive){
-  const p = PERSONALITY[other] || {stingy:0.55, block:0.12};
-  const received = sumNames(S.my, youGive);
-  const given    = sumNames(other, theyGive);
-  const score = received - given;
-
-  const repPenalty = (S.rep < 35) ? 6 : (S.rep < 50) ? 3 : 0;
-  const stingyNeed = Math.round((p.stingy - 0.50) * 14);
-  const acceptThresh = -Math.floor(S.fairness/2) + stingyNeed + repPenalty;
-  const counterThresh = -Math.floor(S.fairness*1.7) + stingyNeed + repPenalty;
-
-  let verdict = "reject";
-  if(score >= acceptThresh) verdict = "accept";
-  else if(score >= counterThresh) verdict = "counter";
-  return {score, verdict, acceptThresh};
-}
-
-/* ===== BLOCKBUSTER CHECK ===== */
-function isBlockbuster(other, youGive, theyGive){
-  let hi=0;
-  for(const n of youGive){
-    const it = findItem(S.my, n);
-    if(itemValue(it) >= 89) hi++;
+  // fallback to seed
+  for(const t of Object.keys(DATA_SEED)){
+    const hit = (DATA_SEED[t] || []).find(x => x.name === name);
+    if(hit) return hit;
   }
-  for(const n of theyGive){
-    const it = findItem(other, n);
-    if(itemValue(it) >= 89) hi++;
-  }
-  return hi >= 2;
+  return null;
 }
 
-/* FX Banner + Shake */
-(function setupFX(){
-  const style = document.createElement("style");
-  style.textContent = `
-    @keyframes bannerIn {
-      0% { opacity:0; transform:translateX(-50%) translateY(-22px) scale(.96); filter:blur(2px); }
-      20%{ opacity:1; transform:translateX(-50%) translateY(0px) scale(1); filter:blur(0px); }
-      80%{ opacity:1; transform:translateX(-50%) translateY(0px) scale(1); }
-      100%{ opacity:0; transform:translateX(-50%) translateY(-14px) scale(.985); }
-    }
-    @keyframes screenShake {
-      0%{ transform:translate(0,0); }
-      20%{ transform:translate(7px,-5px); }
-      40%{ transform:translate(-7px,4px); }
-      60%{ transform:translate(6px,5px); }
-      80%{ transform:translate(-5px,-4px); }
-      100%{ transform:translate(0,0); }
-    }
-  `;
-  document.head.appendChild(style);
-})();
-
+/* =========================
+   UI: BANNER + CONFETTI
+   ========================= */
 function showBanner(text, color, shake=false){
   const banner = $("tradeBanner");
   banner.textContent = text;
@@ -999,7 +870,7 @@ function showBanner(text, color, shake=false){
   }
 }
 
-/* ===== CONFETTI ===== */
+/* CONFETTI */
 let confettiRunning=false;
 function resizeConfetti(){
   const c = $("confettiCanvas");
@@ -1045,11 +916,9 @@ function startConfetti(durationMs=1600, count=160){
       p.vy += 0.04 * dpr; // gravity
       p.vx *= 0.995;
 
-      // simple wrap
       if(p.x < -40*dpr) p.x = W+40*dpr;
       if(p.x > W+40*dpr) p.x = -40*dpr;
 
-      // fade near end
       const fade = 1 - (dt / durationMs);
       p.a = Math.max(0, Math.min(0.9, fade));
 
@@ -1057,7 +926,6 @@ function startConfetti(durationMs=1600, count=160){
       ctx.globalAlpha = p.a;
       ctx.translate(p.x,p.y);
       ctx.rotate(p.r);
-      // no fixed colors: use random-ish via HSL
       ctx.fillStyle = `hsl(${Math.floor((p.x/W)*360)}, 90%, 60%)`;
       ctx.fillRect(-p.s/2, -p.s/2, p.s, p.s*0.65);
       ctx.restore();
@@ -1084,135 +952,22 @@ function fxStatus(status, blockbuster=false){
   if(status==="rejected") showBanner("❌ TRADE REJECTED", "#ff7c7c", true);
 }
 
-/* Logos */
-function teamSlug(team){ return (team||"").toLowerCase().replace(/[^a-z0-9]+/g,""); }
-function logoPath(team){ return `assets/logos/${teamSlug(team)}.png`; }
-function setLogo(elId, team, fallbackText){
-  const el = $(elId);
-  if(!el) return;
-  const src = logoPath(team);
-  el.innerHTML = `<img src="${src}" alt="${esc(team)}"
-    onerror="this.remove(); this.parentElement.textContent='${esc(fallbackText)}';">`;
-}
-
-/* Logging */
-function logLine(html){ $("log").innerHTML = `<div>${html}</div>` + $("log").innerHTML; }
-
-/* Tabs */
-function setTab(tab){
-  S.tab = tab;
-  $("tabInbox").classList.toggle("active", tab==="inbox");
-  $("tabMake").classList.toggle("active", tab==="make");
-  $("viewInbox").style.display = (tab==="inbox") ? "" : "none";
-  $("viewMake").style.display  = (tab==="make")  ? "" : "none";
-  render();
-}
-function getItemFromAnyTeam(name){
-  // Search current rosters first (after trades), then fallback to DATA_SEED
-  for (const team of Object.keys(S.rosters || {})){
-    const hit = (S.rosters[team] || []).find(i => i.name === name);
-    if (hit) return hit;
-  }
-  for (const team of Object.keys(DATA_SEED || {})){
-    const hit = (DATA_SEED[team] || []).find(i => i.name === name);
-    if (hit) return hit;
-  }
-  return null;
-}
-
-function hydrateList(list){
-  // list can be ["Big Mac", "Fries"] OR [{name:"Big Mac",...}, ...]
-  return (list || []).map(x => {
-    if (!x) return null;
-    if (typeof x === "string"){
-      return getItemFromAnyTeam(x) || { name:x, base:0, tags:[], img:"assets/items/placeholder.jpg" };
-    }
-    // if it’s already a full object, keep it
-    if (x.name && (x.base != null) && x.img) return x;
-
-    // if it’s a partial object, try to hydrate by name
-    const hit = x.name ? getItemFromAnyTeam(x.name) : null;
-    return hit || { name:(x.name||"Unknown"), base:0, tags:[], img:"assets/items/placeholder.jpg" };
-  }).filter(Boolean);
-}
-
-/* Inbox offers */
-function badge(type){
-  if(type==="block") return {txt:"BLOCKBUSTER 🚨", cls:"bB"};
-  if(type==="fleece") return {txt:"FLEECE 😈", cls:"bF"};
-  return {txt:"FAIR 🤝", cls:"bR"};
-}
-function topItems(team){
-  return roster(team).slice()
-    .map(it=>({name:it.name, v:itemValue(it)}))
-    .sort((a,b)=>b.v-a.v);
-}
-function genInbox(){
-  S.inbox = [];
-  const others = Object.keys(S.DATA).filter(t=>t!==S.my);
-  const myTop = topItems(S.my);
-
-  for(let i=0;i<3;i++){
-    const from = pick(others);
-    const p = PERSONALITY[from] || {stingy:0.55, block:0.12};
-
-    const blockChance = clamp(p.block + (S.rep>70?0.08:S.rep>60?0.04:0), 0.05, 0.35);
-    const fleeceChance = clamp(0.42 + (S.rep<40?0.18:S.rep<55?0.08:-0.05), 0.15, 0.75);
-
-    const r = Math.random();
-    let type = "fair";
-    if(r < blockChance) type = "block";
-    else if(r < blockChance + fleeceChance) type = "fleece";
-
-    const theirTop = topItems(from);
-    let youGive=[], theyGive=[];
-    if(type==="fleece"){
-      youGive=[myTop[0]?.name].filter(Boolean);
-      theyGive=[theirTop[theirTop.length-1]?.name].filter(Boolean);
-    } else if(type==="block"){
-      youGive=[myTop[0]?.name, myTop[1]?.name].filter(Boolean);
-      theyGive=[theirTop[0]?.name, theirTop[1]?.name].filter(Boolean);
-    } else {
-      youGive=[myTop[2]?.name || myTop[0]?.name].filter(Boolean);
-      theyGive=[theirTop[2]?.name || theirTop[0]?.name].filter(Boolean);
-    }
-
-    const b = badge(type);
-    S.inbox.push({
-      id:`o_${S.turn}_${i}_${from.replace(/\W/g,"")}_${Math.random().toString(16).slice(2)}`,
-      from, type, badge:b,
-      youGive, theyGive,
-      msg: type==="fleece" ? "“This is extremely fair.”" : type==="block" ? "“Let’s change the game.”" : "“Solid deal.”",
-      handled:false
-    });
-  }
-  S.selectedOfferId = S.inbox[0]?.id || null;
-}
-
-/* Trading */
-function executeTrade(other, youGive, theyGive){
-  const myR = roster(S.my);
-  const thR = roster(other);
-
-  const myGiveItems = youGive.map(n=>findItem(S.my,n)).filter(Boolean);
-  const thGiveItems = theyGive.map(n=>findItem(other,n)).filter(Boolean);
-
-  S.DATA[S.my] = myR.filter(it=>!youGive.includes(it.name)).concat(thGiveItems);
-  S.DATA[other] = thR.filter(it=>!theyGive.includes(it.name)).concat(myGiveItems);
-}
-
-/* Modal */
+/* =========================
+   UI: MODAL
+   ========================= */
 function closeModal(){ $("modalMask").style.display = "none"; }
-function pkgCardHTML(team, name, removable){
-  // Try to find item on the provided team first
-  let it = findItem(team, name);
 
-  // If not found (team mismatch / timing issue), search everywhere
-  if(!it) it = findItemAnywhere(name);
+function imgHTML(src, alt){
+  const safe = src || PLACEHOLDER;
+  return `<img src="${esc(safe)}" alt="${esc(alt||"item")}"
+    onerror="this.onerror=null;this.src='${PLACEHOLDER}'">`;
+}
 
+function pkgCardHTML(it, removable){
+  // NOTE: it is a FULL ITEM OBJECT
+  const name = it?.name || "Unknown";
   const v = itemValue(it);
-  const img = it?.img || PLACEHOLDER;
-
+  const img = safeImg(it);
   return `
     <div class="pkgCard" data-name="${esc(name)}">
       <div class="mini">${imgHTML(img, name)}</div>
@@ -1225,7 +980,7 @@ function pkgCardHTML(team, name, removable){
   `;
 }
 
-function openModal({title, sub, badgeObj, youGiveTeam, youGive, theyGiveTeam, theyGive, eval1, eval2, buttonsHTML}){
+function openModal({title, sub, badgeObj, youGiveItems, theyGiveItems, eval1, eval2, buttonsHTML}){
   $("mTitle").textContent = title;
   $("mSub").textContent = sub || "";
   const b = $("mBadge");
@@ -1237,529 +992,602 @@ function openModal({title, sub, badgeObj, youGiveTeam, youGive, theyGiveTeam, th
     b.style.display="none";
   }
 
-  $("mYou").innerHTML = youGive.length
-    ? youGive.map(n=>pkgCardHTML(youGiveTeam,n,false)).join("")
+  $("mYou").innerHTML = (youGiveItems && youGiveItems.length)
+    ? youGiveItems.map(it => pkgCardHTML(it,false)).join("")
     : `<div class="muted">Nothing</div>`;
-  $("mThey").innerHTML = theyGive.length
-    ? theyGive.map(n=>pkgCardHTML(theyGiveTeam,n,false)).join("")
+
+  $("mThey").innerHTML = (theyGiveItems && theyGiveItems.length)
+    ? theyGiveItems.map(it => pkgCardHTML(it,false)).join("")
     : `<div class="muted">Nothing</div>`;
 
   $("mEval").textContent = eval1 || "";
   $("mEval2").textContent = eval2 || "";
-
-  $("mButtons").innerHTML = buttonsHTML;
+  $("mButtons").innerHTML = buttonsHTML || `<button class="btnGood" onclick="closeModal()">Nice</button>`;
   $("modalMask").style.display = "flex";
 }
 
-/* Render */
-function renderHUD(){
-  $("hudTeam").textContent = S.my || "—";
-  $("goalTxt").textContent = S.targetPower;
-  $("hudTurn").textContent = `${S.turn} / ${S.maxTurns}`;
-  $("hudPower").textContent = power(S.my);
-  $("hudRep").textContent = S.rep;
-
-  const pending = S.inbox.filter(o=>!o.handled).length;
-  $("hudInbox").textContent = `Inbox offers: ${pending}`;
-
-  $("hudPowerNote").textContent = (power(S.my) >= S.targetPower) ? "🏆 Target hit!" : "Trade to improve your menu.";
-  $("hudRepNote").textContent = S.rep>=60 ? "Respected 🙂" : S.rep>=40 ? "Neutral 😐" : S.rep>=20 ? "Sketchy 😒" : "Public Enemy 😤";
+/* =========================
+   TRADE / OFFERS
+   ========================= */
+function sumPkg(items){
+  return items.reduce((a,it)=>a+itemValue(it),0);
 }
 
-function renderTargets(){
-  const sel = $("targetTeam");
-  const teams = Object.keys(S.DATA).filter(t=>t!==S.my);
-  const prev = sel.value;
-  sel.innerHTML = teams.map(t=>`<option value="${esc(t)}">${esc(t)}</option>`).join("");
-  sel.value = teams.includes(prev) ? prev : teams[0];
+function isBlockbuster(youGiveItems, theyGiveItems){
+  // blockbuster = at least one 89+ item involved on either side
+  const top = (it)=> (it && (it.base ?? 0) >= 89);
+  return [...youGiveItems, ...theyGiveItems].some(top);
 }
 
-function renderOfferList(){
-  const list = $("offerList");
-  list.innerHTML = "";
+function fairnessBadge(delta){
+  // delta = theyGive - youGive from YOUR perspective
+  if(delta >= -S.fairness && delta <= S.fairness) return {cls:"fair", txt:"FAIR 🤝"};
+  if(delta < -S.fairness) return {cls:"fleece", txt:"FLEECE 😈"};
+  return {cls:"block", txt:"BLOCKBUSTER 🚨"};
+}
 
-  for(const o of S.inbox){
-    const div = document.createElement("div");
-    div.className = "offerCard" + (o.id===S.selectedOfferId ? " selected" : "");
-    div.dataset.offerId = o.id;
+function executeTrade(otherTeam, youGiveItems, theyGiveItems){
+  // remove items by name from each roster; add incoming items as clones
+  const myR = roster(S.my);
+  const thR = roster(otherTeam);
 
-    const youRows = o.youGive.map(n=>{
-      const it = findItem(S.my, n);
-      return `
-        <div class="bigItem">
-          <div class="bigThumb">${imgHTML(it?.img, n)}</div>
-          <div style="min-width:0;">
-            <div class="bigName" title="${esc(n)}">${esc(n)}</div>
-            <div class="bigVal">Value: ${itemValue(it)}</div>
+  const giveNames = new Set(youGiveItems.map(i=>i.name));
+  const getNames  = new Set(theyGiveItems.map(i=>i.name));
+
+  const newMy = myR.filter(it => !giveNames.has(it.name)).concat(theyGiveItems.map(cloneItem));
+  const newTh = thR.filter(it => !getNames.has(it.name)).concat(youGiveItems.map(cloneItem));
+
+  S.DATA[S.my] = newMy;
+  S.DATA[otherTeam] = newTh;
+}
+
+function aiDecide(theirDelta){
+  // theirDelta = (theyGive - youGive) from YOUR view.
+  // For them: score = -theirDelta. If positive for them, accept.
+  const theirScore = -theirDelta;
+  if(theirScore >= 0) return "accepted";
+  if(theirScore >= -12) return "countered";
+  return "rejected";
+}
+
+function makeRandomOffer(fromTeam, toTeam){
+  const fromR = roster(fromTeam);
+  const toR = roster(toTeam);
+  // pick 1-2 items from each side
+  const pick = (arr, k)=>{
+    const copy=[...arr];
+    const out=[];
+    while(copy.length && out.length<k){
+      out.push(copy.splice(Math.floor(Math.random()*copy.length),1)[0]);
+    }
+    return out;
+  };
+  const giveThey = pick(fromR, Math.random()<0.6?1:2);
+  const giveYou  = pick(toR,  Math.random()<0.6?1:2);
+
+  const youSum = sumPkg(giveYou);
+  const thSum  = sumPkg(giveThey);
+  const delta = thSum - youSum; // YOUR view
+
+  const badge = fairnessBadge(delta);
+  const id = crypto.randomUUID ? crypto.randomUUID() : String(Math.random()).slice(2);
+
+  return {
+    id,
+    fromTeam,
+    toTeam,
+    giveYou,   // ITEMS you would receive
+    giveThey,  // ITEMS they want from you
+    delta,
+    badge,
+    status:"pending",
+    quote: badge.cls==="fleece" ? "“This is extremely fair.”" :
+           badge.cls==="block" ? "“This could break the internet.”" :
+           "“Clean trade.”"
+  };
+}
+
+/* =========================
+   DRAG & DROP
+   ========================= */
+function setDrag(el, payload){
+  el.draggable = true;
+  el.addEventListener("dragstart", (e)=>{
+    e.dataTransfer.setData("application/json", JSON.stringify(payload));
+    e.dataTransfer.effectAllowed = "copy";
+  });
+}
+
+function wireDrop(zoneEl, onDrop){
+  zoneEl.addEventListener("dragover", (e)=>{
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "copy";
+  });
+  zoneEl.addEventListener("drop", (e)=>{
+    e.preventDefault();
+    try{
+      const payload = JSON.parse(e.dataTransfer.getData("application/json"));
+      onDrop(payload);
+    }catch(err){}
+  });
+}
+
+/* =========================
+   RENDER
+   ========================= */
+function tileHTML(it){
+  const tags = (it.tags||[]).map(t=>`#${t}`).join(" ");
+  const v = itemValue(it);
+  return `
+    <div class="tile" data-name="${esc(it.name)}">
+      <div class="thumb">${imgHTML(safeImg(it), it.name)}</div>
+      <div class="nm" title="${esc(it.name)}">${esc(it.name)}</div>
+      <div class="tg">${esc(tags)}</div>
+      <div class="val">${v}</div>
+    </div>
+  `;
+}
+
+function renderMenus(){
+  $("myCount").textContent = roster(S.my).length;
+  $("tgCount").textContent = roster(S.target).length;
+
+  $("myMenu").innerHTML = roster(S.my).map(tileHTML).join("");
+  $("tgMenu").innerHTML = roster(S.target).map(tileHTML).join("");
+
+  // wire drags (payload contains full item object + team)
+  for(const el of $("myMenu").querySelectorAll(".tile")){
+    const name = el.getAttribute("data-name");
+    const it = findItem(S.my, name);
+    setDrag(el, {team:S.my, item: it});
+  }
+  for(const el of $("tgMenu").querySelectorAll(".tile")){
+    const name = el.getAttribute("data-name");
+    const it = findItem(S.target, name);
+    setDrag(el, {team:S.target, item: it});
+  }
+}
+
+function renderPackages(){
+  $("giveYou").innerHTML = S.giveYou.length ? S.giveYou.map(it => pkgCardHTML(it,true)).join("") : `<div class="muted" style="color:var(--muted);font-size:12px;">Drop items here...</div>`;
+  $("giveThey").innerHTML = S.giveThey.length ? S.giveThey.map(it => pkgCardHTML(it,true)).join("") : `<div class="muted" style="color:var(--muted);font-size:12px;">Drop items here...</div>`;
+
+  // remove buttons
+  for(const btn of document.querySelectorAll(".rmBtn")){
+    btn.onclick = (e)=>{
+      const card = e.target.closest(".pkgCard");
+      const nm = card.getAttribute("data-name");
+      S.giveYou = S.giveYou.filter(it => it.name !== nm);
+      S.giveThey = S.giveThey.filter(it => it.name !== nm);
+      render();
+    };
+  }
+
+  const a = sumPkg(S.giveYou);
+  const b = sumPkg(S.giveThey);
+  $("sumGive").textContent = a;
+  $("sumGet").textContent = b;
+
+  const net = (b - a);
+  $("netLine").textContent = net===0 ? "Net: EVEN" : (net>0 ? `Net: You WIN by ${net}` : `Net: You LOSE by ${Math.abs(net)}`);
+
+  // AI likely decision preview
+  const decision = aiDecide(net);
+  $("likelyLine").textContent = `They likely: ${decision.toUpperCase()}`;
+}
+
+function powerOf(team){
+  return roster(team).reduce((s,it)=>s+itemValue(it),0);
+}
+
+function renderStats(){
+  $("ceoTeam").textContent = S.my || "—";
+  $("turnNum").textContent = S.turn;
+  $("repNum").textContent = S.rep;
+  $("powerNum").textContent = S.my ? powerOf(S.my) : 0;
+  $("inboxCount").textContent = S.inbox.length;
+
+  const mood = S.rep >= 60 ? "Loved 😄" : (S.rep <= 40 ? "Sketchy 😬" : "Neutral 🙂");
+  $("repMood").textContent = mood;
+  $("goalNum").textContent = S.goal;
+}
+
+function renderInbox(){
+  const wrapMini = (it)=>`
+    <div class="offerMini">
+      ${imgHTML(safeImg(it), it.name)}
+      <div class="cap">${esc(it.name)}</div>
+    </div>
+  `;
+
+  $("inbox").innerHTML = S.inbox.map(off=>{
+    const active = (S.inboxSel===off.id) ? "active" : "";
+    return `
+      <div class="offerCard ${active}" data-id="${esc(off.id)}">
+        <div class="offerTop">
+          <div>
+            <b>${esc(off.fromTeam)} → ${esc(off.toTeam)}</b>
+            <div class="label" style="margin-top:3px;">${esc(off.quote)}</div>
+          </div>
+          <div class="badge ${off.badge.cls}">${esc(off.badge.txt)}</div>
+        </div>
+
+        <div class="offerBody">
+          <div class="offerSide">
+            <div class="st">You receive</div>
+            <div class="offerMiniGrid">
+              ${off.giveYou.map(wrapMini).join("")}
+            </div>
+          </div>
+          <div class="offerSide">
+            <div class="st">You give</div>
+            <div class="offerMiniGrid">
+              ${off.giveThey.map(wrapMini).join("")}
+            </div>
           </div>
         </div>
-      `;
-    }).join("") || `<div class="muted">—</div>`;
 
-    const theyRows = o.theyGive.map(n=>{
-      const it = findItem(o.from, n);
-      return `
-        <div class="bigItem">
-          <div class="bigThumb">${imgHTML(it?.img, n)}</div>
-          <div style="min-width:0;">
-            <div class="bigName" title="${esc(n)}">${esc(n)}</div>
-            <div class="bigVal">Value: ${itemValue(it)}</div>
-          </div>
-        </div>
-      `;
-    }).join("") || `<div class="muted">—</div>`;
-
-    div.innerHTML = `
-      <div class="offerTop">
-        <div>
-          <div class="offerTitle">${esc(o.from)} → ${esc(S.my)}</div>
-          <div class="offerSub">${esc(o.msg)}</div>
-        </div>
-        <span class="badge ${o.badge.cls}">${esc(o.badge.txt)}</span>
-      </div>
-
-      <div class="offerSplit">
-        <div class="offerBox">
-          <div class="lbl">You give</div>
-          <div class="bigRow">${youRows}</div>
-        </div>
-        <div class="offerBox">
-          <div class="lbl">You get</div>
-          <div class="bigRow">${theyRows}</div>
-        </div>
-      </div>
-
-      <div class="muted">${o.handled ? "✅ handled" : "⏳ pending"}</div>
-    `;
-
-    div.onclick = ()=>{ S.selectedOfferId = o.id; render(); };
-    list.appendChild(div);
-  }
-}
-
-function renderOfferDetail(){
-  const o = S.inbox.find(x=>x.id===S.selectedOfferId);
-  const b = $("inBadge");
-
-  if(!o){
-    $("inTitle").textContent = "Incoming offers";
-    $("inMsg").textContent = "Pick one to inspect.";
-    b.style.display="none";
-    $("inEval").textContent="—";
-    $("inEval2").textContent="—";
-    $("btnAccept").disabled=true;
-    $("btnCounter").disabled=true;
-    $("btnReject").disabled=true;
-    return;
-  }
-
-  $("inTitle").textContent = `${o.from} → ${S.my}`;
-  $("inMsg").textContent = o.msg;
-  b.style.display="";
-  b.className = `badge ${o.badge.cls}`;
-  b.textContent = o.badge.txt;
-
-  const y = youNet(o.from, o.youGive, o.theyGive);
-  const t = theirVerdict(o.from, o.youGive, o.theyGive);
-  $("inEval").textContent = y.diff>=0 ? `Net: You WIN by ${y.diff}` : `Net: You LOSE by ${Math.abs(y.diff)}`;
-  $("inEval2").textContent = `They likely: ${t.verdict.toUpperCase()} (theirScore=${t.score})`;
-
-  const disabled = o.handled || (S.turn>S.maxTurns) || (power(S.my)>=S.targetPower);
-  $("btnAccept").disabled=disabled;
-  $("btnCounter").disabled=disabled;
-  $("btnReject").disabled=disabled;
-}
-
-function renderRoster(team, containerId){
-  const c = $(containerId);
-  c.innerHTML = "";
-
-  const items = roster(team).slice()
-    .map(it=>({it, v:itemValue(it)}))
-    .sort((a,b)=>b.v-a.v);
-
-  for(const x of items){
-    const div = document.createElement("div");
-    div.className = "tile";
-    div.draggable = true;
-    div.dataset.team = team;
-    div.dataset.name = x.it.name;
-
-    div.addEventListener("dragstart",(ev)=>{
-      ev.dataTransfer.setData("text/plain", JSON.stringify({team, name:x.it.name}));
-    });
-
-    div.innerHTML = `
-      <div class="thumb">${imgHTML(x.it.img, x.it.name)}</div>
-      <div class="tBottom">
-        <div style="min-width:0;">
-          <div class="tName" title="${esc(x.it.name)}">${esc(x.it.name)}</div>
-          <div class="tTags">${(x.it.tags||[]).map(t=>"#"+esc(t)).join(" ")}</div>
-        </div>
-        <div class="tVal">${x.v}</div>
+        <div class="label">Net: ${off.delta>0?`You WIN by ${off.delta}`:off.delta<0?`You LOSE by ${Math.abs(off.delta)}`:"EVEN"}</div>
       </div>
     `;
-    c.appendChild(div);
+  }).join("");
+
+  for(const c of $("inbox").querySelectorAll(".offerCard")){
+    c.onclick = ()=>{
+      S.inboxSel = c.getAttribute("data-id");
+      renderInbox();
+    };
   }
 }
 
-function renderMake(){
-  const target = $("targetTeam").value;
-
-  $("myCount").textContent = `${roster(S.my).length} items`;
-  $("themCount").textContent = `${roster(target).length} items`;
-
-  renderRoster(S.my, "myRoster");
-  renderRoster(target, "themRoster");
-
-  const pkgYou = $("pkgYou");
-  const pkgThey = $("pkgThey");
-
-  pkgYou.innerHTML = S.pkgYou.length
-    ? S.pkgYou.map(n=>pkgCardHTML(S.my,n,true)).join("")
-    : `<div class="muted">Drop items here…</div>`;
-
-  pkgThey.innerHTML = S.pkgThey.length
-    ? S.pkgThey.map(n=>pkgCardHTML(target,n,true)).join("")
-    : `<div class="muted">Drop items here…</div>`;
-
-  pkgYou.onclick = (e)=>{
-    const btn = e.target.closest("button[data-remove='1']");
-    if(!btn) return;
-    const card = e.target.closest(".pkgCard");
-    const name = card?.dataset?.name;
-    if(!name) return;
-    S.pkgYou = S.pkgYou.filter(x=>x!==name);
-    renderMake();
-  };
-  pkgThey.onclick = (e)=>{
-    const btn = e.target.closest("button[data-remove='1']");
-    if(!btn) return;
-    const card = e.target.closest(".pkgCard");
-    const name = card?.dataset?.name;
-    if(!name) return;
-    S.pkgThey = S.pkgThey.filter(x=>x!==name);
-    renderMake();
-  };
-
-  if(S.pkgYou.length===0 || S.pkgThey.length===0){
-    $("mkEval").textContent = "Build a proposal";
-    $("mkEval2").textContent = "Drag items into both packages.";
-  } else {
-    const y = youNet(target, S.pkgYou, S.pkgThey);
-    const t = theirVerdict(target, S.pkgYou, S.pkgThey);
-    $("mkEval").textContent = y.diff>=0 ? `Net: You WIN by ${y.diff}` : `Net: You LOSE by ${Math.abs(y.diff)}`;
-    $("mkEval2").textContent = `They likely: ${t.verdict.toUpperCase()} (theirScore=${t.score})`;
-  }
-
-  $("btnSend").disabled = (S.turn>S.maxTurns) || (power(S.my)>=S.targetPower);
-}
-
-function renderLogos(){
-  const tgt = $("targetTeam")?.value || "";
-  setLogo("logoLeftSlot", S.my, "YOU");
-  setLogo("logoLeftPuck", S.my, "YOU");
-  setLogo("logoRightSlot", tgt, "THEM");
-  setLogo("logoRightPuck", tgt, "THEM");
+function setTab(tab){
+  S.tab = tab;
+  $("panelMake").style.display = (tab==="make") ? "" : "none";
+  $("panelInbox").style.display = (tab==="inbox") ? "" : "none";
+  $("mainTitle").textContent = (tab==="make") ? "Trade Center (Outgoing Offer)" : "Inbox";
+  $("mainHint").textContent = (tab==="make") ? "Drag from the grid menus into the center." : "Click an offer to inspect.";
 }
 
 function render(){
-  renderTargets();
-  renderHUD();
-  renderOfferList();
-  renderOfferDetail();
-  renderLogos();
-  if(S.tab==="make") renderMake();
+  if(!S.started){
+    renderStats();
+    return;
+  }
+  renderStats();
+  if(S.tab==="make"){
+    renderMenus();
+    renderPackages();
+  }else{
+    renderInbox();
+  }
 }
 
-/* Drag & Drop */
-function wireDrop(zoneId, acceptFn){
-  const z = $(zoneId);
-  z.addEventListener("dragover",(ev)=>{ ev.preventDefault(); z.classList.add("dragover"); });
-  z.addEventListener("dragleave",()=>z.classList.remove("dragover"));
-  z.addEventListener("drop",(ev)=>{
-    ev.preventDefault(); z.classList.remove("dragover");
-    let payload=null;
-    try{ payload = JSON.parse(ev.dataTransfer.getData("text/plain")); }catch{}
-    if(payload) acceptFn(payload);
-  });
-}
-
-/* Actions */
+/* =========================
+   GAME FLOW
+   ========================= */
 function startRun(){
-  S.DATA = clone(DATA_SEED);
-  S.my = $("myTeam").value;
-  S.fairness = parseInt($("fairness").value,10) || 8;
+  S.started = true;
   S.turn = 1;
   S.rep = 50;
-  S.pkgYou = [];
-  S.pkgThey = [];
-  S.pendingCounter = null;
-  $("log").innerHTML = "";
+  S.goal = 1000;
 
-  genInbox();
+  S.my = $("myTeam").value;
+  S.fairness = Number($("fairness").value) || 8;
+  $("ceoTeam").textContent = S.my;
 
-  $("startCard").style.display = "none";
-  $("gameShell").style.display = "flex";
+  // init live rosters as deep copies
+  S.DATA = {};
+  for(const t of Object.keys(DATA_SEED)){
+    S.DATA[t] = (DATA_SEED[t] || []).map(cloneItem);
+  }
+
+  // set default target
+  S.target = Object.keys(DATA_SEED).find(t => t !== S.my) || Object.keys(DATA_SEED)[0];
+  $("target").value = S.target;
+
+  S.giveYou = [];
+  S.giveThey = [];
+  S.inbox = [];
+  S.inboxSel = null;
+
+  logLine(`New run: CEO of ${S.my}. Turn 1 begins.`);
+  generateInbox();
   setTab("make");
-
-  logLine(`🎬 New run: CEO of <b>${esc(S.my)}</b>. Turn 1 begins.`);
   render();
 }
 
-function acceptSelected(){
-  const o = S.inbox.find(x=>x.id===S.selectedOfferId);
-  if(!o || o.handled) return;
-
-  const y = youNet(o.from, o.youGive, o.theyGive);
-  const blockbuster = isBlockbuster(o.from, o.youGive, o.theyGive);
-
-  executeTrade(o.from, o.youGive, o.theyGive);
-  o.handled = true;
-
-  S.rep = clamp(S.rep + (y.diff>=0?3:-3), 0, 100);
-  fxStatus("accepted", blockbuster);
-
-  logLine(`✅ Accepted <b>${esc(o.from)}</b>. Net ${y.diff>=0?"+":""}${y.diff}. Power <b>${power(S.my)}</b>.`);
-  render();
-}
-
-function rejectSelected(){
-  const o = S.inbox.find(x=>x.id===S.selectedOfferId);
-  if(!o || o.handled) return;
-  o.handled = true;
-  S.rep = clamp(S.rep+1, 0, 100);
-  fxStatus("rejected");
-  logLine(`❌ Rejected <b>${esc(o.from)}</b>.`);
-  render();
-}
-
-function counterSelected(){
-  const o = S.inbox.find(x=>x.id===S.selectedOfferId);
-  if(!o || o.handled) return;
-
-  $("targetTeam").value = o.from;
-  S.pkgYou = [...o.youGive];
-  S.pkgThey = [...o.theyGive];
-
-  fxStatus("countered");
-  setTab("make");
-  logLine(`🔁 Countering <b>${esc(o.from)}</b>. Edit packages then Send.`);
-  render();
-}
-
-function buildCounterOffer(target, yourGive, theirGive){
-  const tgtRoster = roster(target).slice().sort((a,b)=>itemValue(b)-itemValue(a));
-  const myRoster  = roster(S.my).slice().sort((a,b)=>itemValue(b)-itemValue(a));
-
-  let newYouGive = [...yourGive];
-  let newTheyGive = [...theirGive];
-
-  if(newTheyGive.length>0 && Math.random()<0.55){
-    const vals = newTheyGive.map(n=>({n,v:itemValue(findItem(target,n))})).sort((a,b)=>a.v-b.v);
-    newTheyGive = newTheyGive.filter(n=>n!==vals[0].n);
-  } else {
-    const candidates = myRoster.map(x=>x.name).filter(n=>!newYouGive.includes(n));
-    if(candidates.length){
-      newYouGive.push(candidates[Math.floor(Math.random()*Math.min(3,candidates.length))]);
-    }
+function generateInbox(){
+  // generate 3 offers from random teams to you
+  const teams = Object.keys(DATA_SEED).filter(t=>t!==S.my);
+  S.inbox = [];
+  for(let i=0;i<3;i++){
+    const from = teams[Math.floor(Math.random()*teams.length)];
+    S.inbox.push(makeRandomOffer(from, S.my));
   }
-  if(newTheyGive.length===0){
-    const fallback = tgtRoster.find(x=>!theirGive.includes(x.name));
-    if(fallback) newTheyGive = [fallback.name];
-  }
-  return {youGive:newYouGive, theyGive:newTheyGive};
-}
-
-function sendOffer(){
-  const target = $("targetTeam").value;
-  if(S.pkgYou.length===0 || S.pkgThey.length===0){
-    logLine("⚠️ Add items to BOTH sides before sending.");
-    return;
-  }
-
-  const y = youNet(target, S.pkgYou, S.pkgThey);
-  const t = theirVerdict(target, S.pkgYou, S.pkgThey);
-
-  if(t.verdict==="accept"){
-    const blockbuster = isBlockbuster(target, S.pkgYou, S.pkgThey);
-    executeTrade(target, S.pkgYou, S.pkgThey);
-    S.rep = clamp(S.rep+3, 0, 100);
-    fxStatus("accepted", blockbuster);
-    logLine(`📤 <b>${esc(target)}</b> ACCEPTED. Net ${y.diff>=0?"+":""}${y.diff}. Power <b>${power(S.my)}</b>.`);
-
-    openModal({
-      title: blockbuster ? "🚨 BLOCKBUSTER TRADE!" : "✅ TRADE ACCEPTED",
-      sub: `${target} agreed to your offer.`,
-      badgeObj: badge(blockbuster ? "block" : "fair"),
-      youGiveTeam: S.my, youGive: S.pkgYou,
-      theyGiveTeam: target, theyGive: S.pkgThey,
-      eval1: y.diff>=0 ? `Net: You WIN by ${y.diff}` : `Net: You LOSE by ${Math.abs(y.diff)}`,
-      eval2: `Reputation: ${S.rep}`, offer.youGive  = hydrateList(offer.youGive);
-offer.theyGive = hydrateList(offer.theyGive);
-
-      buttonsHTML: `<button class="good" id="mCloseBtn">Nice</button>`
-    });
-    setTimeout(()=>{ const b=$("mCloseBtn"); if(b) b.onclick=closeModal; }, 0);
-
-    S.pkgYou=[]; S.pkgThey=[];
-    render();
-    return;
-  }
-
-  if(t.verdict==="reject"){
-    S.rep = clamp(S.rep-2, 0, 100);
-    fxStatus("rejected");
-    logLine(`❌ <b>${esc(target)}</b> REJECTED your offer.`);
-    openModal({
-      title: "❌ TRADE REJECTED",
-      sub: `${target}: “No chance.”`,
-      badgeObj: badge("fleece"),
-      youGiveTeam: S.my, youGive: S.pkgYou,
-      theyGiveTeam: target, theyGive: S.pkgThey,
-      eval1: y.diff>=0 ? `Net: You WIN by ${y.diff} (but they still said no)` : `Net: You LOSE by ${Math.abs(y.diff)}`,
-      eval2: `Try adding value or lowering your ask.`,
-      buttonsHTML: `<button class="ghost" id="mCloseBtn">Back</button>`
-    });
-    setTimeout(()=>{ const b=$("mCloseBtn"); if(b) b.onclick=closeModal; }, 0);
-    render();
-    return;
-  }
-
-  const counter = buildCounterOffer(target, S.pkgYou, S.pkgThey);
-  S.pendingCounter = { target, original:{youGive:[...S.pkgYou], theyGive:[...S.pkgThey]}, counter };
-
-  S.rep = clamp(S.rep-1, 0, 100);
-  fxStatus("countered");
-  logLine(`🔁 <b>${esc(target)}</b> COUNTEROFFERED.`);
-
-  const y2 = youNet(target, counter.youGive, counter.theyGive);
-  openModal({
-    title: "🔁 COUNTEROFFER!",
-    sub: `${target} changed the terms.`,
-    badgeObj: badge("block"),
-    youGiveTeam: S.my, youGive: counter.youGive,
-    theyGiveTeam: target, theyGive: counter.theyGive,
-    eval1: y2.diff>=0 ? `Net: You WIN by ${y2.diff}` : `Net: You LOSE by ${Math.abs(y2.diff)}`,
-    eval2: `Accept it, reject it, or counter back by editing your offer.`,
-    buttonsHTML: `
-      <button class="good" id="mAccept">Accept Counter</button>
-      <button class="danger" id="mReject">Reject</button>
-      <button class="hot" id="mEdit">Counter Back</button>
-    `
-  });
-
-  setTimeout(()=>{
-    $("mAccept").onclick = ()=>{
-      const pc = S.pendingCounter;
-      if(!pc) return closeModal();
-
-      const blockbuster = isBlockbuster(pc.target, pc.counter.youGive, pc.counter.theyGive);
-      executeTrade(pc.target, pc.counter.youGive, pc.counter.theyGive);
-      S.rep = clamp(S.rep+2, 0, 100);
-      fxStatus("accepted", blockbuster);
-
-      logLine(`✅ Accepted ${esc(pc.target)} counter. Power <b>${power(S.my)}</b>.`);
-      closeModal();
-      S.pkgYou=[]; S.pkgThey=[];
-      S.pendingCounter=null;
-      render();
-    };
-    $("mReject").onclick = ()=>{
-      fxStatus("rejected");
-      logLine(`❌ Rejected ${esc(S.pendingCounter?.target||"")} counter.`);
-      closeModal();
-      S.pendingCounter=null;
-      render();
-    };
-    $("mEdit").onclick = ()=>{
-      const pc = S.pendingCounter;
-      if(!pc) return closeModal();
-      $("targetTeam").value = pc.target;
-      S.pkgYou = [...pc.counter.youGive];
-      S.pkgThey = [...pc.counter.theyGive];
-      closeModal();
-      setTab("make");
-      logLine(`🛠️ Editing counteroffer vs <b>${esc(pc.target)}</b>.`);
-      S.pendingCounter=null;
-      render();
-    };
-  }, 0);
-
-  render();
+  $("inboxCount").textContent = S.inbox.length;
 }
 
 function endTurn(){
-  if(power(S.my) >= S.targetPower){
-    logLine("🏆 You already hit the goal! Start a new run.");
-    return;
-  }
-  if(S.turn >= S.maxTurns){
-    logLine("🏁 Out of turns. Start a new run.");
+  if(!S.started) return;
+  if(S.turn >= 10){
+    const p = powerOf(S.my);
+    if(p >= S.goal){
+      showBanner("🏆 YOU BUILT THE GOAT MENU!", "#6ef3b2", true);
+      startConfetti(2200, 220);
+    }else{
+      showBanner("⏳ RUN OVER — TRY AGAIN", "#ff7c7c", true);
+    }
     return;
   }
   S.turn++;
-  S.pkgYou=[]; S.pkgThey=[];
-  S.pendingCounter=null;
-  genInbox();
-  showBanner(`➡️ TURN ${S.turn}`, "#ffd27c", false);
-  logLine(`➡️ Turn ${S.turn} begins. New inbox offers arrived.`);
+  S.giveYou = [];
+  S.giveThey = [];
+  logLine(`Turn ${S.turn} begins. New inbox offers arrived.`);
+  generateInbox();
   render();
 }
 
-/* Init */
-function init(){
-  $("myTeam").innerHTML = Object.keys(DATA_SEED).map(t=>`<option value="${esc(t)}">${esc(t)}</option>`).join("");
-
-  $("startBtn").addEventListener("click", startRun);
-  $("newRun").addEventListener("click", ()=>location.reload());
-  $("endTurn").addEventListener("click", endTurn);
-  $("clearProposal").addEventListener("click", ()=>{
-    S.pkgYou=[]; S.pkgThey=[];
-    logLine("🧼 Cleared proposal.");
-    render();
-  });
-
-  $("tabInbox").addEventListener("click", ()=>setTab("inbox"));
-  $("tabMake").addEventListener("click", ()=>setTab("make"));
-
-  $("btnAccept").addEventListener("click", acceptSelected);
-  $("btnReject").addEventListener("click", rejectSelected);
-  $("btnCounter").addEventListener("click", counterSelected);
-
-  $("btnSend").addEventListener("click", sendOffer);
-
-  $("targetTeam").addEventListener("change", ()=>{
-    S.pkgThey = [];
-    render();
-  });
-
-  $("mClose").addEventListener("click", closeModal);
-  $("modalMask").addEventListener("click",(e)=>{ if(e.target.id==="modalMask") closeModal(); });
-
-  wireDrop("pkgYou", (p)=>{
-    if(S.tab!=="make") return;
-    if(p.team !== S.my) return;
-    if(!S.pkgYou.includes(p.name)) S.pkgYou.push(p.name);
-    renderMake();
-  });
-  wireDrop("pkgThey", (p)=>{
-    if(S.tab!=="make") return;
-    const target = $("targetTeam").value;
-    if(p.team !== target) return;
-    if(!S.pkgThey.includes(p.name)) S.pkgThey.push(p.name);
-    renderMake();
-  });
-
-  $("log").innerHTML = `<div class="muted">Start a run to begin.</div>`;
-
-  resizeConfetti();
+function clearProposal(){
+  S.giveYou = [];
+  S.giveThey = [];
+  logLine("🧼 Cleared proposal.");
+  render();
 }
 
-document.addEventListener("DOMContentLoaded", ()=>{
-  try { init(); }
-  catch(e){ console.error("Init failed:", e); alert("Init error. Open console (F12)."); }
-});
+function sendOffer(){
+  if(!S.started) return;
+  const other = $("target").value;
+  S.target = other;
+
+  if(!S.giveYou.length && !S.giveThey.length){
+    showBanner("⚠️ Add items to both sides", "#ff8bd3", false);
+    return;
+  }
+
+  const youGive = S.giveYou;   // items you give (from your roster)
+  const theyGive = S.giveThey; // items they give (from target roster)
+
+  const a = sumPkg(youGive);
+  const b = sumPkg(theyGive);
+  const net = (b - a);
+  const decision = aiDecide(net);
+
+  const badge = fairnessBadge(net);
+  const blockbuster = isBlockbuster(youGive, theyGive);
+
+  // If accepted: execute trade and show modal
+  if(decision === "accepted"){
+    executeTrade(other, youGive, theyGive);
+    S.rep = Math.min(100, S.rep + (net>0?2:0)); // reward if you "win"
+    fxStatus("accepted", blockbuster);
+
+    openModal({
+      title: blockbuster ? "🚨 BLOCKBUSTER TRADE!" : "✅ TRADE ACCEPTED",
+      sub: `${other} agreed to your offer.`,
+      badgeObj: badge,
+      youGiveItems: youGive,
+      theyGiveItems: theyGive,
+      eval1: net>0 ? `Net: You WIN by ${net}` : net<0 ? `Net: You LOSE by ${Math.abs(net)}` : "Net: EVEN",
+      eval2: `Reputation: ${S.rep}`,
+      buttonsHTML: `<button class="btnGood" onclick="closeModal()">Nice</button>`
+    });
+
+    logLine(`Accepted ${other}. Net: ${net>=0?`+${net}`:`-${Math.abs(net)}`}. Power ${powerOf(S.my)}.`);
+    clearProposal();
+    return;
+  }
+
+  if(decision === "rejected"){
+    S.rep = Math.max(0, S.rep - 2);
+    fxStatus("rejected", false);
+
+    openModal({
+      title: "❌ TRADE REJECTED",
+      sub: `${other} declined your offer.`,
+      badgeObj: badge,
+      youGiveItems: youGive,
+      theyGiveItems: theyGive,
+      eval1: `Net (to you): ${net>0?`WIN ${net}`:net<0?`LOSE ${Math.abs(net)}`:"EVEN"}`,
+      eval2: `Reputation: ${S.rep}`,
+      buttonsHTML: `<button class="btnBad" onclick="closeModal()">Oof</button>`
+    });
+
+    logLine(`Rejected by ${other}.`);
+    return;
+  }
+
+  // countered: show counter modal with a simple improved package
+  fxStatus("countered", false);
+
+  // create a counter by asking for +1 item or swapping one
+  const theirRoster = roster(other);
+  const myRoster = roster(S.my);
+  const pickBest = (arr)=> [...arr].sort((x,y)=>itemValue(y)-itemValue(x))[0] || null;
+  const pickWorst = (arr)=> [...arr].sort((x,y)=>itemValue(x)-itemValue(y))[0] || null;
+
+  const counterGiveYou = [...youGive];
+  const counterGiveThey = [...theyGive];
+
+  // make counter slightly better for them: add one of your lower items if space
+  const myWorst = pickWorst(myRoster.filter(it => !counterGiveYou.some(x=>x.name===it.name)));
+  if(myWorst) counterGiveYou.push(myWorst);
+
+  // and/or reduce what they give: remove their best if you asked too much
+  if(counterGiveThey.length > 1){
+    const theirBest = pickBest(counterGiveThey);
+    counterGiveThey.splice(counterGiveThey.findIndex(x=>x.name===theirBest.name),1);
+  }
+
+  const a2 = sumPkg(counterGiveYou);
+  const b2 = sumPkg(counterGiveThey);
+  const net2 = b2 - a2;
+  const badge2 = fairnessBadge(net2);
+
+  openModal({
+    title: "🔁 COUNTEROFFER!",
+    sub: `${other} sent a counter.`,
+    badgeObj: badge2,
+    youGiveItems: counterGiveYou,
+    theyGiveItems: counterGiveThey,
+    eval1: net2>0 ? `Net: You WIN by ${net2}` : net2<0 ? `Net: You LOSE by ${Math.abs(net2)}` : "Net: EVEN",
+    eval2: `Reputation: ${S.rep}`,
+    buttonsHTML: `
+      <button class="btnGood" onclick="acceptCounter('${esc(other)}')">Accept</button>
+      <button class="btnBad" onclick="closeModal()">Reject</button>
+    `
+  });
+
+  // stash counter in state temporarily
+  S._counter = { other, youGive: counterGiveYou, theyGive: counterGiveThey, net: net2 };
+}
+
+function acceptCounter(other){
+  const c = S._counter;
+  if(!c) return closeModal();
+  executeTrade(other, c.youGive, c.theyGive);
+  fxStatus("accepted", isBlockbuster(c.youGive, c.theyGive));
+  logLine(`Accepted counter from ${other}. Net: ${c.net>=0?`+${c.net}`:`-${Math.abs(c.net)}`}.`);
+  S._counter = null;
+  closeModal();
+  clearProposal();
+  render();
+}
+
+/* Inbox actions */
+function selectedOffer(){
+  return S.inbox.find(x=>x.id===S.inboxSel) || null;
+}
+
+function acceptOffer(){
+  const off = selectedOffer();
+  if(!off) return showBanner("Pick an offer first", "#ff8bd3", false);
+
+  // accept: you give (off.giveThey) and receive (off.giveYou)
+  executeTrade(off.fromTeam, off.giveThey, off.giveYou);
+
+  const blockbuster = isBlockbuster(off.giveThey, off.giveYou);
+  fxStatus("accepted", blockbuster);
+
+  openModal({
+    title: blockbuster ? "🚨 BLOCKBUSTER TRADE!" : "✅ TRADE ACCEPTED",
+    sub: `${off.fromTeam} agreed to the deal.`,
+    badgeObj: off.badge,
+    youGiveItems: off.giveThey,
+    theyGiveItems: off.giveYou,
+    eval1: off.delta>0?`Net: You WIN by ${off.delta}`:off.delta<0?`Net: You LOSE by ${Math.abs(off.delta)}`:"Net: EVEN",
+    eval2: `Reputation: ${S.rep}`,
+    buttonsHTML: `<button class="btnGood" onclick="closeModal()">Nice</button>`
+  });
+
+  logLine(`Accepted inbox offer from ${off.fromTeam}.`);
+  // remove offer
+  S.inbox = S.inbox.filter(x=>x.id!==off.id);
+  S.inboxSel = null;
+  render();
+}
+
+function rejectOffer(){
+  const off = selectedOffer();
+  if(!off) return showBanner("Pick an offer first", "#ff8bd3", false);
+  fxStatus("rejected", false);
+  logLine(`Rejected offer from ${off.fromTeam}.`);
+  S.inbox = S.inbox.filter(x=>x.id!==off.id);
+  S.inboxSel = null;
+  render();
+}
+
+function counterOffer(){
+  const off = selectedOffer();
+  if(!off) return showBanner("Pick an offer first", "#ff8bd3", false);
+
+  // Load the offer into the builder as a starting point
+  S.target = off.fromTeam;
+  $("target").value = S.target;
+
+  // In builder: "You give" should be items from you; "They give" items from them
+  // off.giveThey are items they want from you
+  // off.giveYou are items you'd receive from them
+  S.giveYou = off.giveThey.map(cloneItem);
+  S.giveThey = off.giveYou.map(cloneItem);
+
+  setTab("make");
+  showBanner("🔁 Loaded offer to counter in builder", "#ff8bd3", false);
+  render();
+}
+
+/* =========================
+   INIT
+   ========================= */
+function init(){
+  // placeholder hint
+  $("phHint").textContent = `Needs placeholder image: ${PLACEHOLDER}`;
+
+  // populate teams
+  const teams = Object.keys(DATA_SEED);
+  $("myTeam").innerHTML = teams.map(t=>`<option value="${esc(t)}">${esc(t)}</option>`).join("");
+  $("target").innerHTML = teams.map(t=>`<option value="${esc(t)}">${esc(t)}</option>`).join("");
+
+  // default values
+  $("myTeam").value = "McDonald's";
+  $("fairness").value = "8";
+  $("target").value = "Taco Bell";
+
+  $("startBtn").onclick = startRun;
+  $("newRun").onclick = ()=>location.reload();
+  $("clearProposal").onclick = clearProposal;
+  $("endTurn").onclick = endTurn;
+  $("send").onclick = sendOffer;
+
+  // tabs
+  $("panelMake").style.display = "";
+  $("panelInbox").style.display = "none";
+
+  // buttons in inbox
+  $("accept").onclick = acceptOffer;
+  $("reject").onclick = rejectOffer;
+  $("counter").onclick = counterOffer;
+
+  // Drop zones: accept payload {team, item}
+  wireDrop($("dzGive"), (p)=>{
+    if(!S.started) return;
+    if(p.team !== S.my) return;
+    if(!p.item) return;
+    if(!S.giveYou.some(x=>x.name===p.item.name)) S.giveYou.push(cloneItem(p.item));
+    render();
+  });
+  wireDrop($("dzGet"), (p)=>{
+    if(!S.started) return;
+    const target = $("target").value;
+    S.target = target;
+    if(p.team !== target) return;
+    if(!p.item) return;
+    if(!S.giveThey.some(x=>x.name===p.item.name)) S.giveThey.push(cloneItem(p.item));
+    render();
+  });
+
+  // Tab buttons are in stats row? we kept previous buttons (Inbox/Make Offer) as UI pattern:
+  // We'll bind them by creating listeners on those buttons (existing in older builds).
+  // If you still have dedicated Inbox/Make Offer buttons elsewhere, keep these IDs:
+  // We'll create them dynamically if missing.
+  // In this layout, use keyboard shortcuts:
+  //   I = inbox, M = make
+  document.addEventListener("keydown",(e)=>{
+    if(!S.started) return;
+    if(e.key.toLowerCase()==="i"){ setTab("inbox"); render(); }
+    if(e.key.toLowerCase()==="m"){ setTab("make"); render(); }
+  });
+
+  // Add clickable tabs by hijacking existing "Inbox" and "Make Offer" buttons if present
+  // (If your previous HTML had them, keep IDs; otherwise ignore)
+  const inboxBtn = document.querySelector("button#tInbox, button[data-tab='inbox']");
+  const makeBtn  = document.querySelector("button#tMake, button[data-tab='make']");
+  if(inboxBtn) inboxBtn.onclick = ()=>{ setTab("inbox"); render(); };
+  if(makeBtn)  makeBtn.onclick  = ()=>{ setTab("make"); render(); };
+
+  render();
+}
+
+init();
 </script>
 
 </body>
