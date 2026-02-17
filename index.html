@@ -550,6 +550,11 @@
       <div class="v" id="ceoTeam">—</div>
       <div class="s" id="goalLine">Goal: <b id="goalNum">1000</b> Power by Turn 10</div>
     </div>
+    <div class="tabs">
+  <button id="tInbox" class="tabBtn">📥 Inbox</button>
+  <button id="tMake" class="tabBtn active">🛠️ Make Offer</button>
+</div>
+
     <div class="stat">
       <div class="k">Turn</div>
       <div class="v"><span id="turnNum">1</span>/10</div>
@@ -1241,12 +1246,20 @@ function renderInbox(){
 }
 
 function setTab(tab){
+ function setTab(tab){
   S.tab = tab;
+
   $("panelMake").style.display = (tab==="make") ? "" : "none";
   $("panelInbox").style.display = (tab==="inbox") ? "" : "none";
+
   $("mainTitle").textContent = (tab==="make") ? "Trade Center (Outgoing Offer)" : "Inbox";
   $("mainHint").textContent = (tab==="make") ? "Drag from the grid menus into the center." : "Click an offer to inspect.";
+
+  // button styling
+  $("tInbox").classList.toggle("active", tab==="inbox");
+  $("tMake").classList.toggle("active", tab==="make");
 }
+
 
 function render(){
   if(!S.started){
@@ -1521,6 +1534,13 @@ function counterOffer(){
 function init(){
   // placeholder hint
   $("phHint").textContent = `Needs placeholder image: ${PLACEHOLDER}`;
+  $("target").addEventListener("change", ()=>{
+  S.target = $("target").value;
+  // clear the "they give" box so you don't keep items from the old target
+  S.giveThey = [];
+  render();
+});
+
 
   // populate teams
   const teams = Object.keys(DATA_SEED);
@@ -1537,6 +1557,9 @@ function init(){
   $("clearProposal").onclick = clearProposal;
   $("endTurn").onclick = endTurn;
   $("send").onclick = sendOffer;
+  $("tInbox").onclick = ()=>{ setTab("inbox"); render(); };
+$("tMake").onclick  = ()=>{ setTab("make");  render(); };
+
 
   // tabs
   $("panelMake").style.display = "";
