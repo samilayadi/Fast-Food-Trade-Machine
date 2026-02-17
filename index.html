@@ -797,11 +797,39 @@ function fairnessBadge(delta){
 }
 
 function aiDecide(net){
-  const theirScore = -net;
-  if(theirScore >= 0) return "accepted";
-  if(theirScore >= -12) return "countered";
+  // net = (value you get) - (value you give)
+  // negative net = bad for them
+
+  const luck = Math.random(); // 0 → 1
+  const pain = -net;         // how bad this is for them
+
+  // If it's good for them, usually accept
+  if(pain <= 0){
+    if(luck < 0.80) return "accepted";
+    if(luck < 0.95) return "countered";
+    return "rejected";
+  }
+
+  // Slightly bad for them (small fleece)
+  if(pain <= 10){
+    if(luck < 0.35) return "accepted";   // YOU FLEECE THEM SOMETIMES 😈
+    if(luck < 0.75) return "countered";
+    return "rejected";
+  }
+
+  // Pretty bad for them
+  if(pain <= 20){
+    if(luck < 0.15) return "accepted";   // rare steals for viral moments
+    if(luck < 0.55) return "countered";
+    return "rejected";
+  }
+
+  // Horrible deal for them
+  if(luck < 0.05) return "accepted";     // 5% YOLO accept (BLOCKBUSTER STEAL)
+  if(luck < 0.30) return "countered";
   return "rejected";
 }
+
 
 function isBlockbuster(youGiveItems, theyGiveItems){
   const top = (it)=> (it && (it.base ?? 0) >= 89);
