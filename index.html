@@ -918,18 +918,22 @@ function tileHTML(it){
   `;
 }
 
-function renderStats(){
+ffunction renderStats(){
   $("ceoTeam").textContent = S.my || "—";
   $("turnNum").textContent = S.turn;
   $("repNum").textContent = S.rep;
   $("powerNum").textContent = S.my ? powerOf(S.my) : 0;
   $("inboxCount").textContent = S.inbox.length;
   $("goalNum").textContent = S.goal;
-  const mood = S.rep >= 60 ? "Loved 😄" : (S.rep <= 40 ? "Sketchy 😬" : "Neutral 🙂");
-  $("repMood").textContent = mood; 
-  $("tradesLeft").textContent = S.tradesLeft;
 
+  const mood = S.rep >= 60 ? "Loved 😄" : (S.rep <= 40 ? "Sketchy 😬" : "Neutral 🙂");
+  $("repMood").textContent = mood;
+
+  // Safe update: only set if the element exists
+  const tl = $("tradesLeft");
+  if(tl) tl.textContent = S.tradesLeft ?? 0;
 }
+
 
 function renderMenus(){
   S.target = $("target").value;
@@ -1341,7 +1345,8 @@ function init(){
   logLine("Loaded. Pick your chain and press Start Run.");
 }
 
-init();
+window.addEventListener("DOMContentLoaded", init);
+
 </script>
 
 </body>
