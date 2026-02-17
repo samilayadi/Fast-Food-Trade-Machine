@@ -22,7 +22,8 @@
       --r:18px;
       --r2:14px;
       --tile:92px;
-      .logo{
+    }
+    .logo{
   height: 34px;
   max-width: 120px;
   object-fit: contain;
@@ -632,44 +633,10 @@ const S = {
   my:null, target:null, fairness:8,
   turn:1, rep:50, goal:1000,
   tradesPerTurn: 3,
-tradesLeft: 3,
+  tradesLeft: 3,
   DATA:{},
   giveYou:[], giveThey:[],
   inbox:[], inboxSel:null
-  function aiDecide(net){
-  // net = (value you get) - (value you give)
-  // negative net = bad for them
-
-  const luck = Math.random(); // 0 → 1
-  const pain = -net;         // how bad this is for them
-
-  // If it's good for them, usually accept
-  if(pain <= 0){
-    if(luck < 0.80) return "accepted";
-    if(luck < 0.95) return "countered";
-    return "rejected";
-  }
-
-  // Slightly bad for them (small fleece)
-  if(pain <= 10){
-    if(luck < 0.35) return "accepted";   // YOU FLEECE THEM SOMETIMES 😈
-    if(luck < 0.75) return "countered";
-    return "rejected";
-  }
-
-  // Pretty bad for them
-  if(pain <= 20){
-    if(luck < 0.15) return "accepted";   // rare steals for viral moments
-    if(luck < 0.55) return "countered";
-    return "rejected";
-  }
-
-  // Horrible deal for them
-  if(luck < 0.05) return "accepted";     // 5% YOLO accept (BLOCKBUSTER STEAL)
-  if(luck < 0.30) return "countered";
-  return "rejected";
-}
-
 };
 
 /* ================= HELPERS ================= */
@@ -918,7 +885,7 @@ function tileHTML(it){
   `;
 }
 
-ffunction renderStats(){
+function renderStats(){
   $("ceoTeam").textContent = S.my || "—";
   $("turnNum").textContent = S.turn;
   $("repNum").textContent = S.rep;
