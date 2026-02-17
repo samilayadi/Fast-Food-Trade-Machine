@@ -22,6 +22,11 @@
       --r:18px;
       --r2:14px;
       --tile:92px;
+      .logo{
+  height: 34px;
+  max-width: 120px;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 6px rgba(0,0,0,.4));
     }
     *{box-sizing:border-box}
     body{
@@ -148,7 +153,8 @@
       overflow:hidden;
       display:grid;
       grid-template-rows:auto 1fr;
-      gap:10px;
+      gap:10px; 
+
     }
     .colTitle{display:flex; justify-content:space-between; align-items:baseline; gap:10px}
     .colTitle .t{font-weight:1000}
@@ -442,7 +448,12 @@
       <!-- Make -->
       <div id="panelMake" class="tradeGrid">
         <div class="col">
-          <div class="colTitle"><div class="t">Your Menu</div><div class="sub"><span id="myCount">0</span> items</div></div>
+         <div class="colTitle">
+  <div class="t">Your Menu</div>
+  <img id="myLogo" class="logo"/>
+  <div class="sub"><span id="myCount">0</span> items</div>
+</div>
+
           <div id="myMenu" class="menuGrid"></div>
         </div>
 
@@ -464,7 +475,12 @@
         </div>
 
         <div class="col">
-          <div class="colTitle"><div class="t">Target Menu</div><div class="sub"><span id="tgCount">0</span> items</div></div>
+         <div class="colTitle">
+  <div class="t">Target Menu</div>
+  <img id="tgLogo" class="logo"/>
+  <div class="sub"><span id="tgCount">0</span> items</div>
+</div>
+
           <div id="tgMenu" class="menuGrid"></div>
         </div>
       </div>
@@ -595,6 +611,18 @@ const DATA_SEED = {
     {name:"Frosty",base:80,tags:["iconic"],img:"assets/items/frosty.jpg"},
     {name:"Chili",base:72,tags:["iconic"],img:"assets/items/chili.jpg"}
   ]
+};
+const LOGOS = {
+  "McDonald's": "assets/logos/mcdonalds.png",
+  "Taco Bell": "assets/logos/taco-bell.png",
+  "Chick-fil-A": "assets/logos/chick-fil-a.png",
+  "Raising Cane's": "assets/logos/raising-canes.png",
+  "Burger King": "assets/logos/burger-king.png",
+  "Chipotle": "assets/logos/chipotle.png",
+  "Panda Express": "assets/logos/panda-express.png",
+  "Subway": "assets/logos/subway.png",
+  "Domino's": "assets/logos/dominos.png",
+  "Wendy's": "assets/logos/wendys.png"
 };
 
 const S = {
@@ -837,6 +865,12 @@ function renderStats(){
 
 function renderMenus(){
   S.target = $("target").value;
+
+$("myLogo").src = LOGOS[S.my] || "";
+$("tgLogo").src = LOGOS[S.target] || "";
+$("myLogo").style.display = LOGOS[S.my] ? "" : "none";
+$("tgLogo").style.display = LOGOS[S.target] ? "" : "none";
+
 
   $("myCount").textContent = roster(S.my).length;
   $("tgCount").textContent = roster(S.target).length;
