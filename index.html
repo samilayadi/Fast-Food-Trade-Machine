@@ -728,6 +728,48 @@
 
 const PLACEHOLDER = "assets/items/placeholder.jpg";
 
+  function itemIndex(){
+  // build a fast lookup: name -> item object (prefer current rosters)
+  const map = new Map();
+  // rosters first (post-trade truth)
+  if (S && S.rosters){
+    for (const team of Object.keys(S.rosters)){
+      for (const it of (S.rosters[team] || [])){
+        if (it && it.name) map.set(it.name, it);
+      }
+    }
+  }
+  // fallback to seed
+  if (typeof DATA_SEED !== "undefined"){
+    for (const team of Object.keys(DATA_SEED)){
+      for (const it of (DATA_SEED[team] || [])){
+        if (it && it.name && !map.has(it.name)) map.set(it.name, it);
+      }
+    }
+  }
+  return map;
+}
+
+function normalizeItem(entry, idx){
+  // entry can be string "Fries" or object {name:"Fries"} or full item
+  if (!entry) return { name:"Unknown", base:0, tags:[], img:"assets/items/placeholder.jpg" };
+
+  if (typeof entry === "string"){
+    return idx.get(entry) || { name:entry, base:0, tags:[], img:"assets/items/placeholder.jpg" };
+  }
+
+  if (entry.name && entry.base != null && entry.img) return entry; // already full
+  if (entry.name){
+    return idx.get(entry.name) || { name:entry.name, base:0, tags:entry.tags||[], img:entry.img||"assets/items/placeholder.jpg" };
+  }
+
+  return { name:"Unknown", base:0, tags:[], img:"assets/items/placeholder.jpg" };
+}
+
+function ensureArray(x){
+  return Array.isArray(x) ? x : (x ? [x] : []);
+}
+
 /* ===== Data ===== */
 const DATA_SEED = {
   "McDonald's":[
@@ -1162,9 +1204,15 @@ function executeTrade(other, youGive, theyGive){
 /* Modal */
 function closeModal(){ $("modalMask").style.display = "none"; }
 function pkgCardHTML(team, name, removable){
-  const it = findItem(team, name);
+  // Try to find item on the provided team first
+  let it = findItem(team, name);
+
+  // If not found (team mismatch / timing issue), search everywhere
+  if(!it) it = findItemAnywhere(name);
+
   const v = itemValue(it);
   const img = it?.img || PLACEHOLDER;
+
   return `
     <div class="pkgCard" data-name="${esc(name)}">
       <div class="mini">${imgHTML(img, name)}</div>
@@ -1176,6 +1224,7 @@ function pkgCardHTML(team, name, removable){
     </div>
   `;
 }
+
 function openModal({title, sub, badgeObj, youGiveTeam, youGive, theyGiveTeam, theyGive, eval1, eval2, buttonsHTML}){
   $("mTitle").textContent = title;
   $("mSub").textContent = sub || "";
