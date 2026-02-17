@@ -501,9 +501,11 @@
   </div>
 
   <script>
-    /* ================= DATA ================= */
-    const PLACEHOLDER = "assets/items/placeholder.jpg";
-    const DATA_SEED ="McDonald's":[
+/* ================= DATA ================= */
+const PLACEHOLDER = "assets/items/placeholder.jpg";
+
+const DATA_SEED = {
+  "McDonald's":[
     {name:"Big Mac",base:86,tags:["iconic"],img:"assets/items/big-mac.jpg"},
     {name:"Fries",base:80,tags:["iconic","speed"],img:"assets/items/mcd-fries.jpg"},
     {name:"Nuggets (10pc)",base:78,tags:["iconic"],img:"assets/items/nuggets.jpg"},
@@ -591,23 +593,637 @@
     {name:"Spicy Chicken Sandwich",base:84,tags:["iconic"],img:"assets/items/wendys-spicy-chicken.jpg"},
     {name:"Fries",base:76,tags:["speed"],img:"assets/items/wendys-fries.jpg"},
     {name:"Frosty",base:80,tags:["iconic"],img:"assets/items/frosty.jpg"},
-    {name:"Chili",base:72,tags:["iconic"],img:"assets/items/chili.jpg"} {};
-    const S = { started:false, tab:"make", my:null, target:null, fairness:8, turn:1, rep:50, goal:1000, DATA:{}, giveYou:[], giveThey:[], inbox:[], inboxSel:null };
+    {name:"Chili",base:72,tags:["iconic"],img:"assets/items/chili.jpg"}
+  ]
+};
 
-    const $ = (id)=>document.getElementById(id);
-    const esc = (s)=>String(s).replace(/[&<>"']/g, m=>({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[m]));
-    const cloneItem = (it)=>({...it, tags:[...(it.tags||[])]});
-    const roster = (t)=>S.DATA[t]||[];
-    const logLine = (t)=>{ const el=$("log"); el.innerHTML+=`• ${esc(t)}<br/>`; el.scrollTop=el.scrollHeight; };
-    const imgHTML = (src, alt)=>`<img src="${esc(src||PLACEHOLDER)}" alt="${esc(alt||"item")}" onerror="this.onerror=null;this.src='${PLACEHOLDER}'">`;
-    const safeImg = (it)=> it?.img || PLACEHOLDER;
-    const itemValue = (it)=>{ if(!it) return 0; let v=Number(it.base||0); if((it.tags||[]).includes("broken")) v=Math.max(0,v-12); return v; };
-    const sumPkg = (arr)=>arr.reduce((a,it)=>a+itemValue(it),0);
-    const powerOf = (t)=>roster(t).reduce((s,it)=>s+itemValue(it),0);
-    const findItem = (team,name)=>roster(team).find(x=>x.name===name)||null;
+const S = {
+  started:false, tab:"make",
+  my:null, target:null, fairness:8,
+  turn:1, rep:50, goal:1000,
+  DATA:{},
+  giveYou:[], giveThey:[],
+  inbox:[], inboxSel:null
+};
 
-    /* Banners + confetti + rest of JS logic omitted for brevity */
-    // IMPORTANT: paste the rest of the JS logic from the previous full version here.
-  </script>
+/* ================= HELPERS ================= */
+const $ = (id)=>document.getElementById(id);
+const esc = (s)=>String(s).replace(/[&<>"']/g, m=>({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[m]));
+const cloneItem = (it)=>({...it, tags:[...(it.tags||[])]});
+const roster = (t)=>S.DATA[t]||[];
+const findItem = (team,name)=>roster(team).find(x=>x.name===name)||null;
+
+function imgHTML(src, alt){
+  const safe = src || PLACEHOLDER;
+  return `<img src="${esc(safe)}" alt="${esc(alt||"item")}"
+    onerror="this.onerror=null;this.src='${PLACEHOLDER}'">`;
+}
+const safeImg = (it)=> it?.img || PLACEHOLDER;
+
+function itemValue(it){
+  if(!it) return 0;
+  let v = Number(it.base||0);
+  if((it.tags||[]).includes("broken")) v = Math.max(0, v-12);
+  return v;
+}
+const sumPkg = (arr)=>arr.reduce((a,it)=>a+itemValue(it),0);
+const powerOf = (t)=>roster(t).reduce((s,it)=>s+itemValue(it),0);
+
+function logLine(t){
+  const el = $("log");
+  el.innerHTML += `• ${esc(t)}<br/>`;
+  el.scrollTop = el.scrollHeight;
+}
+
+/* ================= UI FX ================= */
+function showBanner(text, color, shake=false){
+  const banner = $("tradeBanner");
+  banner.textContent = text;
+  banner.style.color = color;
+  banner.style.animation = "none";
+  banner.offsetHeight;
+  banner.style.animation = "bannerIn 1400ms ease-out forwards";
+  if(shake){
+    document.body.style.animation="none";
+    document.body.offsetHeight;
+    document.body.style.animation="screenShake 520ms ease-in-out";
+  }
+}
+
+/* Confetti (lightweight) */
+let confettiRunning=false;
+function resizeConfetti(){
+  const c = $("confettiCanvas");
+  const dpr = Math.max(1, window.devicePixelRatio || 1);
+  c.width = Math.floor(window.innerWidth * dpr);
+  c.height = Math.floor(window.innerHeight * dpr);
+}
+window.addEventListener("resize", resizeConfetti);
+
+function startConfetti(durationMs=1500, count=140){
+  if(confettiRunning) return;
+  confettiRunning=true;
+  resizeConfetti();
+  const c = $("confettiCanvas");
+  const ctx = c.getContext("2d");
+  const dpr = Math.max(1, window.devicePixelRatio || 1);
+  const W=c.width, H=c.height;
+  const parts=[];
+  for(let i=0;i<count;i++){
+    parts.push({
+      x:Math.random()*W,
+      y:-Math.random()*H*0.5,
+      vx:(Math.random()*2-1)*2.0*dpr,
+      vy:(Math.random()*2+2.6)*2.6*dpr,
+      s:(Math.random()*6+6)*dpr,
+      r:Math.random()*Math.PI,
+      vr:(Math.random()*2-1)*0.12,
+      a:.9
+    });
+  }
+  const t0=performance.now();
+  function tick(t){
+    const dt=t-t0;
+    ctx.clearRect(0,0,W,H);
+    for(const p of parts){
+      p.x+=p.vx; p.y+=p.vy; p.r+=p.vr;
+      p.vy+=0.04*dpr; p.vx*=0.995;
+      if(p.x<-40*dpr) p.x=W+40*dpr;
+      if(p.x>W+40*dpr) p.x=-40*dpr;
+      p.a=Math.max(0, Math.min(.9, 1-dt/durationMs));
+
+      ctx.save();
+      ctx.globalAlpha=p.a;
+      ctx.translate(p.x,p.y);
+      ctx.rotate(p.r);
+      ctx.fillStyle=`hsl(${Math.floor((p.x/W)*360)},90%,60%)`;
+      ctx.fillRect(-p.s/2,-p.s/2,p.s,p.s*0.65);
+      ctx.restore();
+    }
+    if(dt<durationMs) requestAnimationFrame(tick);
+    else { ctx.clearRect(0,0,W,H); confettiRunning=false; }
+  }
+  requestAnimationFrame(tick);
+}
+
+function fxStatus(status, blockbuster=false){
+  if(blockbuster){
+    showBanner("🚨 BLOCKBUSTER TRADE!", "#ff8bd3", true);
+    startConfetti(1800, 180);
+    return;
+  }
+  if(status==="accepted") showBanner("✅ TRADE ACCEPTED", "#6ef3b2", false);
+  if(status==="countered") showBanner("🔁 COUNTEROFFER!", "#ff8bd3", false);
+  if(status==="rejected") showBanner("❌ TRADE REJECTED", "#ff7c7c", true);
+}
+
+/* ================= MODAL ================= */
+function closeModal(){ $("modalMask").style.display="none"; }
+
+function pkgCardHTML(it, removable){
+  const name = it?.name || "Unknown";
+  const v = itemValue(it);
+  return `
+    <div class="pkgCard" data-name="${esc(name)}">
+      <div class="mini">${imgHTML(safeImg(it), name)}</div>
+      <div class="pkgMeta" style="min-width:0;">
+        <b title="${esc(name)}">${esc(name)}</b>
+        <span>Value: ${v}</span>
+      </div>
+      ${removable ? `<button class="rmBtn" data-remove="1" title="Remove">Remove</button>` : ``}
+    </div>
+  `;
+}
+
+function openModal({title, sub, badgeObj, youGiveItems, theyGiveItems, eval1, eval2, buttonsHTML}){
+  $("mTitle").textContent = title;
+  $("mSub").textContent = sub || "";
+
+  const b = $("mBadge");
+  if(badgeObj){
+    b.style.display="";
+    b.className=`badge ${badgeObj.cls}`;
+    b.textContent=badgeObj.txt;
+  } else {
+    b.style.display="none";
+  }
+
+  $("mYou").innerHTML = (youGiveItems?.length)
+    ? youGiveItems.map(it=>pkgCardHTML(it,false)).join("")
+    : `<div class="label">Nothing</div>`;
+  $("mThey").innerHTML = (theyGiveItems?.length)
+    ? theyGiveItems.map(it=>pkgCardHTML(it,false)).join("")
+    : `<div class="label">Nothing</div>`;
+
+  $("mEval").textContent = eval1 || "";
+  $("mEval2").textContent = eval2 || "";
+  $("mButtons").innerHTML = buttonsHTML || `<button class="btnGood" onclick="closeModal()">OK</button>`;
+  $("modalMask").style.display="flex";
+}
+
+/* ================= TRADE LOGIC ================= */
+function fairnessBadge(delta){
+  if(delta >= -S.fairness && delta <= S.fairness) return {cls:"fair", txt:"FAIR 🤝"};
+  if(delta < -S.fairness) return {cls:"fleece", txt:"FLEECE 😈"};
+  return {cls:"block", txt:"BLOCKBUSTER 🚨"};
+}
+
+function aiDecide(net){
+  const theirScore = -net;
+  if(theirScore >= 0) return "accepted";
+  if(theirScore >= -12) return "countered";
+  return "rejected";
+}
+
+function isBlockbuster(youGiveItems, theyGiveItems){
+  const top = (it)=> (it && (it.base ?? 0) >= 89);
+  return [...youGiveItems, ...theyGiveItems].some(top);
+}
+
+function executeTrade(otherTeam, youGiveItems, theyGiveItems){
+  const myR = roster(S.my);
+  const thR = roster(otherTeam);
+
+  const giveNames = new Set(youGiveItems.map(i=>i.name));
+  const getNames  = new Set(theyGiveItems.map(i=>i.name));
+
+  S.DATA[S.my] = myR.filter(it => !giveNames.has(it.name)).concat(theyGiveItems.map(cloneItem));
+  S.DATA[otherTeam] = thR.filter(it => !getNames.has(it.name)).concat(youGiveItems.map(cloneItem));
+}
+
+/* ================= DRAG & DROP ================= */
+function setDrag(el, payload){
+  el.draggable = true;
+  el.addEventListener("dragstart", (e)=>{
+    e.dataTransfer.setData("application/json", JSON.stringify(payload));
+    e.dataTransfer.effectAllowed = "copy";
+  });
+}
+function wireDrop(zoneEl, onDrop){
+  zoneEl.addEventListener("dragover", (e)=>{ e.preventDefault(); e.dataTransfer.dropEffect="copy"; });
+  zoneEl.addEventListener("drop", (e)=>{
+    e.preventDefault();
+    try{
+      const payload = JSON.parse(e.dataTransfer.getData("application/json"));
+      onDrop(payload);
+    }catch(_){}
+  });
+}
+
+/* ================= RENDER ================= */
+function tileHTML(it){
+  const tags = (it.tags||[]).map(t=>`#${t}`).join(" ");
+  const v = itemValue(it);
+  return `
+    <div class="tile" data-name="${esc(it.name)}">
+      <div class="thumb">${imgHTML(safeImg(it), it.name)}</div>
+      <div class="nm" title="${esc(it.name)}">${esc(it.name)}</div>
+      <div class="tg">${esc(tags)}</div>
+      <div class="val">${v}</div>
+    </div>
+  `;
+}
+
+function renderStats(){
+  $("ceoTeam").textContent = S.my || "—";
+  $("turnNum").textContent = S.turn;
+  $("repNum").textContent = S.rep;
+  $("powerNum").textContent = S.my ? powerOf(S.my) : 0;
+  $("inboxCount").textContent = S.inbox.length;
+  $("goalNum").textContent = S.goal;
+  const mood = S.rep >= 60 ? "Loved 😄" : (S.rep <= 40 ? "Sketchy 😬" : "Neutral 🙂");
+  $("repMood").textContent = mood;
+}
+
+function renderMenus(){
+  S.target = $("target").value;
+
+  $("myCount").textContent = roster(S.my).length;
+  $("tgCount").textContent = roster(S.target).length;
+
+  $("myMenu").innerHTML = roster(S.my).map(tileHTML).join("");
+  $("tgMenu").innerHTML = roster(S.target).map(tileHTML).join("");
+
+  for(const el of $("myMenu").querySelectorAll(".tile")){
+    const name = el.getAttribute("data-name");
+    setDrag(el, {team:S.my, item: findItem(S.my, name)});
+  }
+  for(const el of $("tgMenu").querySelectorAll(".tile")){
+    const name = el.getAttribute("data-name");
+    setDrag(el, {team:S.target, item: findItem(S.target, name)});
+  }
+}
+
+function renderPackages(){
+  $("giveYou").innerHTML = S.giveYou.length
+    ? S.giveYou.map(it=>pkgCardHTML(it,true)).join("")
+    : `<div class="label">Drop items here...</div>`;
+  $("giveThey").innerHTML = S.giveThey.length
+    ? S.giveThey.map(it=>pkgCardHTML(it,true)).join("")
+    : `<div class="label">Drop items here...</div>`;
+
+  for(const btn of document.querySelectorAll(".rmBtn")){
+    btn.onclick = (e)=>{
+      const card = e.target.closest(".pkgCard");
+      const nm = card.getAttribute("data-name");
+      S.giveYou = S.giveYou.filter(it => it.name !== nm);
+      S.giveThey = S.giveThey.filter(it => it.name !== nm);
+      render();
+    };
+  }
+
+  const a = sumPkg(S.giveYou);
+  const b = sumPkg(S.giveThey);
+  $("sumGive").textContent = a;
+  $("sumGet").textContent = b;
+
+  const net = b - a;
+  $("netLine").textContent = net===0 ? "Net: EVEN" : (net>0 ? `Net: You WIN by ${net}` : `Net: You LOSE by ${Math.abs(net)}`);
+  $("likelyLine").textContent = `They likely: ${aiDecide(net).toUpperCase()}`;
+}
+
+function renderInbox(){
+  const wrapMini = (it)=>`
+    <div class="offerMini">
+      ${imgHTML(safeImg(it), it.name)}
+      <div class="cap">${esc(it.name)}</div>
+    </div>
+  `;
+
+  $("inbox").innerHTML = S.inbox.map(off=>{
+    const active = (S.inboxSel===off.id) ? "active" : "";
+    return `
+      <div class="offerCard ${active}" data-id="${esc(off.id)}">
+        <div class="offerTop">
+          <div>
+            <b>${esc(off.fromTeam)} → ${esc(off.toTeam)}</b>
+            <div class="label" style="margin-top:3px;">${esc(off.quote)}</div>
+          </div>
+          <div class="badge ${off.badge.cls}">${esc(off.badge.txt)}</div>
+        </div>
+        <div class="offerBody">
+          <div class="offerSide">
+            <div class="st">You receive</div>
+            <div class="offerMiniGrid">${off.giveYou.map(wrapMini).join("")}</div>
+          </div>
+          <div class="offerSide">
+            <div class="st">You give</div>
+            <div class="offerMiniGrid">${off.giveThey.map(wrapMini).join("")}</div>
+          </div>
+        </div>
+        <div class="label">Net: ${off.delta>0?`You WIN by ${off.delta}`:off.delta<0?`You LOSE by ${Math.abs(off.delta)}`:"EVEN"}</div>
+      </div>
+    `;
+  }).join("");
+
+  for(const c of $("inbox").querySelectorAll(".offerCard")){
+    c.onclick = ()=>{
+      S.inboxSel = c.getAttribute("data-id");
+      renderInbox();
+    };
+  }
+}
+
+function setTab(tab){
+  S.tab = tab;
+
+  $("panelMake").style.display = (tab==="make") ? "" : "none";
+  $("panelInbox").style.display = (tab==="inbox") ? "" : "none";
+
+  $("makeControls").style.display = (tab==="make") ? "" : "none";
+  $("inboxControls").style.display = (tab==="inbox") ? "" : "none";
+
+  $("tInbox").classList.toggle("active", tab==="inbox");
+  $("tMake").classList.toggle("active", tab==="make");
+
+  $("mainTitle").textContent = (tab==="make") ? "Trade Center (Outgoing Offer)" : "Inbox";
+  $("mainHint").textContent = (tab==="make") ? "Drag from the grids into the center." : "Click an offer to select it, then Accept/Counter/Reject.";
+}
+
+function render(){
+  renderStats();
+  if(!S.started) return;
+  if(S.tab==="make"){
+    renderMenus();
+    renderPackages();
+  } else {
+    renderInbox();
+  }
+}
+
+/* ================= INBOX GEN ================= */
+function makeRandomOffer(fromTeam, toTeam){
+  const fromR = roster(fromTeam);
+  const toR = roster(toTeam);
+
+  const pick = (arr, k)=>{
+    const copy=[...arr];
+    const out=[];
+    while(copy.length && out.length<k){
+      out.push(copy.splice(Math.floor(Math.random()*copy.length),1)[0]);
+    }
+    return out;
+  };
+
+  const giveThey = pick(fromR, Math.random()<0.6?1:2); // they give you
+  const giveYou  = pick(toR,  Math.random()<0.6?1:2); // you give them
+
+  const youSum = sumPkg(giveYou);
+  const thSum  = sumPkg(giveThey);
+  const delta = thSum - youSum;
+
+  const badge = fairnessBadge(delta);
+  const id = (crypto.randomUUID ? crypto.randomUUID() : String(Math.random()).slice(2));
+
+  return {
+    id, fromTeam, toTeam,
+    giveYou: giveThey,   // receive
+    giveThey: giveYou,   // give
+    delta,
+    badge,
+    quote: badge.cls==="fleece" ? "“This is extremely fair.”" :
+           badge.cls==="block" ? "“This could break the internet.”" :
+           "“Clean trade.”"
+  };
+}
+
+function generateInbox(){
+  const teams = Object.keys(DATA_SEED).filter(t=>t!==S.my);
+  S.inbox = [];
+  for(let i=0;i<3;i++){
+    const from = teams[Math.floor(Math.random()*teams.length)];
+    S.inbox.push(makeRandomOffer(from, S.my));
+  }
+  S.inboxSel = S.inbox[0]?.id || null;
+}
+
+/* ================= BUTTONS ================= */
+function startRun(){
+  S.started = true;
+  S.turn = 1;
+  S.rep = 50;
+  S.goal = 1100; // tougher than 750
+  S.fairness = Number($("fairness").value) || 8;
+  S.my = $("myTeam").value;
+
+  // copy seed to live data
+  S.DATA = {};
+  for(const t of Object.keys(DATA_SEED)){
+    S.DATA[t] = (DATA_SEED[t]||[]).map(cloneItem);
+  }
+
+  // set target to a different team
+  S.target = Object.keys(DATA_SEED).find(t=>t!==S.my) || Object.keys(DATA_SEED)[0];
+  $("target").value = S.target;
+
+  S.giveYou = [];
+  S.giveThey = [];
+
+  logLine(`New run: CEO of ${S.my}. Turn 1 begins.`);
+  generateInbox();
+  setTab("make");
+  render();
+}
+
+function sendOffer(){
+  if(!S.started) return;
+
+  S.target = $("target").value;
+  const other = S.target;
+
+  if(!S.giveYou.length && !S.giveThey.length){
+    showBanner("⚠️ Add items to both sides", "#ff8bd3", false);
+    return;
+  }
+
+  const youGive = S.giveYou;
+  const theyGive = S.giveThey;
+
+  const a = sumPkg(youGive);
+  const b = sumPkg(theyGive);
+  const net = b - a;
+
+  const decision = aiDecide(net);
+  const badge = fairnessBadge(net);
+  const blockbuster = isBlockbuster(youGive, theyGive);
+
+  if(decision==="accepted"){
+    executeTrade(other, youGive, theyGive);
+    fxStatus("accepted", blockbuster);
+
+    openModal({
+      title: blockbuster ? "🚨 BLOCKBUSTER TRADE!" : "✅ TRADE ACCEPTED",
+      sub: `${other} agreed to your offer.`,
+      badgeObj: badge,
+      youGiveItems: youGive,
+      theyGiveItems: theyGive,
+      eval1: net>0 ? `Net: You WIN by ${net}` : net<0 ? `Net: You LOSE by ${Math.abs(net)}` : "Net: EVEN",
+      eval2: `Menu Power: ${powerOf(S.my)}`,
+      buttonsHTML: `<button class="btnGood" onclick="closeModal()">Nice</button>`
+    });
+
+    logLine(`Accepted by ${other}.`);
+    S.giveYou=[]; S.giveThey=[];
+    render();
+    return;
+  }
+
+  if(decision==="rejected"){
+    fxStatus("rejected", false);
+    openModal({
+      title: "❌ TRADE REJECTED",
+      sub: `${other} declined your offer.`,
+      badgeObj: badge,
+      youGiveItems: youGive,
+      theyGiveItems: theyGive,
+      eval1: `Net: ${net>0?`WIN ${net}`:net<0?`LOSE ${Math.abs(net)}`:"EVEN"}`,
+      eval2: `Menu Power: ${powerOf(S.my)}`,
+      buttonsHTML: `<button class="btnBad" onclick="closeModal()">Oof</button>`
+    });
+    logLine(`Rejected by ${other}.`);
+    return;
+  }
+
+  // counter (simple)
+  fxStatus("countered", false);
+  openModal({
+    title: "🔁 COUNTEROFFER!",
+    sub: `${other} wants a better deal. Try adjusting your offer.`,
+    badgeObj: badge,
+    youGiveItems: youGive,
+    theyGiveItems: theyGive,
+    eval1: `Net: ${net>0?`WIN ${net}`:net<0?`LOSE ${Math.abs(net)}`:"EVEN"}`,
+    eval2: `Tip: offer slightly more value.`,
+    buttonsHTML: `<button class="btnPink" onclick="closeModal()">Okay</button>`
+  });
+  logLine(`Countered by ${other}.`);
+}
+
+function endTurn(){
+  if(!S.started) return;
+  if(S.turn >= 10){
+    const p = powerOf(S.my);
+    if(p >= S.goal){
+      showBanner("🏆 YOU BUILT THE GOAT MENU!", "#6ef3b2", true);
+      startConfetti(2200, 220);
+    }else{
+      showBanner("⏳ RUN OVER — TRY AGAIN", "#ff7c7c", true);
+    }
+    return;
+  }
+  S.turn++;
+  S.giveYou=[]; S.giveThey=[];
+  logLine(`Turn ${S.turn} begins. New inbox offers arrived.`);
+  generateInbox();
+  render();
+}
+
+/* Inbox actions */
+function selectedOffer(){
+  return S.inbox.find(o=>o.id===S.inboxSel) || null;
+}
+function acceptOffer(){
+  const off = selectedOffer();
+  if(!off) return;
+  // fromTeam gives you giveYou, you give them giveThey
+  const other = off.fromTeam;
+  const youGet = off.giveYou;   // receive
+  const youGive = off.giveThey; // give
+  const blockbuster = isBlockbuster(youGive, youGet);
+  executeTrade(other, youGive, youGet);
+  fxStatus("accepted", blockbuster);
+  logLine(`Accepted inbox offer from ${other}.`);
+  S.inbox = S.inbox.filter(x=>x.id!==off.id);
+  S.inboxSel = S.inbox[0]?.id || null;
+  render();
+}
+function rejectOffer(){
+  const off = selectedOffer();
+  if(!off) return;
+  fxStatus("rejected", false);
+  logLine(`Rejected inbox offer from ${off.fromTeam}.`);
+  S.inbox = S.inbox.filter(x=>x.id!==off.id);
+  S.inboxSel = S.inbox[0]?.id || null;
+  render();
+}
+function counterOffer(){
+  const off = selectedOffer();
+  if(!off) return;
+  fxStatus("countered", false);
+  logLine(`Countered ${off.fromTeam}. (Make a new offer in Make Offer tab)`);
+  setTab("make");
+  render();
+}
+
+/* ================= INIT (THIS IS THE KEY) ================= */
+function init(){
+  // populate team dropdowns
+  const teams = Object.keys(DATA_SEED);
+
+  const my = $("myTeam");
+  my.innerHTML="";
+  for(const t of teams){
+    const o=document.createElement("option");
+    o.value=t; o.textContent=t;
+    my.appendChild(o);
+  }
+
+  const target = $("target");
+  target.innerHTML="";
+  for(const t of teams){
+    const o=document.createElement("option");
+    o.value=t; o.textContent=t;
+    target.appendChild(o);
+  }
+
+  // button wiring
+  $("startBtn").onclick = startRun;
+  $("newRun").onclick = ()=>location.reload();
+  $("endTurn").onclick = endTurn;
+  $("send").onclick = sendOffer;
+
+  $("clearProposal").onclick = ()=>{
+    S.giveYou=[]; S.giveThey=[];
+    logLine("🧼 Cleared proposal.");
+    render();
+  };
+
+  $("tInbox").onclick = ()=>{ setTab("inbox"); render(); };
+  $("tMake").onclick = ()=>{ setTab("make"); render(); };
+
+  $("accept").onclick = acceptOffer;
+  $("reject").onclick = rejectOffer;
+  $("counter").onclick = counterOffer;
+
+  // target change should update right menu instantly
+  $("target").addEventListener("change", ()=>{
+    if(S.started && S.tab==="make") render();
+  });
+
+  // drop zones
+  wireDrop($("giveYou"), (p)=>{
+    if(!S.started || S.tab!=="make") return;
+    if(p.team!==S.my) return;
+    if(p.item && !S.giveYou.some(x=>x.name===p.item.name)) S.giveYou.push(p.item);
+    render();
+  });
+
+  wireDrop($("giveThey"), (p)=>{
+    if(!S.started || S.tab!=="make") return;
+    const tgt = $("target").value;
+    if(p.team!==tgt) return;
+    if(p.item && !S.giveThey.some(x=>x.name===p.item.name)) S.giveThey.push(p.item);
+    render();
+  });
+
+  // default tab
+  setTab("make");
+  renderStats();
+  logLine("Loaded. Pick your chain and press Start Run.");
+}
+
+init();
+</script>
+
 </body>
 </html>
