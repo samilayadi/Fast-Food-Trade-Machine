@@ -1065,6 +1065,34 @@ function setTab(tab){
   $("viewMake").style.display  = (tab==="make")  ? "" : "none";
   render();
 }
+function getItemFromAnyTeam(name){
+  // Search current rosters first (after trades), then fallback to DATA_SEED
+  for (const team of Object.keys(S.rosters || {})){
+    const hit = (S.rosters[team] || []).find(i => i.name === name);
+    if (hit) return hit;
+  }
+  for (const team of Object.keys(DATA_SEED || {})){
+    const hit = (DATA_SEED[team] || []).find(i => i.name === name);
+    if (hit) return hit;
+  }
+  return null;
+}
+
+function hydrateList(list){
+  // list can be ["Big Mac", "Fries"] OR [{name:"Big Mac",...}, ...]
+  return (list || []).map(x => {
+    if (!x) return null;
+    if (typeof x === "string"){
+      return getItemFromAnyTeam(x) || { name:x, base:0, tags:[], img:"assets/items/placeholder.jpg" };
+    }
+    // if it’s already a full object, keep it
+    if (x.name && (x.base != null) && x.img) return x;
+
+    // if it’s a partial object, try to hydrate by name
+    const hit = x.name ? getItemFromAnyTeam(x.name) : null;
+    return hit || { name:(x.name||"Unknown"), base:0, tags:[], img:"assets/items/placeholder.jpg" };
+  }).filter(Boolean);
+}
 
 /* Inbox offers */
 function badge(type){
@@ -1518,7 +1546,9 @@ function sendOffer(){
       youGiveTeam: S.my, youGive: S.pkgYou,
       theyGiveTeam: target, theyGive: S.pkgThey,
       eval1: y.diff>=0 ? `Net: You WIN by ${y.diff}` : `Net: You LOSE by ${Math.abs(y.diff)}`,
-      eval2: `Reputation: ${S.rep}`,
+      eval2: `Reputation: ${S.rep}`, offer.youGive  = hydrateList(offer.youGive);
+offer.theyGive = hydrateList(offer.theyGive);
+
       buttonsHTML: `<button class="good" id="mCloseBtn">Nice</button>`
     });
     setTimeout(()=>{ const b=$("mCloseBtn"); if(b) b.onclick=closeModal; }, 0);
